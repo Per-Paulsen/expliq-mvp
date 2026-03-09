@@ -58,6 +58,11 @@ Your job:
 - When everything passes: stage all changes, commit with a descriptive message
 - Message format: `feat: implement epic {number} — {name}`
 
+### Results Summary
+- After committing, write a results file at `specs/{epic-number}-{epic-name}-results.md`
+- Include: what was built, key files created/modified, decisions and deviations from spec, verification results, open questions or items for future epics
+- Keep it concise — a quick reference for future epics to understand what was delivered
+
 ## Done Criteria
 
 The epic is done when **all** of the following are true:
@@ -68,6 +73,7 @@ The epic is done when **all** of the following are true:
 - [ ] Browser verification passes
 - [ ] No outstanding code quality issues
 - [ ] Changes are committed
+- [ ] Results summary written to `specs/{epic-number}-{epic-name}-results.md`
 
 ## Constraints
 

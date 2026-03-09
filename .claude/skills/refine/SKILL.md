@@ -1,0 +1,57 @@
+---
+name: refine
+description: Refine an epic spec through file-based discussion. The user writes challenges and questions in the brainstorming file; Claude responds there. Updates the spec when refinement is complete.
+argument-hint: <spec-file-path>
+---
+
+# Refine: Spec Refinement Through Discussion
+
+## Inputs
+
+- **Spec** — read the file at `$ARGUMENTS`
+- **Discussion file** — derive the path by replacing `.md` with `-brainstorming.md` (e.g., `specs/01-project-setup.md` → `specs/01-project-setup-brainstorming.md`)
+
+Do NOT read `specs/brainstorming.md` — its decisions are already incorporated into each spec.
+
+## Phase 1 — Review & Respond
+
+Read the spec and the discussion file. Respond to everything the user has written in the discussion file.
+
+### Expected results
+
+- Every question, concern, or challenge the user wrote in the discussion file has a clear response appended below it
+- Responses are grounded in the spec's existing scope and acceptance criteria — no invented requirements
+- Each response ends with a concrete recommendation (agree, disagree with reasoning, or propose alternative)
+- Beyond responding, the following issues are **proactively flagged** (appended as a new section if any are found):
+  - **Ungrounded assumptions** — acceptance criteria or scope items that assume something not established in the spec or its dependencies
+  - **Hidden scope creep** — work implied by the spec that isn't explicitly called out (e.g., an AC that requires building an unmentioned UI component)
+  - **Oversized slices** — scope sections or ACs that bundle too much to implement and verify in a single pass
+  - **Missing or untestable acceptance criteria** — ACs that are vague, subjective, or impossible to verify without manual inspection
+  - **Inconsistent domain language** — terms used differently across the spec's own sections, or differently from other specs in `specs/`
+- If no issues are found, this is stated explicitly so the user knows the spec was reviewed
+
+### Rules
+
+- The discussion file is **append-only** — never overwrite or remove existing content
+- All responses go into the discussion file, never in chat
+- Chat is only for telling the user that responses are ready, or that the spec has been updated
+- After responding, tell the user to continue writing in the discussion file or confirm they are satisfied
+
+## Phase 2 — Apply Refinements
+
+When the user confirms they are satisfied with the discussion, update the spec.
+
+### Expected results
+
+- The spec file is updated to reflect all agreed refinements from the discussion
+- Only agreed changes are applied — nothing the user rejected or left unresolved
+- The spec retains its original section structure: Scope, Acceptance criteria, Out of scope, Domain terms, Open questions
+- Resolved open questions are removed from the Open questions section
+- New open questions surfaced during discussion are added
+- A summary of what changed is appended to the discussion file under a `## Refinement Applied` heading
+
+## Constraints
+
+- **Do not implement anything.** No code, no configuration, no project setup. Output is only markdown files.
+- **Do not invent requirements.** Everything must trace back to the spec, the discussion, or explicit user confirmation.
+- **Do not combine phases.** Respond to all discussion items before applying any changes to the spec.

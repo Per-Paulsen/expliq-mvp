@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo exit: $?:*)",
+      "Bash(ls:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(taskkill:*)",
+      "Bash(cp:*)",
+      "Bash(npx shadcn@latest:*)"
+    ]
+  }
+}

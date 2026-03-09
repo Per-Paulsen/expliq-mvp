@@ -168,3 +168,48 @@ lets stick with option c for now
 1. **AC fixed**: Changed "based on its active governance signals and impact classification" → "based on its active governance signals"
 2. **Open question resolved**: Marked the risk-level-vs-impact open question as resolved with explanation: risk level = governance signals only; impact factors into exposure scores as a separate dimension
 3. **No other specs affected**: Risk level was already displayed as governance-only in the scope rules; the AC was the only inconsistency
+
+---
+
+# Cross-Epic Review Pass 3 (In-Dev) — 2026-03-09
+
+Post-implementation review after Epic 01 completion. Checks all specs against implementation reality and cross-epic consistency with newly refined specs (from `/refine_all_ind` in-dev pass).
+
+## Summary
+- Total specs reviewed: 7 (02-08; 01 completed)
+- Specs modified: 03, 07
+- Specs clean: 02, 04, 05, 06, 08
+
+## Changes by Epic
+
+### 03 — n8n Connector
+
+- **Issue**: `ConnectorConfig.lastSyncAt` never updated (Missing handoff → 06)
+  - **Involved epics**: 03 (producer), 06 (consumer — sync status indicator reads `lastSyncAt`)
+  - **Change**: Added AC: "`ConnectorConfig.lastSyncAt` is updated to the current timestamp when sync completes successfully"
+  - **Cascade**: None — spec 06 already reads the field correctly
+
+- **Issue**: Upsert key underspecified (Schema drift → 01)
+  - **Involved epics**: 01 (schema defines `@@unique([workspaceId, externalId])`), 03 (performs upsert)
+  - **Change**: Updated scope and AC to say "by `workspaceId` + `externalId`" instead of just "by externalId"
+  - **Cascade**: None
+
+### 07 — Automation Detail
+
+- **Issue**: `impactReasoning` not displayed (Missing handoff → 04)
+  - **Involved epics**: 04 (stores `impactReasoning` — added in `/refine_all_ind`), 07 (displays detail)
+  - **Change**: Added `impactReasoning` display to risk section layout and updated AC to include impact reasoning
+  - **Cascade**: None — spec 04 already stores the field
+
+## Verified Cross-Epic Consistency (no issues found)
+
+- **Data flow**: All producer → consumer handoffs verified (02→03, 03→04, 04→05, 05→06/07/08). Field names, types, and nullability match across all specs.
+- **Schema consistency**: All specs align with implemented schema (`prisma/schema.prisma`). `impactReasoning` migration deferred to Epic 04 as documented.
+- **Removed automation exclusion**: Consistent `status = removed` exclusion across specs 05, 06, 08.
+- **Effective status/impact formulas**: Consistent `statusOverride ?? status` and `impactOverride ?? impactProposal` usage.
+- **Implementation drift**: No specs reference deprecated patterns (Prisma url/directUrl, tailwind.config.ts, asChild prop). Spec 02 has Prisma 7 compatibility note.
+- **Governance signals**: All 5 signals consistent across specs 05, 06, 07 (documentation outdated, automation stale, overdue review, no owner, inactive).
+- **Exposure scores**: Weight mapping consistent (impact × risk), null impact defaults to Low (1).
+
+## Cascading Changes
+None. All 3 fixes were isolated to their respective specs.

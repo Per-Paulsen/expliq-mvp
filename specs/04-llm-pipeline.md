@@ -16,7 +16,7 @@ Build the Claude (Anthropic API) integration that transforms raw n8n workflow JS
   - **Business Context** — why this automation matters; what breaks if it fails
   - **Side Effects** — what the automation writes/modifies in other systems
   - **Trigger Type** — categorical classification (webhook, schedule, manual, event, or other)
-  - **Impact Proposal** — classification (Critical / High / Medium / Low) with reasoning
+  - **Impact Proposal** — classification (Critical / High / Medium / Low) with reasoning (stored in `impactReasoning`)
 - **Post-sync trigger**: after the n8n sync completes, automatically run the LLM pipeline for all newly imported or updated automations. The trigger mechanism is implemented within this epic (e.g., the sync completion handler calls the LLM pipeline internally). Automations are processed sequentially to respect API rate limits.
 - **Per-automation regeneration**: a "Regenerate" API endpoint that re-runs the LLM pipeline for a single automation and overwrites its generated fields
 - **documentationLastUpdated**: set to the current timestamp when LLM generation completes (this timestamp drives the "documentation outdated" governance signal)
@@ -28,7 +28,7 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 
 - [ ] A Next.js API route accepts an automation ID and sends its `rawWorkflowJson` to the Anthropic API with a structured prompt
 - [ ] The LLM returns a JSON object containing: name, description, trigger, triggerType, coreLogic, systemsTouched, dataTypes, businessContext, sideEffects, impactProposal (level + reasoning)
-- [ ] Generated fields are persisted to the Automation record; `documentationLastUpdated` is set to the current timestamp
+- [ ] Generated fields are persisted to the Automation record, including `impactReasoning` (the LLM's explanation for its impact classification); `documentationLastUpdated` is set to the current timestamp
 - [ ] After n8n sync, the pipeline automatically runs for all new or updated automations (those whose `rawWorkflowJson` changed)
 - [ ] A "Regenerate" endpoint re-runs the pipeline for a single automation and overwrites previous LLM-generated fields
 - [ ] If the LLM response is missing required fields or contains unparseable data, the automation's existing LLM fields are not overwritten and the error is reported to the caller
@@ -50,6 +50,7 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 |------|-----------|
 | **LLM pipeline** | The process of sending raw workflow JSON to Claude and parsing structured business-readable fields from the response |
 | **Impact proposal** | The LLM's suggested impact classification (Critical/High/Medium/Low) with reasoning; user can accept or override |
+| **impactReasoning** | The LLM's explanation for its impact classification, stored as free-form text alongside the `impactProposal` enum |
 | **Regeneration** | Re-running the LLM pipeline for a single automation to refresh its generated fields |
 | **documentationLastUpdated** | Timestamp set when LLM generation completes; used by the risk engine to detect stale documentation |
 | **Structured output** | The LLM is instructed to return a JSON object with specific keys, making the response programmatically parseable |
@@ -58,3 +59,4 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 
 - Claude Sonnet 4.6 vs Haiku 4.5: Sonnet is more capable but slower and more expensive per call. For MVP volume (tens of workflows, not thousands), Sonnet is likely fine. Revisit if cost becomes an issue.
 - Should we store the raw LLM response alongside the parsed fields for debugging purposes?
+- ~~Resolved: Impact reasoning is stored in `impactReasoning String?` on the Automation model. Requires a schema migration in this epic.~~

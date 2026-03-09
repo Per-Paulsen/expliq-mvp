@@ -13,6 +13,8 @@ Implement email/password authentication using Auth.js (NextAuth v5). This includ
 
 Auth.js is configured with the Prisma adapter to store sessions and accounts in the existing Supabase database. The User model is extended with a `passwordHash` field (`String`) to support the Credentials provider — this field was deferred from epic 01.
 
+**Prisma 7 note**: The project uses Prisma 7 with the generated client at `src/generated/prisma/` (configured via `prisma.config.ts`, not inline `url`/`directUrl` in `schema.prisma`). The Auth.js Prisma adapter (`@auth/prisma-adapter`) must be configured to import from this path. Verify adapter compatibility with Prisma 7 before implementing.
+
 ## Acceptance criteria
 
 - [ ] User can sign up with email and password; a User record and a default Workspace record are created in the database

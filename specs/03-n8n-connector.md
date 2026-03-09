@@ -9,7 +9,7 @@ Build the n8n API connector and sync pipeline. This includes:
 - **Import pipeline**:
   1. Call the n8n REST API (`GET /workflows`) to list all workflows
   2. For each workflow, fetch the full workflow JSON (`GET /workflows/{id}`)
-  3. Upsert Automation records by `externalId` (n8n workflow ID) — new workflows create records, existing workflows update their `rawWorkflowJson` and `automationLastUpdated`. The n8n workflow's `active` property is read and mapped to `status = active` or `status = inactive` accordingly.
+  3. Upsert Automation records by `workspaceId` + `externalId` (matching the composite unique constraint) — new workflows create records, existing workflows update their `rawWorkflowJson` and `automationLastUpdated`. The n8n workflow's `active` property is read and mapped to `status = active` or `status = inactive` accordingly.
   4. Workflows in Expliq that no longer exist in n8n are soft-removed (status set to `removed`)
 
   Sync always writes to the `status` field and never touches `statusOverride`. This ensures user overrides are preserved across syncs.
@@ -22,12 +22,13 @@ At this stage, LLM-generated fields remain null — only raw workflow JSON and b
 
 - [ ] Settings page allows saving an n8n instance URL and API key, stored encrypted in ConnectorConfig scoped to the workspace
 - [ ] "Test Connection" verifies the n8n instance is reachable and the API key is valid
-- [ ] Clicking "Sync" calls the n8n REST API, fetches all workflows, and upserts Automation records by externalId
+- [ ] Clicking "Sync" calls the n8n REST API, fetches all workflows, and upserts Automation records by `workspaceId` + `externalId`
 - [ ] New workflows create Automation records with `rawWorkflowJson`, `externalId`, `platform = n8n`, `automationLastUpdated`, and `status` set from the n8n workflow's `active` property (`active` or `inactive`)
 - [ ] Existing workflows update their `rawWorkflowJson` and `automationLastUpdated` if the workflow JSON has changed
 - [ ] Workflows removed from n8n are soft-removed in Expliq (status set to `removed`, not deleted)
 - [ ] While sync is in progress, the Sync button is disabled and a progress indicator is shown
 - [ ] Sync completion shows a summary: count of new, updated, unchanged, and removed workflows; errors are displayed clearly
+- [ ] `ConnectorConfig.lastSyncAt` is updated to the current timestamp when sync completes successfully
 
 ## Out of scope
 

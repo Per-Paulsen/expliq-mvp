@@ -16,6 +16,8 @@ Computed per automation using global default thresholds:
 | **No owner assigned** | `owner IS NULL` | — |
 | **Inactive** | effective status = `inactive` (where effective status = `statusOverride ?? status`) | Derived from n8n workflow active/inactive flag or user override |
 
+Note: An automation with `statusOverride = deprecated` has effective status `deprecated`, which does NOT trigger the Inactive signal. `deprecated` is a deliberate user classification, not a governance gap.
+
 ### Risk Level
 
 Each automation gets a computed risk level (High / Medium / Low) derived from the combination of active governance signals:
@@ -40,7 +42,7 @@ The effective impact classification for an automation is `impactOverride ?? impa
 - **Owner exposure**: for each owner, aggregate a weighted score from all automations they own. Same weighting approach.
 
 Weight mapping (proposed):
-- Effective impact: Critical = 4, High = 3, Medium = 2, Low = 1
+- Effective impact: Critical = 4, High = 3, Medium = 2, Low = 1, null = 1 (defaults to Low until classified)
 - Risk: High = 3, Medium = 2, Low = 1
 - Exposure score per automation = effective impact weight × risk weight
 - System/owner total = sum of exposure scores for their automations
@@ -81,3 +83,4 @@ Governance signals and risk levels are computed on-read (derived at query time) 
 ## Open questions
 
 - ~~Resolved: Risk level is derived from governance signal counts only. Impact classification is a separate dimension that factors into exposure scores (impact_weight × risk_weight) but does not elevate risk level. This follows standard risk matrix practice — governance health and business impact are independent axes.~~
+- ~~Resolved: When effective impact is null (LLM hasn't run yet), exposure weight defaults to Low (1). This ensures automations are visible in exposure rankings during the brief window between sync and LLM processing.~~

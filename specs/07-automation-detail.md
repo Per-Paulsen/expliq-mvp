@@ -20,7 +20,7 @@ Build the Automation Detail screen (`/automations/[id]`) — the full view of a 
 - **Business Context**: LLM-generated explanation of why this automation matters and what breaks if it fails
 - **Risk section**:
   - Computed risk level (High / Medium / Low) with color indicator
-  - Impact classification (showing LLM proposal and user override if different)
+  - Impact classification (showing LLM proposal and user override if different), with LLM reasoning (`impactReasoning`) displayed below the classification
   - Active governance signals listed as explicit risk drivers
 - **Actions**:
   - "Open in n8n" link (constructed: `{instanceUrl}/workflow/{externalId}`, opens in new tab). The `instanceUrl` is read from the workspace's `ConnectorConfig` record.
@@ -42,7 +42,7 @@ Save and Cancel buttons. LLM-generated fields remain read-only and visually dist
 
 - [ ] Detail page displays all LLM-generated fields: name, description, trigger, core logic (as bullets), systems touched (as tags), data types, business context, side effects
 - [ ] Governance metadata is shown: owner, trigger type, automation last updated, documentation last updated, platform badge, status badge, governance attention badges
-- [ ] Risk section shows computed risk level, impact classification (LLM proposal vs user override), and specific governance signals driving the risk
+- [ ] Risk section shows computed risk level, impact classification (LLM proposal vs user override) with impact reasoning displayed, and specific governance signals driving the risk
 - [ ] Edit mode allows modifying: owner, impact classification, review cadence, status override; and includes a "Mark as reviewed" action
 - [ ] LLM-generated fields are visually distinct and not editable in edit mode
 - [ ] "Open in n8n" link is constructed from `instanceUrl/workflow/externalId` and opens in a new tab

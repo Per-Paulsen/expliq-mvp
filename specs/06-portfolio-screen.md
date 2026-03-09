@@ -16,7 +16,7 @@ Build the Portfolio screen (`/automations`) — the primary list view where Emma
 - **Result count**: "X automations" label that updates with filters
 - **Automation cards**: each card shows:
   - Name (LLM-generated)
-  - Status badge (Active / Inactive)
+  - Status badge (Active / Inactive / Deprecated)
   - Platform badge (n8n)
   - Systems touched (as small tag chips)
   - Owner name

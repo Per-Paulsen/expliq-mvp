@@ -2,136 +2,112 @@
 
 ## Summary
 - Specs reviewed: 02, 03, 04, 05, 06, 07, 08
-- Specs skipped (already refined): 01
-- Specs modified: 02, 03, 04, 05, 06, 07, 08
-- Specs clean: (none)
+- Specs skipped (completed): 01
+- Specs modified: 02, 04, 05, 06
+- Specs clean: 03, 07, 08
 
 ## 02 — Authentication
 
 ### Findings
-- **No AC for duplicate email signup** (Missing acceptance criteria)
-  - **Change**: Added AC — signing up with an already-registered email shows an error and does not create a duplicate User record
-- **No AC for invalid login credentials** (Missing acceptance criteria)
-  - **Change**: Added AC — logging in with incorrect credentials shows a generic error message (does not reveal whether email or password was wrong)
+- **Prisma 7 adapter compatibility not addressed** (Ungrounded assumption)
+  - Epic 01 results flagged that Prisma 7 uses `src/generated/prisma/` output path and `prisma.config.ts` for datasource config. The Auth.js Prisma adapter needs to be configured for this non-default import path. The spec made no mention of this.
+  - **Change**: Added a Prisma 7 compatibility note to the scope section, specifying the generated client path and the need to verify `@auth/prisma-adapter` compatibility with Prisma 7.
 
 ### Changes applied
-- Added 2 acceptance criteria: duplicate email error handling, invalid credentials error handling
+- Scope: added Prisma 7 note about generated client path and adapter compatibility
 
 ## 03 — n8n Connector
 
 ### Findings
-- **`/settings` route and sidebar nav not called out** (Hidden scope creep)
-  - **Change**: Added explicit note in scope that `/settings` route and a sidebar settings icon need to be created (not part of epic 01)
-- **"Optionally in the app header" is ambiguous** (Missing acceptance criteria)
-  - **Change**: Removed "optionally in the app header" from scope; added `NEEDS CONFIRMATION` open question about whether a Sync button should also appear in the app header
-- **No AC for sync-in-progress state** (Missing acceptance criteria)
-  - **Change**: Added AC — while sync is in progress, the Sync button is disabled and a progress indicator is shown
+- No new issues found. Previous refinement covered settings route, sync button placement, and sync-in-progress state. Open questions about encryption approach and `updatedAt` optimization remain — these are design choices left for implementation.
 
 ### Changes applied
-- Scope: added note about `/settings` route and sidebar navigation creation
-- Scope: removed ambiguous "optionally in the app header"
-- Added 1 acceptance criterion: sync-in-progress state
-- Added 1 open question (`NEEDS CONFIRMATION`): Sync button placement outside settings
+- (none)
 
 ## 04 — LLM Pipeline
 
 ### Findings
-- **Post-sync trigger mechanism undefined** (Hidden scope creep)
-  - **Change**: Clarified in scope that the trigger mechanism is implemented within this epic (sync completion handler calls LLM pipeline internally) and automations are processed sequentially to respect rate limits
-- **No AC for partial/incomplete LLM responses** (Missing acceptance criteria)
-  - **Change**: Added AC — if the LLM response is missing required fields or contains unparseable data, existing LLM fields are not overwritten and the error is reported
+- **Impact reasoning has no storage field** (Hidden scope creep)
+  - The spec says the LLM returns "impactProposal (level + reasoning)" and the AC says the response contains "impactProposal (level + reasoning)." However, the schema only has `impactProposal ImpactLevel?` — an enum that stores the level only. The reasoning from the LLM would be silently discarded unless a new field is added.
+  - `NEEDS CONFIRMATION` — added as open question: should an `impactReasoning String?` field be added, or is reasoning discarded after classification?
 
 ### Changes applied
-- Scope: clarified post-sync trigger mechanism and sequential processing strategy
-- Added 1 acceptance criterion: partial/malformed LLM response handling
+- Added 1 open question (`NEEDS CONFIRMATION`): impact reasoning storage
 
 ## 05 — Risk Engine
 
 ### Findings
-- **Inconsistency between prose and rules on impact classification** (Inconsistent domain language)
-  - The paragraph after the risk level rules says "The risk level considers both governance signals and the impact classification" but the concrete rules (High/Medium/Low) only use governance signal counts. The open question already asks about this but the spec text was contradictory.
-  - **Change**: Replaced the inconsistent paragraph with a note clarifying the current rules use signal counts only and referencing the open question about impact elevation
-- **Null `documentationLastUpdated` not handled in "Documentation outdated" signal** (Missing acceptance criteria)
-  - If LLM pipeline hasn't run yet, `documentationLastUpdated` is null. The original rule `automationLastUpdated > documentationLastUpdated` would evaluate to false in SQL, missing the case where documentation was never generated.
-  - **Change**: Updated rule to: `documentationLastUpdated IS NULL` (never generated) OR `automationLastUpdated > documentationLastUpdated`
-- **Null `automationLastUpdated` not handled in "Automation stale" signal** (Missing acceptance criteria)
-  - **Change**: Updated rule to require `automationLastUpdated IS NOT NULL`; if null, signal is inactive
+- **`deprecated` effective status not explicitly addressed by governance signals** (Inconsistent domain language)
+  - The `Inactive` signal fires when `effective status = inactive`. An automation with `statusOverride = deprecated` has effective status `deprecated`, which does NOT trigger this signal. This was implicit but not stated, which could confuse implementers.
+  - **Change**: Added clarifying note after the governance signals table explaining that `deprecated` does not trigger the Inactive signal.
+- **Null effective impact not addressed in weight mapping** (Missing acceptance criteria)
+  - The exposure score weight mapping defines weights for Critical (4), High (3), Medium (2), Low (1), but both `impactProposal` and `impactOverride` can be null (before LLM pipeline runs). The spec doesn't define what weight to use when effective impact is null.
+  - `NEEDS CONFIRMATION` — added as open question with three options: default to Low (1), use weight 0, or exclude from calculations.
 
 ### Changes applied
-- Governance signals table: fixed "Documentation outdated" to handle null `documentationLastUpdated`
-- Governance signals table: fixed "Automation stale" to handle null `automationLastUpdated`
-- Risk level section: replaced contradictory paragraph with clarifying note referencing open question
+- Added clarifying note: `deprecated` effective status does not trigger Inactive governance signal
+- Added 1 open question (`NEEDS CONFIRMATION`): null effective impact weight mapping
 
 ## 06 — Portfolio Screen
 
 ### Findings
-- **No AC for Platform filter** (Missing acceptance criteria)
-  - The scope defines a Platform filter row with chips, but no acceptance criterion covers its behavior.
-  - **Change**: Added AC — platform filter chips show each platform with count; selecting one or more filters the list
-- **Attention badges domain term lists only 4 of 5 signals** (Inconsistent domain language)
-  - Definition listed "documentation outdated, no owner, stale, inactive" — missing "overdue review"
-  - **Change**: Updated to list all 5 governance signals
+- **Status badge values incomplete** (Inconsistent domain language)
+  - Scope layout listed "Status badge (Active / Inactive)" but the `StatusOverride` enum includes `deprecated`. An automation with `statusOverride = deprecated` would show "Deprecated" as its effective status, which the badge needs to handle.
+  - **Change**: Updated to "Status badge (Active / Inactive / Deprecated)"
 
 ### Changes applied
-- Added 1 acceptance criterion: platform filter behavior
-- Updated domain term "Attention badges" to include all 5 governance signals
+- Scope: updated status badge values to include Deprecated
 
 ## 07 — Automation Detail
 
 ### Findings
-- **No handling for null LLM fields** (Missing acceptance criteria)
-  - Between n8n sync and LLM pipeline processing, all LLM-generated fields are null. The detail page needs to handle this gracefully rather than showing blank content.
-  - **Change**: Added AC — if LLM-generated fields are null, the page displays placeholder text (e.g., "Pending generation")
+- No new issues found. Previous refinement covered null LLM fields placeholder. Open question about "Mark as reviewed" placement (standalone vs edit mode) remains — this is a design choice left for implementation.
 
 ### Changes applied
-- Added 1 acceptance criterion: null LLM fields display placeholder text
+- (none)
 
 ## 08 — Workspace Snapshot
 
 ### Findings
-- **"High-impact" metric doesn't specify effective impact** (Ungrounded assumption)
-  - The metric "High-impact automations" references impact = Critical or High, but doesn't specify whether to use `impactProposal` or `impactOverride`. Should use effective impact = `impactOverride ?? impactProposal`, consistent with how effective status works.
-  - **Change**: Updated metric description to specify effective impact = `impactOverride ?? impactProposal`
-- **Vague AC for exposure ranking visuals** (Missing acceptance criteria)
-  - AC said "visual indication of relative exposure" but scope specifies "a visual bar". AC should match scope.
-  - **Change**: Updated both ACs to specify "visual bar" instead of "visual indication"
-- **No guidance for empty state** (Missing acceptance criteria)
-  - `NEEDS CONFIRMATION` — added as open question: what should the dashboard show when no automations have been synced?
+- No new issues found. Previous refinement covered empty state (resolved: guided empty state with CTA). Open questions about 7-day threshold and clickable metrics cards remain — these are design choices left for implementation.
 
 ### Changes applied
-- Updated "High-impact" metric to specify effective impact formula
-- Updated 2 ACs: exposure ranking visuals now specify "visual bar"
-- Added 1 open question (`NEEDS CONFIRMATION`): empty state behavior
+- (none)
 
 ## Brainstorming
 
 Two design decisions need your input before they can be applied to the specs. Please answer below each question.
 
-### 03 — n8n Connector: Sync button placement
+### 04 — LLM Pipeline: Impact reasoning storage
 
-The scope originally said "Sync button on the settings page (and optionally in the app header)." The "optionally" was ambiguous, so the scope was trimmed to settings page only and this question was flagged.
+The spec says the LLM returns "impactProposal (level + reasoning)" — e.g., the LLM might say `{ "level": "high", "reasoning": "This automation handles payment processing and modifies CRM records. Failure would block revenue recognition." }`. However, the Automation schema only has `impactProposal ImpactLevel?` (an enum), so only the level is stored. The reasoning would be silently discarded.
 
-**Question:** Should a Sync button also appear in the app header (visible on all pages) for quick re-sync access, or should syncing only be triggered from the settings page?
+**Question:** Should the LLM's impact reasoning be persisted?
 
-- **Settings page only** — sync is a setup/config action; keeps the main UI clean
-- **Both header and settings** — Emma can re-sync without navigating away from Portfolio or Snapshot
+- **Yes — add `impactReasoning String?`** — Stored alongside the level; could be shown on the Automation Detail screen (spec 07) to help Emma understand why the LLM classified impact that way. Requires a schema migration.
+- **No — discard reasoning** — The level alone is sufficient for MVP. Emma can read `businessContext` for a similar understanding. Simpler schema, no migration needed.
 
-Your answer: settings page
+Your answer: yes
 
-### 08 — Workspace Snapshot: Empty state when no automations
+### 05 — Risk Engine: Null effective impact in exposure scores
 
-The dashboard aggregates metrics from synced automations. Before the first n8n sync, there are zero automations.
+The exposure score formula is `impact_weight × risk_weight`. Impact weights are defined for Critical (4), High (3), Medium (2), Low (1). But before the LLM pipeline runs (or if the LLM fails), both `impactProposal` and `impactOverride` are null, so effective impact is null. The spec doesn't define what happens.
 
-**Question:** What should the Workspace Snapshot show when no automations have been synced yet?
+**Question:** What exposure weight should be used when effective impact is null?
 
-- **Guided empty state** — a message like "No automations yet" with a call-to-action linking to the settings page to connect n8n
-- **Just zeros** — render the normal dashboard layout with all metrics at 0 and empty rankings
+- **(a) Default to Low (weight 1)** — Automations still appear in exposure rankings with minimal weight. Conservative; nothing is invisible.
+- **(b) Use weight 0** — Automations are effectively invisible in exposure rankings until the LLM classifies them. Encourages running the LLM pipeline but could hide important automations.
+- **(c) Exclude from exposure calculations** — Same practical effect as (b) but semantically different: null-impact automations don't contribute to system/owner totals at all.
 
-Your answer: guided empty state
+Your answer: what is your recommendation?
+
+**Recommendation: (a) Default to Low (weight 1).** Reasoning: null impact only occurs in the brief window between n8n sync and LLM pipeline completion (the pipeline runs automatically after sync). During that window, automations should still be visible in exposure rankings rather than silently disappearing. Defaulting to Low is conservative — it doesn't overstate risk but ensures nothing is hidden. Options (b) and (c) risk masking an automation that touches a critical system just because the LLM hasn't processed it yet.
+
+accept recommendation
 
 ## Confirmations Applied
 
 Both `NEEDS CONFIRMATION` items resolved and applied to specs:
 
-1. **Spec 03 — Sync button placement** → Settings page only. Open question marked as resolved. No scope/AC changes needed (scope already reflected this after the ambiguous phrasing was removed in Phase 1).
-2. **Spec 08 — Empty state** → Guided empty state. Open question marked as resolved. Added AC: "When no automations exist in the workspace, the dashboard shows a guided empty state with a message and a call-to-action linking to the settings page to connect n8n."
+1. **Spec 04 — Impact reasoning storage** → Yes, store reasoning. Added `impactReasoning String?` to the Automation model definition in spec 01. Updated spec 04: scope clarifies reasoning is stored in `impactReasoning`, AC updated to include `impactReasoning` persistence, domain terms updated, open question marked resolved. Note: the actual schema migration happens in epic 04 (not retroactively in the already-completed epic 01).
+2. **Spec 05 — Null effective impact weight** → Default to Low (weight 1). Updated weight mapping to include `null = 1 (defaults to Low until classified)`. Open question marked resolved.

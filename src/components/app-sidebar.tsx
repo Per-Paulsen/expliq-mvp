@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { LayoutGrid } from "lucide-react"
+import { LayoutGrid, Settings } from "lucide-react"
 
 import {
   Sidebar,
@@ -28,6 +28,12 @@ export function AppSidebar() {
                 <SidebarMenuButton render={<Link href="/automations" />}>
                   <LayoutGrid />
                   <span>Automations</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton render={<Link href="/settings" />}>
+                  <Settings />
+                  <span>Settings</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

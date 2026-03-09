@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import WorkspaceSnapshotPage from '@/app/page'
+import WorkspaceSnapshotPage from '@/app/(app)/page'
 
 describe('WorkspaceSnapshotPage', () => {
   it('renders the page heading', () => {

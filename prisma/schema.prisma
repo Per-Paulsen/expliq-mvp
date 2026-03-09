@@ -45,9 +45,10 @@ model Workspace {
 }
 
 model User {
-  id          String @id @default(cuid())
-  email       String @unique
-  workspaceId String
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String?
+  workspaceId  String
 
   workspace Workspace @relation(fields: [workspaceId], references: [id])
   accounts  Account[]

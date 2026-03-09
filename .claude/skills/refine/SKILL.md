@@ -10,6 +10,7 @@ argument-hint: <spec-file-path>
 
 - **Spec** — read the file at `$ARGUMENTS`
 - **Discussion file** — derive the path by replacing `.md` with `-brainstorming.md` (e.g., `specs/01-project-setup.md` → `specs/01-project-setup-brainstorming.md`)
+- **Results from completed epics** — glob `specs/*-results.md`. These contain implementation learnings, version deviations, and risks that may affect this spec.
 
 Do NOT read `specs/brainstorming.md` — its decisions are already incorporated into each spec.
 

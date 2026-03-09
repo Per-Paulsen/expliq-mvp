@@ -10,6 +10,7 @@ description: Batch within-epic refinement. Runs the same deep checks as /refine 
 - **All specs** — discover by globbing `specs/[0-9][0-9]-*.md` (exclude `*-brainstorming.md`)
 - **PRD** — read `expliq_prd.md`
 - **Tech stack** — read `tech-stack-idea.md`
+- **Results from completed epics** — glob `specs/*-results.md`. These contain actual versions installed, deviations from specs, and risks flagged for future epics.
 
 Do NOT read `specs/brainstorming.md` — its decisions are already incorporated into each spec.
 

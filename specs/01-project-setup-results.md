@@ -38,6 +38,11 @@
 - Prisma migration — applied successfully to Supabase
 - Vercel deployment — succeeded
 
+## Risks for future epics
+- **Spec freshness**: Specs 02–08 were written assuming Next.js 15, Prisma 5/6, and Tailwind v3. Actual installed versions are Next.js 16, Prisma 7, and Tailwind v4. Later epics may reference patterns that don't exist (e.g., `tailwind.config.ts`, Prisma `url`/`directUrl` in schema, `asChild` prop).
+- **Epic 02 (Auth) + Prisma 7**: Auth.js Prisma adapter must work with Prisma 7's new client output path (`src/generated/prisma/`). Verify adapter compatibility before implementing.
+- **Tailwind v4 in later epics**: Any spec referencing Tailwind config file customization needs to use CSS-first approach instead.
+
 ## Open questions
 - **Prisma 7 `directUrl`**: Removed from `prisma.config.ts` (caused TS error in build). May need revisiting if production requires separate pooled vs direct connection strings.
 - **Supabase connection modes**: Local dev uses session mode (port 5432). Vercel production should use transaction/pooled mode (port 6543) — currently set in Vercel env vars but not enforced.

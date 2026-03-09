@@ -58,10 +58,26 @@ Your job:
 - When everything passes: stage all changes, commit with a descriptive message
 - Message format: `feat: implement epic {number} — {name}`
 
-### Results Summary
-- After committing, write a results file at `specs/{epic-number}-{epic-name}-results.md`
-- Include: what was built, key files created/modified, decisions and deviations from spec, verification results, open questions or items for future epics
-- Keep it concise — a quick reference for future epics to understand what was delivered
+### Retrospective & Results
+
+After committing, conduct a structured retrospective before writing the results file.
+
+**Step 1 — Self-review.** Evaluate the implementation against these categories:
+- **Version/dependency surprises** — what was expected vs what was actually installed or used
+- **Deviations from spec** — anything implemented differently than specified, and why
+- **Risks for future epics** — compatibility concerns, spec freshness issues, or assumptions in upcoming specs that may no longer hold given what was built
+- **Patterns established** — conventions or approaches introduced that future epics should follow
+- **Open questions** — unresolved items, known limitations, or things that need revisiting
+
+**Step 2 — Write draft results file** at `specs/{epic-number}-{epic-name}-results.md` containing:
+- What was built
+- Key files created/modified
+- Decisions and deviations from spec
+- Verification results
+- Risks for future epics
+- Open questions
+
+**Step 3 — User review.** Tell the user the results file is ready for review. The user may add observations, corrections, or additional risks. Wait for the user to confirm before marking the epic as done. The results file is **append-only** during this phase — do not remove user additions.
 
 ## Done Criteria
 
@@ -73,7 +89,7 @@ The epic is done when **all** of the following are true:
 - [ ] Browser verification passes
 - [ ] No outstanding code quality issues
 - [ ] Changes are committed
-- [ ] Results summary written to `specs/{epic-number}-{epic-name}-results.md`
+- [ ] Results file written and reviewed by user
 
 ## Constraints
 

@@ -10,6 +10,7 @@ description: Cross-epic refinement pass. Reviews all specs together, flags cross
 - **All specs** — discover by globbing `specs/[0-9][0-9]-*.md` (exclude `*-brainstorming.md`)
 - **PRD** — read `expliq_prd.md`
 - **Tech stack** — read `tech-stack-idea.md`
+- **Results from completed epics** — glob `specs/*-results.md`. These contain actual versions installed, deviations from specs, and risks flagged for future epics.
 
 Do NOT read `specs/brainstorming.md` — its decisions are already incorporated into each spec.
 
@@ -33,6 +34,7 @@ Then perform these checks across ALL specs:
 | **Duplicated scope** | Work that appears in multiple epics without clear ownership |
 | **Missing handoff** | Epic N's output doesn't match what epic N+1 expects as input |
 | **Acceptance criteria gaps** | ACs that can't be verified because a dependency isn't met yet |
+| **Implementation drift** | Spec assumes patterns, versions, or APIs that differ from what was actually built in completed epics (per results files) |
 
 ### Within-epic checks (same as `/refine`)
 

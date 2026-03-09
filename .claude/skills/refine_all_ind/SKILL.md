@@ -16,7 +16,12 @@ Do NOT read `specs/brainstorming.md` — its decisions are already incorporated 
 
 ### Skip logic
 
-For each spec, derive the brainstorming file path (e.g., `specs/02-auth.md` → `specs/02-auth-brainstorming.md`). If the brainstorming file contains a `## Refinement Applied` section, **skip that spec** — it has already been individually refined.
+For each spec, derive the brainstorming file path (e.g., `specs/02-auth.md` → `specs/02-auth-brainstorming.md`).
+
+**Phase detection:** If any `specs/*-results.md` files exist, you are in **in-dev mode**. Otherwise, **pre-dev mode**.
+
+- **Pre-dev mode**: skip specs whose brainstorming file contains `## Refinement Applied`
+- **In-dev mode**: skip specs whose brainstorming file contains `## Implementation Refinement Applied` (ignore the pre-dev marker — those refinements predate implementation learnings)
 
 ## Phase 1 — Review & Apply
 
@@ -43,12 +48,20 @@ For each spec:
 
 ### After processing each spec
 
-Append a `## Refinement Applied` marker to the epic's brainstorming file:
+Append the phase-appropriate marker to the epic's brainstorming file:
 
+- **Pre-dev mode**:
 ```markdown
 ## Refinement Applied
 
 Batch-refined via `/refine_all_ind`. See `specs/ind-epic-review.md` for details.
+```
+
+- **In-dev mode**:
+```markdown
+## Implementation Refinement Applied
+
+Batch-refined via `/refine_all_ind` (in-dev mode). See `specs/ind-epic-review.md` for details.
 ```
 
 ### Output
@@ -120,6 +133,6 @@ In chat, give a concise summary and recommend running `/refine_all` next for cro
 
 - **Do not implement anything.** No code, no configuration, no project setup. Output is only markdown files.
 - **Do not invent requirements.** Everything must trace back to a spec, the PRD, the tech stack, or explicit user confirmation.
-- **Do not re-review already-refined content.** If a brainstorming file has a `## Refinement Applied` section, skip that spec entirely.
+- **Do not re-review already-refined content.** Use the phase-appropriate skip marker (see Skip logic section).
 - **Judgment calls require confirmation.** If a fix involves a design decision (not just a structural correction), flag it as `NEEDS CONFIRMATION` and add it as an open question on the spec — do not apply it.
 - **No cross-epic analysis.** This skill reviews each spec in isolation. Cross-epic consistency is the job of `/refine_all`.

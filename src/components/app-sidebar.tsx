@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { LayoutGrid, Settings } from "lucide-react"
+import { BarChart3, LayoutGrid, Settings } from "lucide-react"
 
 import {
   Sidebar,
@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { SignOutButton } from "@/components/sign-out-button"
 
@@ -18,9 +19,24 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <span className="px-2 text-lg font-bold">Expliq</span>
+        <Link href="/" className="px-2 text-lg font-bold hover:opacity-80">
+          Expliq
+        </Link>
       </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton render={<Link href="/" />}>
+                  <BarChart3 />
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarSeparator />
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -30,6 +46,13 @@ export function AppSidebar() {
                   <span>Automations</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarSeparator />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton render={<Link href="/settings" />}>
                   <Settings />

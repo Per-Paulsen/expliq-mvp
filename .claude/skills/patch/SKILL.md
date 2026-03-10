@@ -46,6 +46,29 @@ Your job:
 - `npm run lint` — no lint errors
 - `npm run build` — no type errors
 
+#### E2E verification
+
+If the patch changes runtime behavior (not just refactoring or style), verify it works end-to-end:
+
+**UI changes:** Use Playwright to confirm the change works in the browser.
+
+**Pre-flight:**
+- Kill port 3000 before starting: `npx kill-port 3000`
+- **NEVER** kill all `node.exe` (`taskkill /IM node.exe /F`) — this kills the Playwright MCP server
+- If the dev server fails to compile, clean the cache (`rm -rf .next`) and retry once
+
+**Steps:**
+1. Start the dev server (`npm run dev`) in the background
+2. Load Playwright tools via `ToolSearch` (query: `+playwright navigate`)
+3. Navigate and verify the change works as expected
+4. **Always close the browser when done** — call `mcp__plugin_playwright_playwright__browser_close`
+
+**Cleanup (always):**
+1. Close the browser: `mcp__plugin_playwright_playwright__browser_close`
+2. Kill the dev server: `npx kill-port 3000`
+
+**Backend/logic changes:** Run existing verification scripts or the seed script to confirm the change works against real services.
+
 ### Bug Fixing
 - If tests fail → fix until they pass
 - If verification surfaces issues → fix them
@@ -82,6 +105,7 @@ After committing, **append** a patch section to the relevant epic's results file
 | `npm run test` | Pass/Fail (N tests) |
 | `npm run lint` | Pass/Fail |
 | `npm run build` | Pass/Fail |
+| E2E verification | <method + result, or "N/A — no runtime behavior change"> |
 
 **Commit:** `<hash>` — `<message>`
 ```
@@ -96,6 +120,7 @@ The patch is done when **all** of the following are true:
 - [ ] All tests pass
 - [ ] Build succeeds
 - [ ] No outstanding code quality issues
+- [ ] E2E verified (if the patch changes runtime behavior)
 - [ ] Changes are committed
 - [ ] Results appended to the relevant epic's results file
 

@@ -7,6 +7,10 @@ vi.mock("@/lib/actions/connector", () => ({
   syncWorkflows: vi.fn(),
 }));
 
+vi.mock("@/lib/actions/llm", () => ({
+  processUnprocessedAutomations: vi.fn(),
+}));
+
 import { SettingsForm } from "@/components/settings-form";
 
 describe("SettingsForm", () => {

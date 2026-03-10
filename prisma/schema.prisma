@@ -82,6 +82,7 @@ model Automation {
   businessContext          String?
   sideEffects              String[]
   impactProposal           ImpactLevel?
+  impactReasoning          String?
   impactOverride           ImpactLevel?
   owner                    String?
   reviewCadenceDays        Int               @default(30)

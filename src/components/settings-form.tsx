@@ -8,6 +8,7 @@ import {
   testConnection,
   syncWorkflows,
 } from "@/lib/actions/connector";
+import { processUnprocessedAutomations } from "@/lib/actions/llm";
 
 interface SyncSummary {
   created: number;
@@ -34,6 +35,7 @@ export function SettingsForm({
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const [saveResult, setSaveResult] = useState<{
     success?: boolean;
@@ -47,6 +49,11 @@ export function SettingsForm({
     success?: boolean;
     error?: string;
     summary?: SyncSummary;
+  } | null>(null);
+  const [processResult, setProcessResult] = useState<{
+    success?: boolean;
+    error?: string;
+    summary?: { total: number; processed: number; errors: string[] };
   } | null>(null);
 
   const [configSaved, setConfigSaved] = useState(hasApiKey);
@@ -93,16 +100,27 @@ export function SettingsForm({
   async function handleSync() {
     setSyncing(true);
     setSyncResult(null);
+    setProcessResult(null);
 
     const result = await syncWorkflows();
 
     if ("error" in result) {
       setSyncResult({ error: result.error });
-    } else {
-      setSyncResult({ success: true, summary: result.summary });
+      setSyncing(false);
+      return;
     }
 
+    setSyncResult({ success: true, summary: result.summary });
     setSyncing(false);
+
+    setProcessing(true);
+    try {
+      const llmResult = await processUnprocessedAutomations();
+      setProcessResult({ success: true, summary: llmResult.summary });
+    } catch {
+      setProcessResult({ error: "LLM processing failed unexpectedly" });
+    }
+    setProcessing(false);
   }
 
   return (
@@ -182,7 +200,7 @@ export function SettingsForm({
               : "Never synced"}
           </p>
 
-          <Button onClick={handleSync} disabled={syncing}>
+          <Button onClick={handleSync} disabled={syncing || processing}>
             {syncing ? "Syncing..." : "Sync Now"}
           </Button>
 
@@ -228,6 +246,37 @@ export function SettingsForm({
                   <p className="font-medium">Sync errors:</p>
                   <ul className="mt-1 list-inside list-disc">
                     {syncResult.summary.errors.map((err, i) => (
+                      <li key={i}>{err}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {processing && (
+            <div className="text-sm text-muted-foreground">
+              Processing automations with AI...
+            </div>
+          )}
+
+          {processResult?.error && (
+            <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
+              {processResult.error}
+            </div>
+          )}
+
+          {processResult?.success && processResult.summary && (
+            <div className="space-y-2">
+              <div className="bg-green-500/10 text-green-700 rounded-md p-3 text-sm">
+                Processed {processResult.summary.processed} of{" "}
+                {processResult.summary.total} automations.
+              </div>
+              {processResult.summary.errors.length > 0 && (
+                <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
+                  <p className="font-medium">Processing errors:</p>
+                  <ul className="mt-1 list-inside list-disc">
+                    {processResult.summary.errors.map((err, i) => (
                       <li key={i}>{err}</li>
                     ))}
                   </ul>

@@ -27,14 +27,21 @@ export async function processUnprocessedAutomations() {
   let processed = 0;
   const errors: string[] = [];
 
-  for (const automation of toProcess) {
-    try {
-      await processAutomation(automation.id, workspaceId);
-      processed++;
-    } catch (err) {
-      errors.push(
-        `${automation.id}: ${err instanceof Error ? err.message : String(err)}`,
-      );
+  const CONCURRENCY = 5;
+  for (let i = 0; i < toProcess.length; i += CONCURRENCY) {
+    const batch = toProcess.slice(i, i + CONCURRENCY);
+    const results = await Promise.allSettled(
+      batch.map((a) => processAutomation(a.id, workspaceId))
+    );
+    for (let j = 0; j < results.length; j++) {
+      const result = results[j];
+      if (result.status === "fulfilled") {
+        processed++;
+      } else {
+        errors.push(
+          `${batch[j].id}: ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`,
+        );
+      }
     }
   }
 

@@ -1235,16 +1235,26 @@ async function seedMockWorkspace(hasLlmKey: boolean) {
 
   if (hasLlmKey) {
     console.log(`\n  Running LLM pipeline on ${nonRemoved.length} automations...`);
-    for (const auto of nonRemoved) {
-      try {
-        const result = await processAutomation(auto.id, workspace.id);
-        llmProcessed++;
-        console.log(`    [${llmProcessed}/${nonRemoved.length}] ${auto.externalId}: impact=${result.impactProposal.level}`);
-      } catch (err) {
-        llmFailed++;
-        console.error(
-          `    FAIL ${auto.externalId}: ${err instanceof Error ? err.message : String(err)}`,
-        );
+    const LLM_CONCURRENCY = 5;
+    const totalBatches = Math.ceil(nonRemoved.length / LLM_CONCURRENCY);
+    for (let i = 0; i < nonRemoved.length; i += LLM_CONCURRENCY) {
+      const batch = nonRemoved.slice(i, i + LLM_CONCURRENCY);
+      const batchNum = Math.floor(i / LLM_CONCURRENCY) + 1;
+      console.log(`    Processing batch ${batchNum}/${totalBatches} (${batch.length} automations)...`);
+      const results = await Promise.allSettled(
+        batch.map((auto) => processAutomation(auto.id, workspace.id))
+      );
+      for (let j = 0; j < results.length; j++) {
+        const result = results[j];
+        if (result.status === "fulfilled") {
+          llmProcessed++;
+          console.log(`      ${batch[j].externalId}: impact=${result.value.impactProposal.level}`);
+        } else {
+          llmFailed++;
+          console.error(
+            `      FAIL ${batch[j].externalId}: ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`,
+          );
+        }
       }
     }
     console.log(`  LLM complete: ${llmProcessed} processed, ${llmFailed} failed`);
@@ -1423,16 +1433,26 @@ async function seedRealWorkspace(hasLlmKey: boolean) {
 
   if (hasLlmKey && createdAutomations.length > 0) {
     console.log(`\n  Running LLM pipeline on ${createdAutomations.length} automations...`);
-    for (const auto of createdAutomations) {
-      try {
-        const result = await processAutomation(auto.id, workspace.id);
-        llmProcessed++;
-        console.log(`    [${llmProcessed}/${createdAutomations.length}] ${auto.externalId}: impact=${result.impactProposal.level}`);
-      } catch (err) {
-        llmFailed++;
-        console.error(
-          `    FAIL ${auto.externalId}: ${err instanceof Error ? err.message : String(err)}`,
-        );
+    const LLM_CONCURRENCY = 5;
+    const totalBatches = Math.ceil(createdAutomations.length / LLM_CONCURRENCY);
+    for (let i = 0; i < createdAutomations.length; i += LLM_CONCURRENCY) {
+      const batch = createdAutomations.slice(i, i + LLM_CONCURRENCY);
+      const batchNum = Math.floor(i / LLM_CONCURRENCY) + 1;
+      console.log(`    Processing batch ${batchNum}/${totalBatches} (${batch.length} automations)...`);
+      const results = await Promise.allSettled(
+        batch.map((auto) => processAutomation(auto.id, workspace.id))
+      );
+      for (let j = 0; j < results.length; j++) {
+        const result = results[j];
+        if (result.status === "fulfilled") {
+          llmProcessed++;
+          console.log(`      ${batch[j].externalId}: impact=${result.value.impactProposal.level}`);
+        } else {
+          llmFailed++;
+          console.error(
+            `      FAIL ${batch[j].externalId}: ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`,
+          );
+        }
       }
     }
     console.log(`  LLM complete: ${llmProcessed} processed, ${llmFailed} failed`);

@@ -88,9 +88,18 @@ Recommendation: **Yes.** The Portfolio page (epic 06) should show a badge or ico
 **3. Prompt refinement for impact classification variety.**
 Recommendation: **Defer.** All 10 test automations were classified as "high" — likely because they're all RevOps automations touching customer data. The prompt already describes all four levels clearly. With a more diverse set of workflows (simple internal utilities, one-off data migrations, etc.), the LLM would likely produce more varied classifications. The user can override via `impactOverride` (epic 07). Prompt tuning is a post-MVP optimization.
 
+## Playwright E2E Verification (completed 2026-03-10)
+
+Full browser-based e2e verification passed:
+1. Signup (`e2e-test@expliq.dev`) — account created, auto-login, redirect to `/`
+2. Settings page — n8n Connection section rendered (Instance URL, API Key, Save, Test Connection)
+3. Save credentials — "Connection settings saved."
+4. Test Connection — "Connection successful!"
+5. Sync Now — "Sync completed successfully." (10 Created, 0 Updated, 0 Unchanged, 0 Removed)
+6. LLM processing — "Processing automations with AI..." → "Processed 10 of 10 automations."
+
 ## Process Notes (from user review)
 
-- **Playwright MCP disconnection**: The Playwright MCP server disconnected mid-session, preventing browser-based e2e testing. Pipeline was verified via direct script instead. The /dev skill should be updated to handle Playwright lifecycle properly (close browser after verification, and handle reconnection if MCP drops).
 - **Bash permissions**: User wants bash commands auto-allowed. See allowlist configuration below.
 
 ## Commit

@@ -45,6 +45,13 @@ Your job:
 - `npm run build` — no type errors
 
 #### Browser verification (Playwright)
+
+**Pre-flight:**
+- Kill port 3000 before starting: `npx kill-port 3000`
+- **NEVER** kill all `node.exe` (`taskkill /IM node.exe /F`) — this kills the Playwright MCP server
+- If the dev server fails to compile (Turbopack panic, CSS errors), clean the cache (`rm -rf .next`) and retry once
+
+**Steps:**
 1. Start the dev server (`npm run dev`) in the background
 2. Load Playwright tools via `ToolSearch` (query: `+playwright navigate`)
 3. If Playwright tools are available:
@@ -55,7 +62,10 @@ Your job:
    - Run it with `npx tsx scripts/verify-epic.ts`
    - Verify the output confirms the acceptance criteria
    - Delete the script after verification (`rm scripts/verify-epic.ts`)
-5. Stop the dev server after verification
+
+**Cleanup (always, whether verification passed or failed):**
+1. Close the browser: `mcp__plugin_playwright_playwright__browser_close`
+2. Kill the dev server: `npx kill-port 3000`
 
 #### Acceptance criteria
 - Every acceptance criterion from the spec is verified and passing
@@ -66,6 +76,14 @@ Your job:
 - Consistent error handling
 - Separation of concerns (data fetching, business logic, presentation)
 - No hardcoded secrets, unused imports, dead code, or leftover console.logs
+
+### Production Reliability Baseline
+Every implementation must include these as standard practice (no spec entry required):
+- **Loading states**: Server components that fetch data should use Suspense boundaries with skeleton/spinner fallbacks
+- **Server action error handling**: Every server action must try/catch and return structured errors to the client — never let exceptions bubble as unhandled 500s
+- **Error display**: Forms and actions that can fail must show user-facing error messages (not silent failures)
+- **Route error boundaries**: Add `error.tsx` to new route segments to catch render-time failures gracefully
+- **Null safety**: Defensive checks on data from external sources (n8n API, OpenRouter) beyond what the spec explicitly lists
 
 ### Bug Fixing
 - If tests fail → fix until they pass

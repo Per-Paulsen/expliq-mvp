@@ -54,12 +54,13 @@ None. The spec was precise and unambiguous. Implementation matches the spec exac
 | Browser verification (app loads) | Pass |
 | E2E verification script (real DB) | Pass |
 
-### E2E Verification (real database, 20 automations)
-- All 20 non-removed automations: risk level **High** (all inactive, no owners, overdue reviews)
-- Governance signals: 20 overdueReview, 20 noOwnerAssigned, 20 inactive, 4 automationStale, 0 documentationOutdated
-- System exposure: Slack=72 (8 automations), HubSpot/Gmail/Salesforce=45 (5 each), 14 more systems
-- Owner exposure: Unassigned=90 (10 automations — note: 20 DB records but exposure function queries per-workspace correctly)
-- Math spot-check: high(3) x high(3) = 9 per automation — verified against system totals
+### E2E Verification (real database)
+- 20 total non-removed records across 2 workspaces (10 unique n8n workflows × 2 test workspaces created during epic 02 and 04 Playwright e2e verification). The `@@unique([workspaceId, externalId])` constraint works correctly — same externalId is allowed across different workspaces.
+- Per workspace: 10 automations, all risk level **High** (all inactive, no owners, overdue reviews)
+- Governance signals (per workspace): 10 overdueReview, 10 noOwnerAssigned, 10 inactive, ~2 automationStale, 0 documentationOutdated
+- System exposure (scoped to one workspace): Slack highest, followed by HubSpot/Gmail/Salesforce
+- Owner exposure (scoped to one workspace): Unassigned=90 (10 automations × 9 exposure each)
+- Math spot-check: high(3) × high(3) = 9 per automation — verified against system totals
 
 ### Test Coverage (37 tests)
 - `getGovernanceSignals`: 17 tests (each signal individually + all/none + edge cases)

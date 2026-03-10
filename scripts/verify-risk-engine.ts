@@ -32,16 +32,22 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  const automations = await prisma.automation.findMany({
+  // Find the first workspace that has automations
+  const firstAutomation = await prisma.automation.findFirst({
     where: { status: { not: "removed" } },
+    select: { workspaceId: true },
   });
 
-  if (automations.length === 0) {
+  if (!firstAutomation) {
     console.log("No non-removed automations found. Sync some workflows first.");
     return;
   }
 
-  const workspaceId = automations[0].workspaceId;
+  const workspaceId = firstAutomation.workspaceId;
+
+  const automations = await prisma.automation.findMany({
+    where: { workspaceId, status: { not: "removed" } },
+  });
 
   console.log(`\n=== Risk Engine E2E Verification ===`);
   console.log(`Workspace: ${workspaceId}`);

@@ -132,7 +132,9 @@ After committing, conduct a structured retrospective before writing the results 
 - Risks for future epics
 - Open questions
 
-**Step 3 — User review.** Tell the user the results file is ready for review. The user may add observations, corrections, or additional risks. Wait for the user to confirm before marking the epic as done. The results file is **append-only** during this phase — do not remove user additions.
+**Step 3 — User review.** Tell the user the results file is ready for review. The user may add observations, corrections, or additional risks. Wait for the user to confirm before marking the epic as done.
+
+**The results file is append-only after the initial draft.** Once Step 2 writes the draft, never overwrite or remove existing content — including user additions. If corrections are needed (e.g., fixing inaccurate data), append a clearly labeled correction section rather than editing the original text.
 
 ## Done Criteria
 

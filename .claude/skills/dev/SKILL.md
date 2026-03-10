@@ -38,9 +38,26 @@ Your job:
 - Edge cases from the spec's acceptance criteria are covered
 
 ### Verification
-- `npm run build` succeeds with no errors
-- `npm run dev` starts without errors
-- Browser verification confirms UI matches spec requirements (use Playwright)
+
+#### Automated checks
+- `npm run test` — all tests pass
+- `npm run lint` — no lint errors
+- `npm run build` — no type errors
+
+#### Browser verification (Playwright)
+1. Start the dev server (`npm run dev`) in the background
+2. Load Playwright tools via `ToolSearch` (query: `+playwright navigate`)
+3. If Playwright tools are available:
+   - Navigate, interact, and verify UI matches spec requirements
+   - **Always close the browser when done** — call `mcp__plugin_playwright_playwright__browser_close` after all browser checks complete (whether pass or fail)
+4. If Playwright tools are NOT available (ToolSearch returns no results):
+   - **Fallback**: write a temporary verification script (e.g., `scripts/verify-epic.ts`) that tests the flow via direct DB queries and/or HTTP requests
+   - Run it with `npx tsx scripts/verify-epic.ts`
+   - Verify the output confirms the acceptance criteria
+   - Delete the script after verification (`rm scripts/verify-epic.ts`)
+5. Stop the dev server after verification
+
+#### Acceptance criteria
 - Every acceptance criterion from the spec is verified and passing
 
 ### Clean Code

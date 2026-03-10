@@ -268,3 +268,44 @@ No new issues. Reviewed against epic 05.5 and 06 results:
 ### Changes applied
 
 - None
+
+---
+
+# Individual Epic Review — 2026-03-10 (pass 5)
+
+## Summary
+- Specs reviewed: 08, 09
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 05.5, 06, 07
+- Specs skipped (already refined): none (both stale — missing 07-automation-detail-results.md)
+- Specs modified: none
+- Specs clean: 08, 09
+
+## 08 — Workspace Snapshot
+
+### Findings
+
+No new issues. Reviewed against epic 07 results:
+
+- **Shared utilities available** — Epic 07 extracted `formatRelativeTime` to `src/lib/format.ts` and badge color maps to `src/lib/badge-colors.ts`. Spec 08's "Recently changed" section will benefit from the shared `formatRelativeTime`. This is an implementation convenience, not a spec concern.
+- **Impact override logic consistent** — Spec 08's "high-impact automations" metric uses `impactOverride ?? impactProposal`, which is consistent with epic 07's edit mode that writes to `impactOverride`. Effective impact calculation is unchanged.
+- **`status = removed` exclusion consistent** — Spec 08 already specifies `status = removed` exclusion regardless of `statusOverride`, matching the override semantics confirmed in epic 07.
+- **No spec-level impact from epic 07 risks** — Risk #1 (impact override display) is about badge rendering, not aggregation. Risk #4 (no optimistic updates) doesn't affect the read-only dashboard.
+
+### Changes applied
+
+- None
+
+## 09 — Production Hardening
+
+### Findings
+
+No new issues. Reviewed against epic 07 results:
+
+- **2 of 4 route-level error boundaries already exist** — Epic 06 created `src/app/(app)/automations/error.tsx`, epic 07 created `src/app/(app)/automations/[id]/error.tsx`. Spec 09's AC "Route-level `error.tsx` files exist for all four app route segments" is an end-state check — still valid, just less implementation work remaining (need `(app)/error.tsx` and `(app)/settings/error.tsx`).
+- **New server actions in scope for audit** — Epic 07 added `saveAutomationEdits()` and `markAsReviewed()` in `src/lib/actions/automation.ts`. These fall under spec 09's "all server actions return structured `{ success, error }` responses" AC. No spec change needed — the AC already scopes to "all server actions in `src/lib/actions/`".
+- **Regenerate button already has loading state** — Epic 07 implemented a loading state for Regenerate. Spec 09 adds a 10s cooldown on top. No conflict — the cooldown is additive to the loading state.
+- **No spec-level impact from epic 07 risks** — Risk #4 (no optimistic updates using `router.refresh()`) is a UX concern, not a hardening concern. Not in spec 09's scope.
+
+### Changes applied
+
+- None

@@ -12,3 +12,4 @@ Results incorporated:
 - 05-risk-engine-results.md
 - 05.5-test-infrastructure-results.md
 - 06-portfolio-screen-results.md
+- 07-automation-detail-results.md

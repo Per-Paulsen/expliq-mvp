@@ -68,7 +68,7 @@ export function PortfolioAutomationCard({
                   RISK_COLORS[automation.riskLevel] ?? ""
                 )}
               >
-                {automation.riskLevel}
+                {automation.riskLevel} risk
               </Badge>
               {automation.impactLevel && (
                 <Badge
@@ -86,7 +86,7 @@ export function PortfolioAutomationCard({
               <div className="flex flex-wrap gap-1">
                 {automation.systemsTouched.map((s) => (
                   <Badge key={s} variant="secondary" className="text-[10px]">
-                    {s}
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
                   </Badge>
                 ))}
               </div>
@@ -128,13 +128,13 @@ export function PortfolioAutomationCard({
               {automation.owner ?? "No owner"}
             </span>
             <span className="text-[11px] text-muted-foreground">
-              Updated:{" "}
+              Automation updated:{" "}
               {automation.automationLastUpdated
                 ? formatRelativeTime(automation.automationLastUpdated)
                 : "N/A"}
             </span>
             <span className="text-[11px] text-muted-foreground">
-              Docs:{" "}
+              Docs updated:{" "}
               {automation.documentationLastUpdated
                 ? formatRelativeTime(automation.documentationLastUpdated)
                 : "N/A"}

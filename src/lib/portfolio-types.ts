@@ -45,7 +45,6 @@ export const ATTENTION_SIGNAL_MAP: Record<string, keyof GovernanceSignals> = {
   "documentation-outdated": "documentationOutdated",
   "automation-stale": "automationStale",
   "overdue-review": "overdueReview",
-  "inactive": "inactive",
 };
 
 export const ATTENTION_LABELS: Record<string, string> = {
@@ -53,5 +52,4 @@ export const ATTENTION_LABELS: Record<string, string> = {
   "documentation-outdated": "Documentation outdated",
   "automation-stale": "Automation stale",
   "overdue-review": "Overdue review",
-  "inactive": "Inactive",
 };

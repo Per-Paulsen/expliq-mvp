@@ -163,7 +163,7 @@ describe("PortfolioAutomationCard", () => {
     render(
       <PortfolioAutomationCard automation={makePortfolioAutomation()} />
     );
-    expect(screen.getByText(/Updated:/)).toBeInTheDocument();
-    expect(screen.getByText(/Docs:/)).toBeInTheDocument();
+    expect(screen.getByText(/Automation updated:/)).toBeInTheDocument();
+    expect(screen.getByText(/Docs updated:/)).toBeInTheDocument();
   });
 });

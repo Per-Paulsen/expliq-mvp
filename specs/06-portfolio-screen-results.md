@@ -57,8 +57,29 @@ The Portfolio screen (`/automations`) — the primary automation list view with 
 - `portfolio-automation-card.test.tsx`: 13 tests — name/description rendering (including null fallbacks), status/platform badges, system tags, owner, governance badges, timestamps, link target
 - `portfolio-view.test.tsx`: 7 tests — basic rendering, empty workspace state, no results state, card count, sync status
 
-### Playwright E2E
-Playwright MCP was unavailable in this session. Verification was done via code review + dev server health check. Full browser verification recommended before moving to next epic.
+### Playwright E2E — Pass
+
+Verified via Playwright MCP on 2026-03-10. Logged in as `seed-mock@expliq.dev`, navigated to `/automations`.
+
+**Checks:**
+- [x] 17 automation cards visible (15 processed + 2 unprocessed; 2 removed excluded)
+- [x] Unprocessed automations show "Untitled automation" / "No description available"
+- [x] Sync status shows "Last synced: 3 hours ago" (not "Never synced")
+- [x] Search filters by name/description (case-insensitive), result count updates (e.g., "stripe" → 4 results)
+- [x] Filter section collapsed by default; "Filters" button expands 6 rows (Systems, Platform, Owner, Attention, Impact, Risk)
+- [x] Chips show counts in parens; clicking toggles filter; "Clear" resets row
+- [x] Chip counts are global (don't change when other filters are active)
+- [x] When collapsed with active filters: compact active-filters bar shows dismissible chips (e.g., "Risk: high ×")
+- [x] Clicking × removes that filter; "Clear all" resets everything
+- [x] Owner filter has "No owner (5)" chip; selecting it shows only 5 ownerless automations (URL: `?owner=_none`)
+- [x] Attention filter has all 5 signals: Documentation outdated (8), Overdue review (8), Automation stale (6), No owner assigned (5), Inactive (3)
+- [x] Impact shows Critical (3)/High (6)/Medium (3)/Low (3); Risk shows High (7)/Medium (6)/Low (4)
+- [x] URL-only filters: `?updatedAfter=7d` → 11 results with "Updated: last 7 days" tag; `?minSystems=3` → 10 results with "Systems: 3+ systems" tag
+- [x] Sort dropdown (3 options: Automation Last Updated, Documentation Last Updated, Name) + asc/desc toggle work
+- [x] Card click navigates to `/automations/[id]` (stub page: "Automation Detail")
+- [x] Filter state reflected in URL; browser back/forward preserves sort/filter state
+- [x] Impossible search shows "No automations match your current filters" + "Clear all filters" button
+- [x] No crashes on any interaction
 
 ## Risks for Future Epics
 
@@ -79,3 +100,25 @@ None.
 ## Commit
 
 `585fc12` — `feat: implement epic 6 — portfolio screen`
+
+---
+
+## Patch: Vertical card layout with two-column card design (2026-03-10)
+
+**What changed:** Portfolio cards now stack vertically (single column) instead of a responsive 1/2/3-column grid. Each card uses a two-column internal layout: primary info (title, risk badge, impact badge, systems, description, attention signals) on the left; secondary metadata (status, platform, owner, timestamps) right-aligned on the right.
+
+**Files modified:**
+- `src/components/portfolio-view.tsx` — Removed `md:grid-cols-2 lg:grid-cols-3` from grid container
+- `src/components/portfolio-automation-card.tsx` — Added `IMPACT_COLORS` map, removed `CardHeader`/`CardTitle`, restructured JSX to two-column flex layout
+
+**Why:** Multi-column grid made sort order confusing (ambiguous reading direction). Vertical stacking gives clear top-to-bottom order. Two-column card layout puts key governance info (title, risk, impact, systems) at top-left for fast scanning.
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (178 tests) |
+| `npm run lint` | Pass |
+| `npm run build` | Pass |
+| E2E verification | Playwright — cards stack vertically, two-column layout correct, sort order clear, navigation works |
+
+**Commit:** `98dd767` — `fix: portfolio cards vertical layout with two-column card design`

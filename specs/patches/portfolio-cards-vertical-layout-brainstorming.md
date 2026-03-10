@@ -155,3 +155,21 @@ This now touches:
 Existing tests check content presence (text, badge text, link href), not layout structure. They should still pass.
 
 Does this match your vision? Confirm and I'll implement.
+
+---
+
+## Implementation Applied (2026-03-10)
+
+**Commit:** `98dd767` — `fix: portfolio cards vertical layout with two-column card design`
+
+**Files modified:**
+- `src/components/portfolio-view.tsx` — Removed `md:grid-cols-2 lg:grid-cols-3` from grid container (line 143), cards now single-column
+- `src/components/portfolio-automation-card.tsx` — Full restructure: added `IMPACT_COLORS` map, removed `CardHeader`/`CardTitle`, replaced JSX with two-column flex layout (left: title+risk+impact, systems, description, attention signals; right: status+platform, owner, timestamps)
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (178 tests) |
+| `npm run lint` | Pass |
+| `npm run build` | Pass |
+| E2E verification | Playwright — cards stack vertically, two-column layout works, sort order clear, card clicks navigate correctly |

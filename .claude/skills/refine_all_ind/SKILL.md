@@ -16,12 +16,18 @@ Do NOT read `specs/brainstorming.md` — its decisions are already incorporated 
 
 ### Skip logic
 
-For each spec, derive the brainstorming file path (e.g., `specs/02-auth.md` → `specs/02-auth-brainstorming.md`).
+**Step 1 — Completed epic gate**: For each spec, derive the results file path (e.g., `specs/02-auth.md` → `specs/02-auth-results.md`). If the results file exists, **always skip this spec** — it is a completed epic and must never be re-refined. List it under "Specs skipped (completed epics)" in the summary.
+
+**Step 2 — Refinement marker check** (only for specs that passed Step 1):
+
+For each remaining spec, derive the brainstorming file path (e.g., `specs/04-llm-pipeline.md` → `specs/04-llm-pipeline-brainstorming.md`).
 
 **Phase detection:** If any `specs/*-results.md` files exist, you are in **in-dev mode**. Otherwise, **pre-dev mode**.
 
 - **Pre-dev mode**: skip specs whose brainstorming file contains `## Refinement Applied`
-- **In-dev mode**: skip specs whose brainstorming file contains `## Implementation Refinement Applied` (ignore the pre-dev marker — those refinements predate implementation learnings)
+- **In-dev mode**: For each spec, check its brainstorming file for `## Implementation Refinement Applied`.
+  - **Marker absent** → spec needs refinement.
+  - **Marker present** → extract the filenames listed under `Results incorporated:` and compare against the current set of `specs/*-results.md` files. If every current results file appears in the list, skip the spec. If any current results file is missing from the list (or the marker has no `Results incorporated:` section at all), the spec is **stale** and needs re-refinement.
 
 ## Phase 1 — Review & Apply
 
@@ -48,7 +54,7 @@ For each spec:
 
 ### After processing each spec
 
-Append the phase-appropriate marker to the epic's brainstorming file:
+Write the phase-appropriate marker to the epic's brainstorming file. If the brainstorming file already contains a `## Implementation Refinement Applied` section, **replace it entirely** (from the heading through the end of the results list) with the updated marker. Do not append a second marker.
 
 - **Pre-dev mode**:
 ```markdown
@@ -57,11 +63,16 @@ Append the phase-appropriate marker to the epic's brainstorming file:
 Batch-refined via `/refine_all_ind`. See `specs/ind-epic-review.md` for details.
 ```
 
-- **In-dev mode**:
+- **In-dev mode** (list all current `specs/*-results.md` filenames):
 ```markdown
 ## Implementation Refinement Applied
 
 Batch-refined via `/refine_all_ind` (in-dev mode). See `specs/ind-epic-review.md` for details.
+
+Results incorporated:
+- {results-filename-1}
+- {results-filename-2}
+- ...
 ```
 
 ### Output
@@ -73,6 +84,7 @@ Write `specs/ind-epic-review.md` with all findings and changes:
 
 ## Summary
 - Specs reviewed: list
+- Specs skipped (completed epics): list
 - Specs skipped (already refined): list
 - Specs modified: list
 - Specs clean: list

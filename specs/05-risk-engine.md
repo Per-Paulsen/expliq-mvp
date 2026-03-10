@@ -12,7 +12,7 @@ Computed per automation using global default thresholds:
 |--------|------|---------|
 | **Documentation outdated** | `documentationLastUpdated IS NULL` (never generated) OR `automationLastUpdated > documentationLastUpdated` | Triggered when LLM generation has never run or the workflow changed after the last generation |
 | **Automation stale** | `automationLastUpdated IS NOT NULL` AND `automationLastUpdated < now - threshold` | 14 days (if `automationLastUpdated` is null, signal is inactive) |
-| **Overdue review** | `lastReviewDate + reviewCadenceDays < now` | 30-day cadence (or never reviewed) |
+| **Overdue review** | `lastReviewDate IS NULL` (never reviewed) OR `lastReviewDate + reviewCadenceDays < now` | 30-day cadence |
 | **No owner assigned** | `owner IS NULL` | — |
 | **Inactive** | effective status = `inactive` (where effective status = `statusOverride ?? status`) | Derived from n8n workflow active/inactive flag or user override |
 
@@ -58,8 +58,8 @@ Governance signals and risk levels are computed on-read (derived at query time) 
 - [ ] System exposure scores are computed, weighted by impact and risk, for all systems across all automations in the workspace
 - [ ] Owner exposure scores are computed, weighted by impact and risk, for all owners across all automations in the workspace
 - [ ] Governance signal thresholds are defined as named constants (not magic numbers) for easy future configurability
-- [ ] A utility/service module exposes functions like `getGovernanceSignals(automation)`, `getRiskLevel(automation)`, `getSystemExposure(workspaceId)`, `getOwnerExposure(workspaceId)` for use by UI epics
-- [ ] Unit tests cover edge cases: automation with all signals active, automation with none, null owner, null lastReviewDate (treated as never reviewed → overdue)
+- [ ] A utility/service module exposes pure functions `getGovernanceSignals(automation)` and `getRiskLevel(automation)` operating on a single automation record, and data-loading functions `getSystemExposure(workspaceId)` and `getOwnerExposure(workspaceId)` that query all non-removed automations and compute aggregates
+- [ ] Unit tests cover edge cases: automation with all signals active, automation with none, null owner, null lastReviewDate (treated as never reviewed → overdue), null impactProposal (defaults to weight 1/Low for exposure calculation), empty systemsTouched (automation does not contribute to system exposure)
 
 ## Out of scope
 
@@ -82,5 +82,6 @@ Governance signals and risk levels are computed on-read (derived at query time) 
 
 ## Open questions
 
+- ~~Resolved: System name normalization — yes, epic 04 will lowercase all `systemsTouched` values during LLM response parsing to prevent casing inconsistencies in exposure scores.~~
 - ~~Resolved: Risk level is derived from governance signal counts only. Impact classification is a separate dimension that factors into exposure scores (impact_weight × risk_weight) but does not elevate risk level. This follows standard risk matrix practice — governance health and business impact are independent axes.~~
 - ~~Resolved: When effective impact is null (LLM hasn't run yet), exposure weight defaults to Low (1). This ensures automations are visible in exposure rankings during the brief window between sync and LLM processing.~~

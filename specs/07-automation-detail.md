@@ -23,8 +23,8 @@ Build the Automation Detail screen (`/automations/[id]`) — the full view of a 
   - Impact classification (showing LLM proposal and user override if different), with LLM reasoning (`impactReasoning`) displayed below the classification
   - Active governance signals listed as explicit risk drivers
 - **Actions**:
-  - "Open in n8n" link (constructed: `{instanceUrl}/workflow/{externalId}`, opens in new tab). The `instanceUrl` is read from the workspace's `ConnectorConfig` record.
-  - "Regenerate" button to re-run LLM pipeline for this automation
+  - "Open in n8n" link (constructed: `{instanceUrl}/workflow/{externalId}`, opens in new tab). The `instanceUrl` is read from the workspace's `ConnectorConfig` record. If no ConnectorConfig exists, the link is hidden.
+  - "Regenerate" button to re-run LLM pipeline for this automation (shows loading state during processing; displays error if regeneration fails)
 
 ### Edit Mode
 
@@ -34,22 +34,30 @@ Clicking "Edit" enters inline edit mode for user-editable fields only:
 - **Impact classification**: dropdown (Critical / High / Medium / Low) — pre-filled with LLM proposal or current override
 - **Review cadence**: number input (days, default 30)
 - **Status override**: dropdown (Active / Inactive / Deprecated) — writes to `statusOverride` field, not `status`
-- **Mark as reviewed**: button that sets `lastReviewDate` to now
 
 Save and Cancel buttons. LLM-generated fields remain read-only and visually distinct from editable fields.
+
+### Standalone Actions
+
+Available outside edit mode (no need to click "Edit" first):
+
+- **Mark as reviewed**: button that sets `lastReviewDate` to now. This is a high-frequency, low-ceremony action — keeping it outside edit mode reduces friction.
 
 ## Acceptance criteria
 
 - [ ] Detail page displays all LLM-generated fields: name, description, trigger, core logic (as bullets), systems touched (as tags), data types, business context, side effects
-- [ ] Governance metadata is shown: owner, trigger type, automation last updated, documentation last updated, platform badge, status badge, governance attention badges
+- [ ] Governance metadata is shown: owner, trigger type (read-only, LLM-generated), automation last updated, documentation last updated, platform badge, status badge, governance attention badges
 - [ ] Risk section shows computed risk level, impact classification (LLM proposal vs user override) with impact reasoning displayed, and specific governance signals driving the risk
-- [ ] Edit mode allows modifying: owner, impact classification, review cadence, status override; and includes a "Mark as reviewed" action
+- [ ] Edit mode allows modifying: owner, impact classification, review cadence, status override
+- [ ] "Mark as reviewed" is a standalone action outside edit mode — one click sets `lastReviewDate` to now
 - [ ] LLM-generated fields are visually distinct and not editable in edit mode
 - [ ] "Open in n8n" link is constructed from `instanceUrl/workflow/externalId` and opens in a new tab
-- [ ] "Regenerate" button triggers LLM re-generation and refreshes the page content
-- [ ] "← Back to Automations" navigates to the Portfolio screen
+- [ ] "Open in n8n" link is hidden if no ConnectorConfig exists for the workspace
+- [ ] "Regenerate" button shows a loading state during processing, displays an error if regeneration fails, and refreshes the page content on success (existing LLM fields are preserved on failure per epic 04 error handling)
+- [ ] "← Back to Automations" uses `router.back()` to preserve Portfolio filter state (with fallback to `/automations` if no browser history)
 - [ ] If LLM-generated fields are null (automation synced but not yet processed), the page displays placeholder text (e.g., "Pending generation") rather than blank content
-- [ ] Saving edits persists changes to the database and updates the displayed content
+- [ ] Saving edits persists changes via a server action that updates the Automation record (verifying workspace ownership) and updates the displayed content
+- [ ] If the automation ID does not exist or does not belong to the user's workspace, the page shows a 404
 
 ## Out of scope
 
@@ -73,5 +81,6 @@ Save and Cancel buttons. LLM-generated fields remain read-only and visually dist
 
 ## Open questions
 
-- Should "Mark as reviewed" be part of the edit mode or a standalone action accessible without entering edit mode? (Standalone feels more ergonomic — it's a frequent action)
+- ~~Resolved: "Mark as reviewed" is standalone — a button visible outside edit mode. High-frequency, low-ceremony action.~~
+- ~~Resolved: Back navigation uses `router.back()` with fallback to `/automations`. Preserves Portfolio filter state from browser history.~~
 - ~~Resolved: `statusOverride` field added to schema (enum: active, inactive, deprecated — nullable). Edit mode writes to `statusOverride`; sync writes to `status`. Effective status = `statusOverride ?? status`.~~

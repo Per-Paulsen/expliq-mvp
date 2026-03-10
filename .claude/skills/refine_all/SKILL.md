@@ -14,6 +14,10 @@ description: Cross-epic refinement pass. Reviews all specs together, flags cross
 
 Do NOT read `specs/brainstorming.md` — its decisions are already incorporated into each spec.
 
+## Completed Epic Handling
+
+Specs with a corresponding results file (e.g., `specs/02-auth.md` → `specs/02-auth-results.md`) are **completed epics**. They are **read-only**: read them to understand data flow, schema, and dependencies, but do NOT flag issues in them, modify their spec files, or add open questions to them. Only unbuilt specs (no results file) can be modified. If a cross-epic issue involves a completed epic, note the issue on the **unbuilt** spec that depends on it — the unbuilt spec is the one that must adapt to reality.
+
 ## Phase 1 — Cross-Epic Analysis & Apply
 
 Read every spec in order. Build a mental model of:

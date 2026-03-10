@@ -213,3 +213,186 @@ Post-implementation review after Epic 01 completion. Checks all specs against im
 
 ## Cascading Changes
 None. All 3 fixes were isolated to their respective specs.
+
+---
+
+# Cross-Epic Review Pass 4 (In-Dev) — 2026-03-10
+
+Post-implementation review after Epics 01–03 completion. All within-epic refinement (`/refine_all_ind`) already applied. This pass focuses on cross-epic consistency across all 8 specs.
+
+## Summary
+- Total specs reviewed: 8 (5 unbuilt: 04–08; 3 completed read-only: 01–03)
+- Specs modified: 04, 06, 08
+- Specs clean: 05, 07
+
+## Changes by Epic
+
+### 04 — LLM Pipeline
+- **Issue**: Post-sync LLM trigger modifies the existing settings page component (built in epic 03) but this was not explicitly stated (Missing handoff)
+  - **Involved epics**: 03 (completed, provides `src/components/settings-form.tsx`), 04 (must modify it)
+  - **Change**: Added explicit scope note that epic 04 modifies `src/components/settings-form.tsx` to call the new server action after sync and display a processing indicator
+
+### 05 — Risk Engine
+No cross-epic issues found. Data flow (governance signals, risk levels, exposure scores) is consumed correctly by epics 06, 07, and 08.
+
+### 06 — Portfolio Screen
+- **Issue**: Epic 08's clickable metric cards and structural indicator "View all" links need Portfolio filter params that don't exist — `impact`, `risk`, `updatedAfter`, `minSystems` (Missing handoff)
+  - **Involved epics**: 06 (defines filter params), 08 (consumes them for click-throughs)
+  - **Change**: `NEEDS CONFIRMATION` — added as open question on spec 06 with three options
+
+### 07 — Automation Detail
+No cross-epic issues found. All data references (LLM fields from 04, risk engine from 05, ConnectorConfig from 03) are consistent.
+
+### 08 — Workspace Snapshot
+- **Issue**: Clickable metric cards for "High-impact" and "High-risk" and "View all" links for structural indicators reference filter capabilities not defined in epic 06 (Forward dependency gap)
+  - **Involved epics**: 06, 08
+  - **Change**: `NEEDS CONFIRMATION` — added as open question on spec 08, linked to epic 06 resolution
+
+## Cross-Epic Consistency Verified
+
+| Concern | Epics involved | Status |
+|---------|---------------|--------|
+| Schema field references (all Automation fields) | 01→04→05→06→07→08 | Consistent |
+| Enum values (impact, status, statusOverride) | 01, 04, 05, 06, 07, 08 | Consistent |
+| Governance signal names and rules (5 signals) | 05, 06, 07, 08 | Consistent |
+| `systemsTouched` normalization (lowercase) | 04→05→06 | Consistent |
+| Removed automation exclusion (`status != removed`) | 05, 06, 08 | Consistent |
+| Effective status (`statusOverride ?? status`) | 05, 06, 07, 08 | Consistent |
+| Effective impact (`impactOverride ?? impactProposal`) | 05, 07, 08 | Consistent |
+| `documentationLastUpdated` lifecycle | 04 (sets) → 05 (reads) | Consistent |
+| ConnectorConfig usage | 03 (sets) → 06 (lastSyncAt) → 07 (Open in n8n) | Consistent |
+| Architecture pattern (service module + server actions) | 03, 04 | Consistent |
+| Risk level = governance signals only (not impact) | 05, 07, 08 | Consistent |
+| Exposure score formula (impact_weight × risk_weight) | 05, 08 | Consistent |
+| Attention filter badge counts (global, not dynamic) | 06 | Confirmed in prior review |
+
+## Cascading Changes
+The filter gap between epics 06 and 08 is a single coordinated issue. Resolution of epic 06's open question will determine what changes (if any) are needed in epic 08's click-through URLs.
+
+## Brainstorming
+
+### Epic 06/08 — Portfolio filter params for Snapshot click-throughs
+
+Epic 08's confirmed design (Q8 from individual review) makes all 5 metric cards clickable, navigating to filtered Portfolio views. Two of these ("High-impact" and "High-risk") plus the structural indicator "View all" links need filter capabilities not currently defined in epic 06.
+
+**Affected click-throughs:**
+- "High-impact" card → needs `?impact=critical&impact=high`
+- "High-risk" card → needs `?risk=high`
+- "Recently changed — View all" → needs `?updatedAfter=<7-days-ago>` or similar
+- "Multi-system — View all" → needs `?minSystems=3` or similar
+
+**Options:**
+
+**(a) Add filter params with visible filter rows** — Add `impact` and `risk` filter chip rows to the Portfolio (alongside Systems, Platform, Owner, Attention). Add `updatedAfter` and `minSystems` as URL params without visible rows (they're only used by "View all" links, not for manual filtering). This gives the fullest functionality but adds 2 more filter rows to an already filter-heavy screen.
+
+**(b) Add URL-only params (no visible rows)** — Support `impact`, `risk`, `updatedAfter`, `minSystems` as URL query params that filter the list, but don't show them as visible filter chip rows. The active filter would be visible only in the URL and the result count. A small "Showing filtered results — Clear" banner would indicate when hidden filters are active. Simpler UI but less discoverable.
+
+**(c) Simplify click-throughs** — Keep epic 06 as-is. Change epic 08 click-throughs to use only existing params:
+  - "High-impact" card → navigates to `/automations` (no filter — user scans manually)
+  - "High-risk" card → navigates to `/automations` (no filter)
+  - "Recently changed — View all" → `/automations?sort=automationLastUpdated&order=desc` (sorted, not filtered)
+  - "Multi-system — View all" → `/automations` (no filter/sort available)
+
+  This avoids scope creep in epic 06 but weakens the dashboard-to-action flow.
+
+**Recommendation:** (b) — URL-only params. The click-throughs from the Snapshot are the primary use case for these filters, not manual Portfolio browsing. URL params keep the Portfolio UI clean while supporting programmatic navigation. A small "Showing filtered results — Clear" banner handles discoverability.
+
+Your answer:  i actually think we should go for a. because this is our main add-on. its almost our usp. and we might need a foldable filter area ... what do you think? or do i understand this wrong?
+
+**Response — You're right, and the foldable filter area is a good idea.**
+
+You're not wrong at all. The filtering and triage flow IS the product's core value — Emma goes from Snapshot → Portfolio (filtered) → Detail. If those click-throughs land on a page where she can't see or adjust the active filters, the experience falls apart. Making the filters visible and interactive is the right call.
+
+**On the foldable filter area:** With 6 filter rows (Systems, Platform, Owner, Attention, Impact, Risk), the filter section could take up significant vertical space — especially on smaller screens. A collapsible/foldable filter panel solves this well:
+
+- **Default collapsed** with a summary line showing active filter count (e.g., "3 filters active") and a toggle to expand
+- **Auto-expands** when arriving via a Snapshot click-through (so Emma immediately sees what's filtered)
+- **Stays expanded** while the user is interacting with filters
+- Common pattern in operational dashboards (Datadog, Grafana, Jira all do this)
+
+For the "View all" links (`updatedAfter`, `minSystems`), these are less like filter *rows* and more like pre-set queries. They don't need their own visible chip rows — they can show as a small "Filtered: recently changed" or "Filtered: multi-system (3+)" tag in the filter summary, clearable with an ×.
+
+**Proposed approach:**
+
+1. Add `impact` and `risk` as visible filter chip rows (same style as Systems, Owner, etc.)
+2. Add `updatedAfter` and `minSystems` as URL-only params with a visible "active filter" tag (no dedicated chip row — they're only used by Snapshot "View all" links)
+3. Make the entire filter section collapsible — collapsed by default, auto-expands when filters are active
+
+**Question 3**: Does this split work — full visible rows for impact/risk, but tag-only display for updatedAfter/minSystems? Or would you rather all 8 filters have visible chip rows?
+
+Your answer: sorry, i dont understand what you are actually asking
+
+**Response — Let me clarify with a concrete example.**
+
+The Portfolio filter area currently has 4 rows of clickable chips:
+
+```
+Systems:   [Slack (10)] [Salesforce (8)] [Stripe (5)]       [Clear]
+Platform:  [n8n (23)]                                        [Clear]
+Owner:     [Alice (5)] [Bob (3)] [No owner (2)]              [Clear]
+Attention: [No owner (2)] [Stale (4)] [Outdated (7)] ...
+```
+
+We're adding **Impact** and **Risk** as two more rows like these — full chip rows where Emma can click to filter:
+
+```
+Impact:    [Critical (3)] [High (7)] [Medium (10)] [Low (3)] [Clear]
+Risk:      [High (5)] [Medium (12)] [Low (6)]                [Clear]
+```
+
+That's straightforward. Now the question is about two *other* filters that only come from Snapshot "View all" links:
+
+- **"Recently changed — View all"** → filters to automations updated in the last 7 days
+- **"Multi-system — View all"** → filters to automations touching 3+ systems
+
+These are niche filters — Emma would never manually think "show me automations with 3+ systems." They only exist to support the "View all" click from the Snapshot. So my question was: should these also get full chip rows in the filter area? That would look odd:
+
+```
+Min systems: [3+ systems (8)]    ← weird standalone chip row
+Updated after: [Last 7 days (4)] ← weird standalone chip row
+```
+
+Or should they just work as URL params without a dedicated row, showing only a small dismissible tag like `[× Filtered: recently changed]` at the top of the results?
+
+**Actually, on reflection, the answer is obvious.** These are so niche that full chip rows would clutter the UI for no benefit. Let's just do:
+
+1. **Impact + Risk** → full visible chip rows (like Systems, Owner, etc.)
+2. **updatedAfter + minSystems** → URL params only, with a small dismissible "active filter" tag shown above results when active
+3. **Collapsible filter section** — collapsed by default, auto-expands when any filter is active
+
+This keeps the filter area clean (6 rows: Systems, Platform, Owner, Attention, Impact, Risk) while still supporting all Snapshot click-throughs. Does this make sense now? If so, I'll apply it to the specs.
+
+Your answer:  fine. but do we actually have sorting in the automations portfolio page?
+
+**Response — Yes, sorting is already in the spec.**
+
+Epic 06 defines a sort bar with three options:
+
+- **Automation Last Updated** (default)
+- **Documentation Last Updated**
+- **Name**
+
+Each has an ascending/descending toggle. The URL params `sort` and `order` control it (e.g., `?sort=automationLastUpdated&order=desc`).
+
+So the "Recently changed — View all" link could combine both: `?updatedAfter=7d&sort=automationLastUpdated&order=desc` — filtered to last 7 days AND sorted most recent first.
+
+OK — everything is clear now. I'll apply all confirmations to the specs. Confirmed decisions:
+
+1. **Option (a)** — visible filter rows for Impact and Risk
+2. **updatedAfter + minSystems** — URL-only params with dismissible tag
+3. **Collapsible filter section** — collapsed by default, auto-expands when filters are active
+
+Applying now.
+
+## Confirmations Applied
+
+### Epic 06/08 — Portfolio filter params for Snapshot click-throughs (confirmed: option A with refinements)
+
+1. **Spec 06 — Impact filter row added**: Visible chip row showing Critical/High/Medium/Low counts using effective impact. Added to layout, filter params, and ACs.
+2. **Spec 06 — Risk filter row added**: Visible chip row showing High/Medium/Low counts. Added to layout, filter params, and ACs.
+3. **Spec 06 — URL-only params added**: `updatedAfter` and `minSystems` filter the list when present in URL, with dismissible "active filter" tag above results. Added to layout, filter params, and ACs.
+4. **Spec 06 — Collapsible filter section**: Filter area collapsed by default, auto-expands when any filter is active. Added to layout and ACs.
+5. **Spec 06 — Filter params list updated**: Now includes `system`, `owner`, `attention`, `platform`, `impact`, `risk`, `search`, `sort`, `order`, `updatedAfter`, `minSystems`.
+6. **Spec 08 — Concrete click-through URLs**: High-impact → `?impact=critical&impact=high`, High-risk → `?risk=high`, Recently changed View all → `?updatedAfter=7d&sort=automationLastUpdated&order=desc`, Multi-system View all → `?minSystems=3`.
+7. **NEEDS CONFIRMATION removed** from both specs 06 and 08 (marked resolved).
+8. **Spec 06 — Collapsible behavior clarified**: Filter section can be manually collapsed even with active filters (filters remain applied, only the UI is hidden).

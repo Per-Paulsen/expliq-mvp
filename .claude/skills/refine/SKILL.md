@@ -14,6 +14,10 @@ argument-hint: <spec-file-path>
 
 Do NOT read `specs/brainstorming.md` — its decisions are already incorporated into each spec.
 
+## Completed Epic Check
+
+Before starting, derive the results file path from the spec path (e.g., `specs/04-llm-pipeline.md` → `specs/04-llm-pipeline-results.md`). If the results file exists, **stop immediately** — this epic is already built. Tell the user in chat that refinement is not applicable to completed epics and suggest they check the results file instead.
+
 ## Phase 1 — Review & Respond
 
 Read the spec and the discussion file. Respond to everything the user has written in the discussion file.

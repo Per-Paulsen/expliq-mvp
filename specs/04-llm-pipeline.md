@@ -4,21 +4,24 @@
 
 Build the Claude (Anthropic API) integration that transforms raw n8n workflow JSON into business-readable fields. This includes:
 
+- **Schema migration**: add `impactReasoning String?` to the Automation model (this field was deferred from earlier epics)
 - **Prompt engineering**: design a structured prompt that takes a raw workflow JSON and returns all required fields in a reliable, parseable format (JSON output)
-- **API integration**: call the Anthropic API (Claude Sonnet 4.6 or Haiku 4.5 — balance cost vs quality) from a Next.js API route
+- **API integration**: call the Anthropic API (Claude Sonnet or Haiku — choose appropriate model at implementation time; store model ID as a named constant) from a Next.js server action or internal service function
+- **`rawWorkflowJson` handling**: when reading `rawWorkflowJson` from the database, the value is Prisma's `JsonValue` type and must be serialized (e.g., `JSON.stringify()`) before sending to the Anthropic API
 - **Field extraction and storage**: parse the LLM response and store generated fields on the Automation record:
   - **Name** — human-readable name (e.g., "CRM → Slack Escalation")
   - **Description** — 1-2 sentence business summary
   - **Trigger** — plain-language trigger description
   - **Core Logic** — step-by-step bullet points
-  - **Systems Touched** — array of external system names (Slack, Salesforce, etc.)
+  - **Systems Touched** — array of external system names (Slack, Salesforce, etc.); normalized to lowercase during parsing to prevent casing inconsistencies in exposure scores
   - **Data Types** — array of data types flowing through the workflow
   - **Business Context** — why this automation matters; what breaks if it fails
-  - **Side Effects** — what the automation writes/modifies in other systems
+  - **Side Effects** — array of what the automation writes/modifies in other systems (matches schema `sideEffects String[]`)
   - **Trigger Type** — categorical classification (webhook, schedule, manual, event, or other)
   - **Impact Proposal** — classification (Critical / High / Medium / Low) with reasoning (stored in `impactReasoning`)
-- **Post-sync trigger**: after the n8n sync completes, automatically run the LLM pipeline for all newly imported or updated automations. The trigger mechanism is implemented within this epic (e.g., the sync completion handler calls the LLM pipeline internally). Automations are processed sequentially to respect API rate limits.
-- **Per-automation regeneration**: a "Regenerate" API endpoint that re-runs the LLM pipeline for a single automation and overwrites its generated fields
+- **Architecture**: the core LLM logic lives in an internal service module (`src/lib/llm-pipeline.ts`), exposed to the UI via server actions. This avoids the server-action-calling-server-action pattern and follows the existing `n8n-client.ts` → `actions/connector.ts` pattern.
+- **Post-sync trigger**: after the n8n sync completes, the UI triggers a separate "process unprocessed automations" server action (sync returns immediately with its summary). This requires modifying the existing settings page component (built in epic 03: `src/components/settings-form.tsx`) to call the new server action after sync completes and display a processing indicator while it runs. The pipeline queries for automations where `documentationLastUpdated IS NULL OR automationLastUpdated > documentationLastUpdated` — this is idempotent and handles interrupted previous runs. Automations are processed sequentially to respect API rate limits.
+- **Per-automation regeneration**: a server action that re-runs the LLM pipeline for a single automation and overwrites its generated fields
 - **documentationLastUpdated**: set to the current timestamp when LLM generation completes (this timestamp drives the "documentation outdated" governance signal)
 - **Error handling**: gracefully handle API failures, rate limits, and malformed responses without corrupting existing data; surface errors to the caller
 
@@ -26,11 +29,13 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 
 ## Acceptance criteria
 
-- [ ] A Next.js API route accepts an automation ID and sends its `rawWorkflowJson` to the Anthropic API with a structured prompt
+- [ ] A Prisma schema migration adds `impactReasoning String?` to the Automation model
+- [ ] An endpoint (server action or API route) accepts an automation ID, verifies the automation belongs to the requesting user's workspace, and sends its `rawWorkflowJson` to the Anthropic API with a structured prompt
 - [ ] The LLM returns a JSON object containing: name, description, trigger, triggerType, coreLogic, systemsTouched, dataTypes, businessContext, sideEffects, impactProposal (level + reasoning)
 - [ ] Generated fields are persisted to the Automation record, including `impactReasoning` (the LLM's explanation for its impact classification); `documentationLastUpdated` is set to the current timestamp
-- [ ] After n8n sync, the pipeline automatically runs for all new or updated automations (those whose `rawWorkflowJson` changed)
-- [ ] A "Regenerate" endpoint re-runs the pipeline for a single automation and overwrites previous LLM-generated fields
+- [ ] After n8n sync, a separate server action triggers LLM processing for all automations where `documentationLastUpdated IS NULL OR automationLastUpdated > documentationLastUpdated` (sync returns immediately; LLM processing is a follow-up call)
+- [ ] A "Regenerate" server action re-runs the pipeline for a single automation and overwrites previous LLM-generated fields
+- [ ] The core LLM logic is in an internal service module (`src/lib/llm-pipeline.ts`), called by server actions for both post-sync processing and single-automation regeneration
 - [ ] If the LLM response is missing required fields or contains unparseable data, the automation's existing LLM fields are not overwritten and the error is reported to the caller
 - [ ] API errors (rate limits, network failures, malformed responses) are handled gracefully: existing data is not corrupted, and errors are returned to the caller
 - [ ] The Anthropic API key is stored as an environment variable (not in the database)
@@ -57,6 +62,9 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 
 ## Open questions
 
-- Claude Sonnet 4.6 vs Haiku 4.5: Sonnet is more capable but slower and more expensive per call. For MVP volume (tens of workflows, not thousands), Sonnet is likely fine. Revisit if cost becomes an issue.
 - Should we store the raw LLM response alongside the parsed fields for debugging purposes?
+- ~~Resolved: Post-sync LLM trigger — (b) separate call. Sync returns immediately; UI triggers LLM processing via a follow-up server action.~~
+- ~~Resolved: Architecture — internal service module (`src/lib/llm-pipeline.ts`) with core logic, exposed via server actions. Follows existing `n8n-client.ts` → `actions/connector.ts` pattern.~~
+- ~~Resolved: LLM target selection — (b) query by timestamp (`documentationLastUpdated IS NULL OR automationLastUpdated > documentationLastUpdated`). Idempotent, handles interrupted runs.~~
 - ~~Resolved: Impact reasoning is stored in `impactReasoning String?` on the Automation model. Requires a schema migration in this epic.~~
+- ~~Resolved: Claude model choice — use appropriate model at implementation time; store model ID as a named constant for easy swapping.~~

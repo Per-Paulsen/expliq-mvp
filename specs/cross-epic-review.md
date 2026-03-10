@@ -547,3 +547,56 @@ No cross-epic issues found. All referenced components (error boundaries for rout
 
 ## Cascading Changes
 None. The canonical param value addition to epic 06 is an isolated fix that aligns with epic 08's existing URLs.
+
+---
+
+# Cross-Epic Review Pass 7 — 2026-03-10
+
+Post-05.5 addition. Reviews the new Test Infrastructure spec (05.5) against the full epic chain (01-09) and re-verifies existing unbuilt specs (06-09) for any new cross-epic issues.
+
+## Summary
+- Total specs reviewed: 10 (5 unbuilt: 05.5, 06–09; 5 completed read-only: 01–05)
+- Specs modified: (none)
+- Specs clean: 05.5, 06, 07, 08, 09
+
+## Changes by Epic
+
+### 05.5 — Test Infrastructure
+No cross-epic issues found. The spec integrates cleanly with the completed epic chain:
+
+- **Dependencies verified**: All four referenced modules exist and have the expected signatures:
+  - `createN8nClient(instanceUrl, apiKey)` in `n8n-client.ts` — standalone, no session ✓
+  - `processAutomation(automationId, workspaceId)` in `llm-pipeline.ts` — explicit params, no session ✓
+  - `encrypt(plaintext)` in `encryption.ts` — standalone ✓
+  - `bcrypt` for password hashing — used in epic 02 ✓
+- **Sync upsert replication**: Correctly identifies that `syncWorkflows` server action can't be called from a script and specifies replicating the upsert logic. ✓
+- **Schema alignment**: All Automation fields referenced in the data design section match `prisma/schema.prisma`. Required fields (`workspaceId`, `externalId`, `platform`, `rawWorkflowJson`, `status`) are all addressed. ✓
+- **Governance signal design**: Hardcoded governance fields are designed per epic 05's rules — the combination of owners, review dates, timestamps, and statuses can produce all three risk levels. ✓
+- **No backward impact**: The seed script is standalone — it doesn't modify any code that epics 06-09 depend on. ✓
+- **No forward dependency gap**: Epics 06-09 don't reference the seed data or seed script — it's a development tool, not a code dependency. ✓
+
+### 06 — Portfolio Screen
+No new issues. All findings from passes 1-6 remain resolved.
+
+### 07 — Automation Detail
+No new issues. All findings from passes 1-6 remain resolved.
+
+### 08 — Workspace Snapshot
+No new issues. All findings from passes 1-6 remain resolved.
+
+### 09 — Production Hardening
+No new issues. Epic 09 depends on "all prior epics (01-08)" — the seed script (05.5) doesn't add pages, server actions, or UI components that would require hardening. No dependency update needed.
+
+## Cross-Epic Consistency Verified
+
+| Concern | Epics involved | Status |
+|---------|---------------|--------|
+| 05.5 module imports match actual signatures | 05.5 → 03, 04 | Verified against code |
+| 05.5 governance field design matches signal rules | 05.5 → 05 | Consistent |
+| 05.5 schema field usage matches Prisma schema | 05.5 → 01 | Consistent |
+| 05.5 doesn't break existing test infrastructure | 05.5 vs scripts/verify-risk-engine.ts | Isolated (separate workspaces) |
+| 09 scope unaffected by 05.5 insertion | 09, 05.5 | No update needed |
+| All previously verified items from passes 1-6 | 01-09 | Still consistent |
+
+## Cascading Changes
+None. Epic 05.5 is a standalone addition with no impact on existing specs.

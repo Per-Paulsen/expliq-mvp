@@ -44,7 +44,19 @@ Your job:
 - `npm run lint` — no lint errors
 - `npm run build` — no type errors
 
-#### Browser verification (Playwright)
+#### E2E verification
+
+Choose the verification method based on what the epic builds:
+
+**A) Epic has UI changes** (new pages, modified components, visual output):
+Use Playwright for browser verification.
+
+**B) Epic is backend-only** (services, utilities, data logic, no UI):
+Write a permanent verification script that tests the logic against real database data.
+
+Both methods may be combined when appropriate (e.g., a backend epic whose output will be consumed by future UI epics — verify the logic via script, optionally also confirm the app still loads via Playwright).
+
+##### Playwright browser verification
 
 **Pre-flight:**
 - Kill port 3000 before starting: `npx kill-port 3000`
@@ -54,18 +66,24 @@ Your job:
 **Steps:**
 1. Start the dev server (`npm run dev`) in the background
 2. Load Playwright tools via `ToolSearch` (query: `+playwright navigate`)
-3. If Playwright tools are available:
-   - Navigate, interact, and verify UI matches spec requirements
-   - **Always close the browser when done** — call `mcp__plugin_playwright_playwright__browser_close` after all browser checks complete (whether pass or fail)
-4. If Playwright tools are NOT available (ToolSearch returns no results):
-   - **Fallback**: write a temporary verification script (e.g., `scripts/verify-epic.ts`) that tests the flow via direct DB queries and/or HTTP requests
-   - Run it with `npx tsx scripts/verify-epic.ts`
-   - Verify the output confirms the acceptance criteria
-   - Delete the script after verification (`rm scripts/verify-epic.ts`)
+3. Navigate, interact, and verify UI matches spec requirements
+4. **Always close the browser when done** — call `mcp__plugin_playwright_playwright__browser_close` after all browser checks complete (whether pass or fail)
 
 **Cleanup (always, whether verification passed or failed):**
 1. Close the browser: `mcp__plugin_playwright_playwright__browser_close`
 2. Kill the dev server: `npx kill-port 3000`
+
+##### Verification scripts
+
+For backend-only epics or when Playwright is unavailable, write a verification script.
+
+**Convention:**
+- File: `scripts/verify-{epic-name}.ts` (e.g., `scripts/verify-risk-engine.ts`)
+- Run with: `npx tsx scripts/verify-{epic-name}.ts`
+- Scripts are **permanent** — committed with the epic, kept for regression testing
+- Scripts connect to the real database via `dotenv/config` + standalone `PrismaClient`
+- Scripts import project code using `@/` aliases (tsx resolves them from `tsconfig.json`)
+- Scripts should print clear output showing what was tested and whether it passed
 
 #### Acceptance criteria
 - Every acceptance criterion from the spec is verified and passing

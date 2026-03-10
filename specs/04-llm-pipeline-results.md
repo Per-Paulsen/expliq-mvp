@@ -105,3 +105,24 @@ Full browser-based e2e verification passed:
 ## Commit
 
 `9efc6dc` — `feat: implement epic 4 — LLM pipeline`
+
+---
+
+## Patch: Parallelize LLM processing (2026-03-10)
+
+**What changed:** Replaced sequential `for` loops with batched `Promise.allSettled` (concurrency=5) for ~5x speedup.
+
+**Files modified:**
+- `src/lib/actions/llm.ts` — `processUnprocessedAutomations` now processes automations in parallel batches of 5
+- `scripts/seed-test-data.ts` — Both mock and real workspace LLM loops now use parallel batches
+
+**Why:** Sequential processing (~10-12s per automation via OpenRouter) caused multi-minute waits. 10 automations: ~2min → ~24s. Prevents timeout risk for larger workspaces.
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (109 tests) |
+| `npm run lint` | Pass |
+| `npm run build` | Pass |
+
+**Commit:** `fd3fe40` — `perf: parallelize LLM processing with batched Promise.allSettled`

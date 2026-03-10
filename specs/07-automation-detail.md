@@ -8,53 +8,59 @@ Build the Automation Detail screen (`/automations/[id]`) — the full view of a 
 
 This epic depends on epic 05 (Risk Engine) for computed risk level and governance signals displayed in the risk section. It depends on epic 04 (LLM Pipeline) for the regenerate server action and all LLM-generated display fields. It depends on epic 03 (n8n Connector) for the ConnectorConfig record used by the "Open in n8n" link.
 
-### Layout (based on prototype screenshots)
+### Layout — content + sidebar (two-column)
+
+Two-column layout: main content left (~65%), governance sidebar right (~35%). On narrow screens (< ~1024px), the sidebar stacks above the main content. This follows the standard detail-page pattern (GitHub issues, Jira tickets, Linear) and extends the portfolio card's 2-column DNA to page scale.
+
+#### Main content (left column)
 
 - **Back navigation**: "← Back to Automations" link returning to Portfolio
-- **Header**: automation name (LLM-generated), platform badge (n8n), effective status badge (`statusOverride ?? status`), governance attention badges, Edit button
-- **Metadata grid**:
-  - Owner | Trigger Type
-  - Automation Last Updated | Documentation Last Updated
-- **Systems**: tag chips for each system touched
+- **Header**: automation name (LLM-generated), Edit button (right-aligned)
+- **Badges row**: platform badge (n8n), effective status badge (`statusOverride ?? status`)
 - **Description**: LLM-generated business summary (1-2 sentences)
 - **Trigger**: LLM-generated plain-language trigger description
 - **Core Logic**: LLM-generated bullet list of what the workflow does step by step
 - **Data Types**: list of data types flowing through the workflow
 - **Side Effects**: what the automation writes/modifies in other systems
 - **Business Context**: LLM-generated explanation of why this automation matters and what breaks if it fails
-- **Risk section**:
+
+#### Governance sidebar (right column)
+
+- **Risk & Governance**:
   - Computed risk level (High / Medium / Low) with color indicator
   - Impact classification (showing LLM proposal and user override if different), with LLM reasoning (`impactReasoning`) displayed below the classification
-  - Active governance signals listed as explicit risk drivers
+- **Signals**:
+  - Active governance signals listed as explicit risk drivers (same set as Portfolio card badges — excludes "Inactive" since the effective status badge already conveys active/inactive/deprecated)
+  - "Mark as reviewed" button (standalone, outside edit mode — sets `lastReviewDate` to now; placed near the signals it resolves for low-friction access)
+- **Metadata**:
+  - Owner
+  - Trigger type (read-only, LLM-generated)
+  - Automation Last Updated
+  - Documentation Last Updated
+  - Systems touched (tag chips)
 - **Actions**:
   - "Open in n8n" link (constructed: `{instanceUrl}/workflow/{externalId}`, opens in new tab). The `instanceUrl` is read from the workspace's `ConnectorConfig` record. If no ConnectorConfig exists, the link is hidden.
   - "Regenerate" button to re-run LLM pipeline for this automation (shows loading state during processing; displays error if regeneration fails)
 
 ### Edit Mode
 
-Clicking "Edit" enters inline edit mode for user-editable fields only:
+Clicking "Edit" enters inline edit mode for user-editable fields in the sidebar:
 
 - **Owner**: text input (free-form for MVP)
 - **Impact classification**: dropdown (Critical / High / Medium / Low) — pre-filled with LLM proposal or current override
 - **Review cadence**: number input (days, default 30)
 - **Status override**: dropdown (Active / Inactive / Deprecated) — writes to `statusOverride` field, not `status`
 
-Save and Cancel buttons. LLM-generated fields remain read-only and visually distinct from editable fields.
-
-### Standalone Actions
-
-Available outside edit mode (no need to click "Edit" first):
-
-- **Mark as reviewed**: button that sets `lastReviewDate` to now. This is a high-frequency, low-ceremony action — keeping it outside edit mode reduces friction.
+Save and Cancel buttons appear in the sidebar. LLM-generated fields (main content column) remain read-only and visually distinct from editable fields.
 
 ## Acceptance criteria
 
-- [ ] Detail page displays all LLM-generated fields: name, description, trigger, core logic (as bullets), systems touched (as tags), data types, business context, side effects
-- [ ] Governance metadata is shown: owner, trigger type (read-only, LLM-generated), automation last updated, documentation last updated, platform badge, status badge, governance attention badges
-- [ ] Risk section shows computed risk level, impact classification (LLM proposal vs user override) with impact reasoning displayed, and specific governance signals driving the risk
-- [ ] Edit mode allows modifying: owner, impact classification, review cadence, status override
-- [ ] "Mark as reviewed" is a standalone action outside edit mode — one click sets `lastReviewDate` to now
-- [ ] LLM-generated fields are visually distinct and not editable in edit mode
+- [ ] Two-column layout: main content (~65%) left, governance sidebar (~35%) right; sidebar stacks above content on narrow screens
+- [ ] Main content displays all LLM-generated fields: name, description, trigger, core logic (as bullets), data types, business context, side effects — with platform badge and effective status badge below the title
+- [ ] Governance sidebar shows: risk level with color indicator, impact classification (LLM proposal vs user override) with impact reasoning, active governance signals as risk drivers, "Mark as reviewed" button, metadata (owner, trigger type, timestamps, systems touched as tags), and actions
+- [ ] Edit mode allows modifying sidebar fields: owner, impact classification, review cadence, status override — with Save/Cancel buttons in the sidebar
+- [ ] "Mark as reviewed" is a standalone action outside edit mode — one click sets `lastReviewDate` to now; placed in the sidebar near the governance signals it resolves
+- [ ] LLM-generated fields (main content column) are visually distinct and not editable in edit mode
 - [ ] "Open in n8n" link is constructed from `instanceUrl/workflow/externalId` and opens in a new tab
 - [ ] "Open in n8n" link is hidden if no ConnectorConfig exists for the workspace
 - [ ] "Regenerate" button shows a loading state during processing, displays an error if regeneration fails, and refreshes the page content on success (existing LLM fields are preserved on failure per epic 04 error handling)
@@ -81,6 +87,7 @@ Available outside edit mode (no need to click "Edit" first):
 | **Status override** | When the user changes the effective status from the sync-derived value; stored in `statusOverride` separately from the sync-derived `status` field |
 | **Mark as reviewed** | User action that sets `lastReviewDate` to the current timestamp, clearing the "overdue review" governance signal |
 | **Risk drivers** | The specific governance signals contributing to an automation's risk level, shown explicitly to the user |
+| **Governance sidebar** | The right column of the detail page containing risk, impact, signals, metadata, and actions — stays visible while scrolling the main content |
 | **"Open in n8n"** | A deep link to the automation's workflow editor in the user's n8n instance |
 
 ## Open questions

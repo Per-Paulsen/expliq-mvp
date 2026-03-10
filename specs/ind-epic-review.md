@@ -212,3 +212,59 @@ No new issues. Epic 05 results have no specific impact on the hardening spec —
 ### Changes applied
 
 - None
+
+---
+
+# Individual Epic Review — 2026-03-10 (pass 4)
+
+## Summary
+- Specs reviewed: 07, 08, 09
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 06
+- Specs skipped (already refined): none (all stale — missing 05.5-test-infrastructure-results.md, 06-portfolio-screen-results.md)
+- Specs modified: none
+- Specs clean: 07, 08, 09
+
+## 07 — Automation Detail
+
+### Findings
+
+No new issues. Reviewed against epic 05.5 and 06 results:
+
+- **Epic 05.5 risk #2** (LLM impact classification uniformity) — the detail page shows both `impactProposal` and `impactOverride`. Clustering of proposal values is a data quality issue, not a spec issue. The display is correct regardless of distribution.
+- **Epic 06 risk #3** (`formatRelativeTime` duplication) — the detail page's metadata grid shows timestamps that will likely need the same helper. This is an implementation code-reuse concern, not a spec issue.
+- **Epic 06 patch: "Inactive" attention signal removed** from `ATTENTION_SIGNAL_MAP` — the detail page header shows "governance attention badges" (same set as portfolio, 4 signals) while the risk section shows "active governance signals" (full risk-engine set, 5 signals including `inactive`). These are intentionally different: attention badges are quick visual alerts, risk drivers explain the risk computation. No ambiguity in the spec — "attention badges" and "governance signals" are already distinct terms.
+- **Back navigation** (`router.back()`) — verified that epic 06 uses URL-synced filter state, so browser history preserves filter context. Spec 07's back navigation AC is well-grounded.
+- **Null LLM fields** — epic 06 shows unprocessed automations with "Untitled automation" / "No description available" fallbacks on portfolio cards. Spec 07 already has an AC for placeholder text on unprocessed automations. Consistent.
+
+### Changes applied
+
+- None
+
+## 08 — Workspace Snapshot
+
+### Findings
+
+No new issues. Reviewed against epic 05.5 and 06 results:
+
+- **Click-through URL params verified** against epic 06 implementation — all params use singular names matching `parseFiltersFromParams`: `impact`, `risk`, `attention`, `system`, `owner`, `updatedAfter`, `minSystems`, `sort`, `order`. All spec 08 URLs are correct.
+- **"Inactive" attention signal removal** — spec 08 doesn't include an "inactive" metric card, so the removal has no impact.
+- **Epic 06 deviation: filter section always collapsed by default** (even with URL params, shows compact active-filters bar instead) — this is a portfolio UX detail. Spec 08 only specifies navigation targets, not how the portfolio renders them. No impact.
+- **Epic 05.5 seed data** — provides known test data for all 5 metric cards (total, high-impact, high-risk, missing owners, overdue reviews) plus exposure rankings. No spec impact.
+
+### Changes applied
+
+- None
+
+## 09 — Production Hardening
+
+### Findings
+
+No new issues. Reviewed against epic 05.5 and 06 results:
+
+- **Epic 06 already created `src/app/(app)/automations/error.tsx`** — one of the four route-level error boundaries spec 09 requires. The hardening pass will audit the existing one and create the remaining three. Not a spec issue — reduces implementation scope slightly.
+- **Epic 06 risk #2** (no search debouncing) — search is client-side instant filtering, not an expensive server call. Not in scope for spec 09's rate-limiting (which targets expensive operations: Regenerate, Sync Now, Test Connection).
+- **Epic 05.5** — the seed script is a dev tool, not a user-facing feature. No error boundaries, loading states, or rate limiting needed for it.
+
+### Changes applied
+
+- None

@@ -10,3 +10,5 @@ Results incorporated:
 - 03-n8n-connector-results.md
 - 04-llm-pipeline-results.md
 - 05-risk-engine-results.md
+- 05.5-test-infrastructure-results.md
+- 06-portfolio-screen-results.md

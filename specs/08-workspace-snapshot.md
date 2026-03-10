@@ -38,8 +38,8 @@ All data is derived from existing Automation records and the risk engine (epic 0
 - [ ] Owner exposure ranking shows owners sorted by weighted exposure score with a visual bar scaled relative to the highest score
 - [ ] Recently changed section lists up to 5 automations updated in the last 7 days, with a "View all" link to the Portfolio (`?updatedAfter=7d&sort=automationLastUpdated&order=desc`)
 - [ ] Multi-system section lists up to 5 automations touching 3+ systems, with a "View all" link to the Portfolio (`?minSystems=3`)
-- [ ] Clicking a system in the exposure ranking navigates to Portfolio filtered by that system
-- [ ] Clicking an owner in the exposure ranking navigates to Portfolio filtered by that owner
+- [ ] Clicking a system in the exposure ranking navigates to Portfolio filtered by that system (`?system={systemName}`)
+- [ ] Clicking an owner in the exposure ranking navigates to Portfolio filtered by that owner (`?owner={ownerName}`, or `?owner=_none` for the "Unassigned" entry)
 - [ ] When no automations exist in the workspace, the dashboard shows a guided empty state with a message and a call-to-action linking to the settings page to connect n8n
 - [ ] Dashboard data refreshes on page load (no caching needed for MVP)
 - [ ] Automations with `status = removed` are excluded from all metrics (regardless of `statusOverride`). All other metrics use effective status (`statusOverride ?? status`).

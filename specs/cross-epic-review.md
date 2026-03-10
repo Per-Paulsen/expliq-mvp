@@ -600,3 +600,65 @@ No new issues. Epic 09 depends on "all prior epics (01-08)" — the seed script 
 
 ## Cascading Changes
 None. Epic 05.5 is a standalone addition with no impact on existing specs.
+
+---
+
+# Cross-Epic Review Pass 8 (In-Dev) — 2026-03-10
+
+Post-implementation review after Epics 01–06 completion (including epic 05.5). Within-epic refinement (`/refine_all_ind` pass 4) already applied. This pass focuses on cross-epic consistency with the newly completed Epic 06 (Portfolio Screen) and its two patches.
+
+## Summary
+- Total specs reviewed: 10 (3 unbuilt: 07–09; 7 completed read-only: 01–06, 05.5)
+- Specs modified: 07, 08
+- Specs clean: 09
+
+## Changes by Epic
+
+### 07 — Automation Detail
+- **Issue**: Governance attention badges vs risk drivers ambiguity (implementation drift from epic 06)
+  - **Involved epics**: 06 (completed — removed "Inactive" from `ATTENTION_SIGNAL_MAP` per patch), 07 (consumes attention badges)
+  - The epic 06 patch removed "Inactive" from portfolio attention badges because it was redundant with the status badge. Spec 07's header also shows both an effective status badge AND "governance attention badges." Without clarification, the implementer might include all 5 governance signals as attention badges, re-creating the same redundancy the portfolio patched out.
+  - The risk section separately shows "Active governance signals listed as explicit risk drivers" — this SHOULD include all 5 signals from the risk engine (they explain the risk computation).
+  - **Change**: Clarified header attention badges use the same set as Portfolio card badges (excludes "Inactive" since the status badge already conveys active/inactive/deprecated). Risk section remains unchanged — it uses all risk engine signals.
+  - **Cascade**: None
+
+### 08 — Workspace Snapshot
+- **Issue**: System/owner exposure click-through URL format unspecified (missing handoff → 06)
+  - **Involved epics**: 06 (defines filter param names), 08 (consumes them)
+  - The 5 metric card click-throughs have concrete URLs (e.g., `?impact=critical&impact=high`), but the system and owner exposure ranking click-throughs just say "navigates to Portfolio filtered by that system/owner" without specifying the URL format. Epic 06's `parseFiltersFromParams` uses `params.getAll("system")` (singular) and `params.getAll("owner")` with `_none` sentinel for null owners.
+  - **Change**: Added concrete URL patterns to ACs: `?system={systemName}` for systems, `?owner={ownerName}` (or `?owner=_none` for "Unassigned") for owners.
+  - **Cascade**: None
+
+### 09 — Production Hardening
+No cross-epic issues found. All referenced components are properly scoped:
+- Error boundary for `src/app/(app)/automations/error.tsx` already exists (created in epic 06). Spec 09's audit will update it if needed and create the remaining three.
+- All server actions in `src/lib/actions/` are confirmed to exist: `auth.ts` (epic 02), `connector.ts` (epic 03), `llm.ts` (epic 04).
+- Rate-limited buttons: "Regenerate" (spec 07), "Sync Now" and "Test Connection" (epic 03, implemented). Spec 07's Regenerate loading state and spec 09's 10s debounce are complementary (loading covers actual processing time, debounce is a minimum cooldown).
+
+## Cross-Epic Consistency Verified
+
+| Concern | Epics involved | Status |
+|---------|---------------|--------|
+| Schema field references (all Automation fields) | 01→04→05→06→07→08 | Consistent |
+| Enum values (ImpactLevel, AutomationStatus, StatusOverride) | 01, 04, 05, 06, 07 | Consistent with Prisma schema |
+| Governance signal names (5 in risk engine, 4 in attention badges) | 05, 06, 07, 08 | Now consistent — 07 explicitly aligned with 06's 4-signal attention set |
+| Risk level = governance signals only (not impact) | 05, 07, 08 | Consistent |
+| Exposure score formula (impact_weight × risk_weight) | 05, 08 | Consistent |
+| Effective status (`statusOverride ?? status`) | 05, 06, 07, 08 | Consistent |
+| Effective impact (`impactOverride ?? impactProposal`) | 05, 06, 07, 08 | Consistent |
+| Removed automation exclusion (`status != removed`) | 05, 06, 08 | Consistent |
+| `systemsTouched` normalization (lowercase) | 04→05→06→07 | Consistent |
+| `documentationLastUpdated` lifecycle | 04 (sets) → 05 (reads) → 06/07 (displays) | Consistent |
+| ConnectorConfig usage | 03 (creates) → 06 (lastSyncAt) → 07 (instanceUrl) | Consistent |
+| Filter param canonical values | 06, 08 | Complete — all click-throughs now have concrete URLs |
+| Null-owner convention (`_none` sentinel) | 06, 08 | Now used in system/owner click-throughs |
+| Attention badge set (4 signals, excludes inactive) | 06 (implementation), 07 | Now explicitly aligned |
+| Risk drivers (all 5 governance signals) | 05, 07 | Consistent |
+| `formatRelativeTime` helper duplication | 06 (two copies) → 07, 08 (will need it) | Implementation concern only, no spec impact |
+| Epic 06 filter section collapsed by default | 06, 08 | No conflict — compact active-filters bar shows when arriving with URL params |
+| Epic 05.5 seed data | 05.5 → 06, 07, 08, 09 | No dependencies — seed is a dev tool |
+| Error boundary pre-existence | 06 (`automations/error.tsx`) → 09 | 09 audits existing, creates missing |
+| Rate limiting vs loading states | 07 (loading during processing), 09 (10s debounce) | Complementary, not conflicting |
+
+## Cascading Changes
+None. Both fixes were isolated to their respective specs.

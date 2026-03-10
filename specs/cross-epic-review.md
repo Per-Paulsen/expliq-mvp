@@ -483,3 +483,67 @@ Your answer:  a
 
 1. **Spec 06 — Open question resolved**: Marked as resolved. Platform filter row is shown for MVP even with only n8n supported.
 2. **No other specs affected**: No cascading changes needed.
+
+---
+
+# Cross-Epic Review Pass 6 (In-Dev) — 2026-03-10
+
+Post-implementation review after Epics 01–05 completion. Within-epic refinement (`/refine_all_ind` pass 3) already applied. This pass focuses on cross-epic consistency with the newly completed Epic 05 (Risk Engine).
+
+## Summary
+- Total specs reviewed: 9 (4 unbuilt: 06–09; 5 completed read-only: 01–05)
+- Specs modified: 06
+- Specs clean: 07, 08, 09
+
+## Changes by Epic
+
+### 06 — Portfolio Screen
+- **Issue**: Missing canonical param values for `impact`, `risk`, and null-owner convention for `owner` (missing handoff → 08)
+  - **Involved epics**: 06 (defines filter params), 08 (consumes them in click-through URLs)
+  - Epic 08 uses specific param values in click-through URLs (`?impact=critical&impact=high`, `?risk=high`) and epic 08's owner exposure ranking navigates to Portfolio filtered by owner — but epic 06 only defined canonical values for `attention`, `sort`, and `order` (added in pass 5). The `impact`, `risk`, and null-owner `owner` param conventions were missing.
+  - Epic 05 results confirm `getOwnerExposure` groups null owners as "Unassigned". When this entry is clicked in the Snapshot, the click-through URL needs a defined convention for representing null-owner in the `owner` param.
+  - **Change**: Added canonical values for `impact` (matching `ImpactLevel` enum: `critical`, `high`, `medium`, `low`), `risk` (matching risk level values: `high`, `medium`, `low`), and defined `_none` as the sentinel value for null-owner in the `owner` param.
+  - **Cascade**: None — epic 08's existing click-through URLs already use matching lowercase values for `impact` and `risk`. The owner exposure click-through now has an unambiguous param convention.
+
+### 07 — Automation Detail
+No cross-epic issues found. Risk section data flow from epic 05 is well-grounded:
+- `getRiskLevel(automation)` → risk level display ✓
+- `getGovernanceSignals(automation)` → active signals as risk drivers ✓
+- `getEffectiveImpact(automation)` returns `string | null` (per epic 05 risk #2) — no impact on display logic ✓
+- `impactReasoning` field exists in schema and is populated by epic 04 ✓
+
+### 08 — Workspace Snapshot
+No cross-epic issues found. All data flows verified:
+- `getSystemExposure(workspaceId)` → pre-sorted system rankings ✓
+- `getOwnerExposure(workspaceId)` → pre-sorted owner rankings (null owners as "Unassigned") ✓
+- Top metrics derivable from loading all non-removed automations + epic 05 functions ✓
+- All click-through URLs use canonical param values now defined in epic 06 ✓
+- Epic 05 risk #1 (all test automations "high" impact → flat rankings) is a data issue, not spec issue ✓
+- Epic 05 risk #3 (multiple full-table scans) is an MVP-scale optimization concern, not spec-level ✓
+
+### 09 — Production Hardening
+No cross-epic issues found. All referenced components (error boundaries for routes from epics 06-08, server actions from epics 03-07, rate-limited buttons from epics 03/07) are properly scoped.
+
+## Cross-Epic Consistency Verified
+
+| Concern | Epics involved | Status |
+|---------|---------------|--------|
+| Schema field references (all Automation fields) | 01→04→05→06→07→08 | Consistent |
+| Enum values (ImpactLevel, AutomationStatus, StatusOverride) | 01, 04, 05, 06, 07 | Consistent with Prisma schema |
+| Governance signal names and rules (5 signals) | 05, 06, 07, 08 | Consistent |
+| Risk level = governance signals only (not impact) | 05, 07, 08 | Consistent |
+| Exposure score formula (impact_weight × risk_weight) | 05, 08 | Consistent |
+| Effective status (`statusOverride ?? status`) | 05, 06, 07, 08 | Consistent |
+| Effective impact (`impactOverride ?? impactProposal`) | 05, 06, 07, 08 | Consistent |
+| Removed automation exclusion (`status != removed`) | 05, 06, 08 | Consistent |
+| `systemsTouched` normalization (lowercase) | 04→05→06→07 | Consistent |
+| `documentationLastUpdated` lifecycle | 04 (sets) → 05 (reads for signal) → 06/07 (displays) | Consistent |
+| ConnectorConfig usage | 03 (creates) → 06 (lastSyncAt) → 07 (instanceUrl for "Open in n8n") | Consistent |
+| Filter param canonical values (`attention`, `impact`, `risk`, `sort`, `order`) | 06, 08 | Now complete |
+| Null-owner convention (`_none` sentinel in `owner` param) | 06, 08 | Now defined |
+| Epic 05 API surface consumed correctly | 05→06, 05→07, 05→08 | Consistent |
+| `getEffectiveImpact` return type (`string | null`) | 05→06, 05→07 | No spec impact |
+| `deprecated` status and governance signals | 05, 06, 07 | Consistent (deprecated ≠ inactive) |
+
+## Cascading Changes
+None. The canonical param value addition to epic 06 is an isolated fix that aligns with epic 08's existing URLs.

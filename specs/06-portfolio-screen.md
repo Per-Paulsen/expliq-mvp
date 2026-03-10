@@ -11,14 +11,14 @@ This epic depends on epic 05 (Risk Engine) for computing governance signals disp
 ### Layout (based on prototype screenshots)
 
 - **Header area**: search bar ("Search automations..."), sync status indicator
-- **Filter section** (collapsible — collapsed by default, auto-expands when any filter is active via URL params or user interaction; can be manually collapsed at any time, even with active filters — filters remain applied, only the filter UI is hidden). All chip and badge counts across all filter rows are global — they always show total workspace counts regardless of other active filters:
+- **Filter section** (collapsible via a toggle control in the section header — collapsed by default, auto-expands when any filter is active via URL params or user interaction; can be manually collapsed at any time, even with active filters — filters remain applied, only the filter UI is hidden). All chip and badge counts across all filter rows are global — they always show total workspace counts regardless of other active filters:
   - **Systems** row: clickable chips showing each system with automation count (e.g., "Slack (10)", "Salesforce (10)"). Multiple can be selected. "Clear" button resets.
   - **Platform** row: clickable chips showing each platform with count (e.g., "n8n (5)"). Only n8n has data for MVP.
   - **Owner** row: clickable chips showing each owner with automation count (e.g., "Alice (5)", "Bob (3)", "No owner (2)"). Multiple can be selected. "Clear" button resets.
   - **Attention** row: clickable badges for governance signals (e.g., "No owner assigned (3)", "Automation stale (4)", "Documentation outdated (7)", "Overdue review (5)", "Inactive (2)")
   - **Impact** row: clickable chips for each impact level with count (e.g., "Critical (3)", "High (7)", "Medium (10)", "Low (3)"). Uses effective impact (`impactOverride ?? impactProposal`). Multiple can be selected. "Clear" button resets.
   - **Risk** row: clickable chips for each risk level with count (e.g., "High (5)", "Medium (12)", "Low (6)"). Uses computed risk level from epic 05. Multiple can be selected. "Clear" button resets.
-- **URL-only filters** (no visible chip row — used by Snapshot "View all" links): `updatedAfter` (filters to automations updated within a time window, e.g., `?updatedAfter=7d`) and `minSystems` (filters to automations touching N+ systems, e.g., `?minSystems=3`). When active, a small dismissible "active filter" tag is shown above the results (e.g., "Filtered: recently changed ×" or "Filtered: 3+ systems ×").
+- **URL-only filters** (no visible chip row — used by Snapshot "View all" links): `updatedAfter` (filters to automations updated within a time window; value format is `{N}d` where N is a number of days, e.g., `?updatedAfter=7d` = updated in the last 7 days) and `minSystems` (filters to automations touching N+ systems, value is an integer, e.g., `?minSystems=3`). When active, a small dismissible "active filter" tag is shown above the results (e.g., "Filtered: recently changed ×" or "Filtered: 3+ systems ×").
 - **Sort bar**: sort by "Automation Last Updated", "Documentation Last Updated", "Name" — with ascending/descending toggle
 - **Result count**: "X automations" label that updates with filters
 - **Automation cards**: each card shows:
@@ -41,7 +41,7 @@ Full-text search across automation name and description using Prisma `contains` 
 
 Filters are combinable (AND logic across categories, OR logic within a category). URL query parameters reflect active filters for shareability and browser back/forward support. Filter parameters use repeated query params (e.g., `?system=Slack&system=Salesforce&owner=Alice&attention=no-owner`) parsed with `useSearchParams`. Available param names: `system`, `owner`, `attention`, `platform`, `impact`, `risk`, `search`, `sort`, `order`, `updatedAfter`, `minSystems`.
 
-Canonical param values for `attention` (map to governance signals from epic 05): `no-owner`, `documentation-outdated`, `automation-stale`, `overdue-review`, `inactive`. Canonical values for `sort`: `automationLastUpdated` (default), `documentationLastUpdated`, `name`. Values for `order`: `asc`, `desc`.
+Canonical param values for `attention` (map to governance signals from epic 05): `no-owner`, `documentation-outdated`, `automation-stale`, `overdue-review`, `inactive`. Canonical values for `impact` (match `ImpactLevel` enum): `critical`, `high`, `medium`, `low`. Canonical values for `risk` (match risk level values from epic 05): `high`, `medium`, `low`. The `owner` param uses the sentinel value `_none` to represent automations with no owner assigned (`owner IS NULL`); all other values are literal owner names. Canonical values for `sort`: `automationLastUpdated` (default), `documentationLastUpdated`, `name`. Values for `order`: `asc`, `desc`.
 
 ## Acceptance criteria
 
@@ -62,6 +62,7 @@ Canonical param values for `attention` (map to governance signals from epic 05):
 - [ ] Sync status indicator in the header shows the `lastSyncAt` from the workspace's n8n ConnectorConfig (for MVP, at most one connector per workspace), e.g., "Last synced: 2 hours ago", or "Never synced" if no sync has occurred
 - [ ] Automations with `status = removed` are excluded from the list (regardless of `statusOverride`)
 - [ ] When no automations exist (or all are removed), the Portfolio shows an empty state message guiding the user to connect and sync an automation platform
+- [ ] When active filters or search produce zero matching automations (but automations do exist in the workspace), the Portfolio shows a "no results" message distinct from the empty workspace state
 
 ## Out of scope
 

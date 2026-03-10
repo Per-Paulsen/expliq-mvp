@@ -149,3 +149,66 @@ All 4 `NEEDS CONFIRMATION` items resolved and applied to specs:
 2. **Spec 08 — Q2: Recently changed threshold** → (a) keep 7 days. Different concept from 14-day staleness. Marked resolved in spec.
 3. **Spec 09 — Q3: Error boundary fallback** → (a) "Try again" only. No external error tracking exists for MVP. Marked resolved in spec.
 4. **Spec 09 — Q4: Loading skeleton fidelity** → (a) approximate layout. Pages still evolving. Marked resolved in spec.
+
+---
+
+# Individual Epic Review — 2026-03-10 (pass 3)
+
+## Summary
+- Specs reviewed: 06, 07, 08, 09
+- Specs skipped (completed epics): 01, 02, 03, 04, 05
+- Specs skipped (already refined): none (all stale — missing 05-risk-engine-results.md)
+- Specs modified: 06
+- Specs clean: 07, 08, 09
+
+## 06 — Portfolio Screen
+
+### Findings
+
+- **Filter section toggle mechanism not described** (hidden scope creep)
+  - The spec says the filter section is "collapsible" and describes auto-expand/manual-collapse behavior, but doesn't mention a visible toggle control. Since the section is collapsed by default and all filter chips are inside it, the user needs a way to expand it manually.
+  - **Change**: Added "via a toggle control in the section header" to the filter section description.
+
+- **`updatedAfter` param format undefined** (ungrounded assumption)
+  - The spec uses `?updatedAfter=7d` as an example but doesn't define the format or supported units. Epic 08 also uses `7d`. Without a defined format, implementers must guess the parsing rules.
+  - **Change**: Specified the format as `{N}d` where N is a number of days (e.g., `7d` = within the last 7 days). Also clarified `minSystems` value is an integer.
+
+- **Zero-results filter state not addressed** (missing AC)
+  - The spec has an empty state for when no automations exist in the workspace, but no AC for when active filters or search produce zero matches. These are distinct states requiring different messaging ("connect a platform" vs "no results match your filters").
+  - **Change**: Added AC: "When active filters or search produce zero matching automations (but automations do exist in the workspace), the Portfolio shows a 'no results' message distinct from the empty workspace state."
+
+### Changes applied
+
+- Added "via a toggle control in the section header" to the collapsible filter section description
+- Specified `updatedAfter` format as `{N}d` (number of days) and `minSystems` as integer
+- Added new AC for zero-results filter state
+
+## 07 — Automation Detail
+
+### Findings
+
+No new issues. Reviewed against epic 05 results — the risk section's dependency on `getGovernanceSignals`, `getRiskLevel`, `getEffectiveImpact`, and `getEffectiveStatus` is well-grounded. The `getEffectiveImpact` returning `string | null` (not `ImpactLevel | null`) per epic 05 risk #2 has no impact on the spec since the display just shows the value. Previous pass findings (override reset) already resolved as (a) no reset for MVP.
+
+### Changes applied
+
+- None
+
+## 08 — Workspace Snapshot
+
+### Findings
+
+No new issues. Reviewed against epic 05 results — the exposure rankings map directly to `getSystemExposure(workspaceId)` and `getOwnerExposure(workspaceId)` which return pre-sorted arrays. Epic 05 risk #1 (all test automations "high" impact → flat rankings) is a data issue, not a spec issue. Epic 05 risk #3 (two full-table scans) is an implementation optimization concern, not spec-level. Previous pass finding (7-day threshold) already resolved as (a) keep 7 days.
+
+### Changes applied
+
+- None
+
+## 09 — Production Hardening
+
+### Findings
+
+No new issues. Epic 05 results have no specific impact on the hardening spec — the risk engine is a pure service module with no error boundaries, loading states, or rate-limiting concerns of its own. Previous pass findings (error boundary fallback, skeleton fidelity) already resolved as (a) for both.
+
+### Changes applied
+
+- None

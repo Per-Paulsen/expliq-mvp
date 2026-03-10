@@ -19,7 +19,13 @@
       "mcp__plugin_playwright_playwright__browser_run_code",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(sleep 5 && curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/login 2>&1)",
+      "Bash(echo 'import { STALE_THRESHOLD_DAYS } from \"@/lib/risk-engine\"; console.log\\(STALE_THRESHOLD_DAYS\\)' | npx tsx --tsconfig tsconfig.json - 2>&1)",
+      "Bash(npx tsx:*)",
+      "Bash(node -e \"\nconst fs = require\\('fs'\\);\nconst content = fs.readFileSync\\('scripts/seed-test-data.ts', 'utf8'\\);\n\n// Count workflow definitions\nconst workflowIds = [...content.matchAll\\(/id: \\\\\"\\(mock-[^\\\\\"]+\\)\\\\\"/g\\)].map\\(m => m[1]\\);\n// Filter to unique entries in MOCK_WORKFLOWS \\(not in GOVERNANCE_MATRIX\\)\nconst govIds = [...content.matchAll\\(/\\\\\"\\(mock-[^\\\\\"]+\\)\\\\\": \\\\{/g\\)].map\\(m => m[1]\\);\n\nconsole.log\\('Workflow IDs found:', workflowIds.length\\);\nconsole.log\\('Governance entries:', govIds.length\\);\nconsole.log\\('Workflow IDs:', JSON.stringify\\([...new Set\\(workflowIds\\)]\\)\\);\nconsole.log\\('Governance IDs:', JSON.stringify\\([...new Set\\(govIds\\)]\\)\\);\n\n// Check for mismatches\nconst wfSet = new Set\\(workflowIds\\);\nconst govSet = new Set\\(govIds\\);\nfor \\(const id of govSet\\) {\n  if \\(!wfSet.has\\(id\\)\\) console.log\\('  GOV BUT NO WF:', id\\);\n}\nfor \\(const id of wfSet\\) {\n  if \\(!govSet.has\\(id\\)\\) console.log\\('  WF BUT NO GOV:', id\\);\n}\n\")"
     ]
   }
 }

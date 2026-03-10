@@ -6,42 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import type { PortfolioAutomation } from "@/lib/portfolio-types";
 import { ATTENTION_LABELS, ATTENTION_SIGNAL_MAP } from "@/lib/portfolio-types";
 import type { GovernanceSignals } from "@/lib/risk-engine";
+import { STATUS_COLORS, RISK_COLORS, IMPACT_COLORS } from "@/lib/badge-colors";
+import { formatRelativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
-
-function formatRelativeTime(isoString: string): string {
-  const now = Date.now();
-  const then = new Date(isoString).getTime();
-  const diffMs = now - then;
-  const diffMinutes = Math.floor(diffMs / 60_000);
-  const diffHours = Math.floor(diffMs / 3_600_000);
-  const diffDays = Math.floor(diffMs / 86_400_000);
-
-  if (diffMinutes < 1) return "just now";
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 30) return `${diffDays}d ago`;
-  const diffMonths = Math.floor(diffDays / 30);
-  return `${diffMonths}mo ago`;
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  inactive: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
-  error: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-};
-
-const RISK_COLORS: Record<string, string> = {
-  high: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  medium: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  low: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-};
-
-const IMPACT_COLORS: Record<string, string> = {
-  critical: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-  high: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  medium: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  low: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-};
 
 export function PortfolioAutomationCard({
   automation,

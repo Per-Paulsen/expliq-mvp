@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { PortfolioAutomation } from "@/lib/portfolio-types";
 import { ATTENTION_LABELS, ATTENTION_SIGNAL_MAP } from "@/lib/portfolio-types";
@@ -36,6 +36,13 @@ const RISK_COLORS: Record<string, string> = {
   low: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
 };
 
+const IMPACT_COLORS: Record<string, string> = {
+  critical: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+  high: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  medium: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+  low: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+};
+
 export function PortfolioAutomationCard({
   automation,
 }: {
@@ -49,12 +56,12 @@ export function PortfolioAutomationCard({
   return (
     <Link href={`/automations/${automation.id}`} className="block">
       <Card className="hover:border-primary/50 transition-colors cursor-pointer">
-        <CardHeader>
-          <div className="flex items-start justify-between gap-2">
-            <CardTitle className="truncate">
-              {automation.name ?? "Untitled automation"}
-            </CardTitle>
-            <div className="flex shrink-0 items-center gap-1.5">
+        <CardContent className="flex gap-6">
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="flex items-center gap-2">
+              <h3 className="truncate text-base font-medium">
+                {automation.name ?? "Untitled automation"}
+              </h3>
               <Badge
                 className={cn(
                   "border-0",
@@ -63,6 +70,49 @@ export function PortfolioAutomationCard({
               >
                 {automation.riskLevel}
               </Badge>
+              {automation.impactLevel && (
+                <Badge
+                  className={cn(
+                    "border-0",
+                    IMPACT_COLORS[automation.impactLevel] ?? ""
+                  )}
+                >
+                  {automation.impactLevel} impact
+                </Badge>
+              )}
+            </div>
+
+            {automation.systemsTouched.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {automation.systemsTouched.map((s) => (
+                  <Badge key={s} variant="secondary" className="text-[10px]">
+                    {s}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            <p className="line-clamp-2 text-sm text-muted-foreground">
+              {automation.description ?? "No description available"}
+            </p>
+
+            {activeSignals.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {activeSignals.map(([key]) => (
+                  <Badge
+                    key={key}
+                    variant="destructive"
+                    className="text-[10px]"
+                  >
+                    {ATTENTION_LABELS[key] ?? key}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex shrink-0 flex-col items-end gap-1.5 text-right">
+            <div className="flex items-center gap-1.5">
               <Badge
                 className={cn(
                   "border-0",
@@ -74,54 +124,16 @@ export function PortfolioAutomationCard({
               </Badge>
               <Badge variant="outline">{automation.platform}</Badge>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="line-clamp-2 text-sm text-muted-foreground">
-            {automation.description ?? "No description available"}
-          </p>
-
-          <div className="text-xs text-muted-foreground">
-            {automation.owner ?? "No owner"}
-            {automation.impactLevel && (
-              <span className="ml-2 capitalize">
-                {automation.impactLevel} impact
-              </span>
-            )}
-          </div>
-
-          {automation.systemsTouched.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {automation.systemsTouched.map((s) => (
-                <Badge key={s} variant="secondary" className="text-[10px]">
-                  {s}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {activeSignals.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {activeSignals.map(([key]) => (
-                <Badge
-                  key={key}
-                  variant="destructive"
-                  className="text-[10px]"
-                >
-                  {ATTENTION_LABELS[key] ?? key}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-4 text-[11px] text-muted-foreground">
-            <span>
+            <span className="text-xs text-muted-foreground">
+              {automation.owner ?? "No owner"}
+            </span>
+            <span className="text-[11px] text-muted-foreground">
               Updated:{" "}
               {automation.automationLastUpdated
                 ? formatRelativeTime(automation.automationLastUpdated)
                 : "N/A"}
             </span>
-            <span>
+            <span className="text-[11px] text-muted-foreground">
               Docs:{" "}
               {automation.documentationLastUpdated
                 ? formatRelativeTime(automation.documentationLastUpdated)

@@ -110,3 +110,20 @@ No test changes needed — this is a pure UI/navigation change. E2E verification
 This stays minimal — only `app-sidebar.tsx` changes. The sidebar already imports `SidebarGroup` and all needed primitives. `SidebarSeparator` may need to be added to the import if it exists in shadcn/ui sidebar, otherwise we use a simple `<Separator />`.
 
 Ready to implement when you confirm.
+
+---
+
+## Implementation Applied (2026-03-10)
+
+**Commit:** `5c786fd` — `fix: add dashboard navigation to sidebar`
+
+**Files modified:**
+- `src/components/app-sidebar.tsx` — Split single SidebarGroup into 3 separated groups (Dashboard, Automations, Settings), added BarChart3 icon, made "Expliq" header a link to `/`, added SidebarSeparator between groups
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (244 tests) |
+| `npm run lint` | Pass |
+| `npm run build` | Pass |
+| E2E verification | Playwright: navigated Automations → clicked Dashboard → landed on `/` with "Workspace Snapshot" heading. Sidebar shows 3 separated groups. |

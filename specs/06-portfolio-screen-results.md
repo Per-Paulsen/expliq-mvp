@@ -145,3 +145,24 @@ None.
 | E2E verification | Playwright — all labels correct, no redundant Inactive badge |
 
 **Commit:** `18e878a` — `fix: clarify card badge labels and remove redundant Inactive attention signal`
+
+---
+
+## Patch: Add dashboard navigation to sidebar (2026-03-10)
+
+**What changed:** Added a "Dashboard" link and visual group separation to the sidebar. The "Expliq" header is now a clickable link to `/`. Sidebar items are organized into three visually separated groups (Dashboard, Automations, Settings) using `SidebarSeparator`.
+
+**Files modified:**
+- `src/components/app-sidebar.tsx` — Split single SidebarGroup into 3 groups with SidebarSeparator, added Dashboard menu item with BarChart3 icon linking to `/`, made "Expliq" header a Link to `/`
+
+**Why:** There was no way to navigate to the dashboard (`/`) from anywhere in the app. The sidebar also needed visual grouping to support future expansion (agents, pipelines, etc.).
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (244 tests) |
+| `npm run lint` | Pass |
+| `npm run build` | Pass |
+| E2E verification | Playwright — Dashboard link navigates to `/`, logo links to `/`, three separated groups visible |
+
+**Commit:** `5c786fd` — `fix: add dashboard navigation to sidebar`

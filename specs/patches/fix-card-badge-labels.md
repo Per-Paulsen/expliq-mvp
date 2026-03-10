@@ -40,3 +40,22 @@ After the card layout restructure, several display issues on portfolio cards:
 
 ### Scope
 Minimal and focused. No logic changes, no new behavior — just display label fixes and removing a redundant UI element.
+
+---
+
+## Implementation Applied (2026-03-10)
+
+**Commit:** `18e878a` — `fix: clarify card badge labels and remove redundant Inactive attention signal`
+
+**Files modified:**
+- `src/components/portfolio-automation-card.tsx` — Risk badge adds "risk" label, system names capitalized, timestamp labels clarified
+- `src/lib/portfolio-types.ts` — Removed "inactive" from ATTENTION_SIGNAL_MAP and ATTENTION_LABELS
+- `src/__tests__/portfolio-automation-card.test.tsx` — Updated timestamp test assertions to match new labels
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (178 tests) |
+| `npm run lint` | Pass |
+| `npm run build` | Pass |
+| E2E verification | Playwright — risk shows "high risk"/"medium risk"/"low risk", systems capitalized, timestamps show "Automation updated:"/"Docs updated:", no "Inactive" attention badge (only status badge) |

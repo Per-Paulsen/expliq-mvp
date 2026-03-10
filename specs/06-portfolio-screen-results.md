@@ -122,3 +122,26 @@ None.
 | E2E verification | Playwright — cards stack vertically, two-column layout correct, sort order clear, navigation works |
 
 **Commit:** `98dd767` — `fix: portfolio cards vertical layout with two-column card design`
+
+---
+
+## Patch: Clarify card badge labels and remove redundant Inactive attention signal (2026-03-10)
+
+**What changed:** Fixed inconsistent/unclear labels on portfolio card elements and removed the redundant "Inactive" attention signal.
+
+**Files modified:**
+- `src/components/portfolio-automation-card.tsx` — Risk badge: "medium" → "medium risk"; system names capitalized; timestamps: "Updated:" → "Automation updated:", "Docs:" → "Docs updated:"
+- `src/lib/portfolio-types.ts` — Removed "inactive" from `ATTENTION_SIGNAL_MAP` and `ATTENTION_LABELS`
+- `src/__tests__/portfolio-automation-card.test.tsx` — Updated timestamp assertions
+
+**Why:** Badge labels were inconsistent (impact had "impact" label but risk didn't). Timestamps were abbreviated and unclear. "Inactive" appeared as both a red attention badge and gray status badge, causing confusion.
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (178 tests) |
+| `npm run lint` | Pass |
+| `npm run build` | Pass |
+| E2E verification | Playwright — all labels correct, no redundant Inactive badge |
+
+**Commit:** `18e878a` — `fix: clarify card badge labels and remove redundant Inactive attention signal`

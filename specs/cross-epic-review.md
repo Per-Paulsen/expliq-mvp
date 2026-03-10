@@ -396,3 +396,90 @@ Applying now.
 6. **Spec 08 — Concrete click-through URLs**: High-impact → `?impact=critical&impact=high`, High-risk → `?risk=high`, Recently changed View all → `?updatedAfter=7d&sort=automationLastUpdated&order=desc`, Multi-system View all → `?minSystems=3`.
 7. **NEEDS CONFIRMATION removed** from both specs 06 and 08 (marked resolved).
 8. **Spec 06 — Collapsible behavior clarified**: Filter section can be manually collapsed even with active filters (filters remain applied, only the UI is hidden).
+
+---
+
+# Cross-Epic Review Pass 5 (In-Dev) — 2026-03-10
+
+Post-implementation review after Epics 01–04 completion. Within-epic refinement (`/refine_all_ind` pass 2) already applied. This pass focuses on cross-epic consistency with the newly completed Epic 04 (LLM Pipeline).
+
+## Summary
+- Total specs reviewed: 9 (5 unbuilt: 05–09; 4 completed read-only: 01–04)
+- Specs modified: 05, 06, 07
+- Specs clean: 08, 09
+
+## Changes by Epic
+
+### 05 — Risk Engine
+- **Issue**: Stale note references resolved open question (within-epic)
+  - The note under Risk Level says "See open question below about whether impact classification should also factor into risk level elevation" — but the question was resolved in cross-epic review pass 2 (governance signals only, confirmed Option C)
+  - **Change**: Updated note to state the resolution inline: "Risk level is derived from governance signal counts only. Impact classification is a separate dimension that factors into exposure scores (impact_weight × risk_weight) but does not elevate risk level."
+  - **Cascade**: None
+
+### 06 — Portfolio Screen
+- **Issue 1**: Attention filter param identifiers undefined (missing handoff → 08)
+  - Epic 08 uses `?attention=no-owner` and `?attention=overdue-review` in click-through URLs, but epic 06 never defined the canonical set of attention param identifiers. Only an example (`attention=no-owner`) appeared in the param format description.
+  - **Involved epics**: 06 (defines filter params), 08 (consumes them)
+  - **Change**: Added canonical param value definitions for `attention` (`no-owner`, `documentation-outdated`, `automation-stale`, `overdue-review`, `inactive`), `sort` (`automationLastUpdated`, `documentationLastUpdated`, `name`), and `order` (`asc`, `desc`) to the Filters section.
+  - **Cascade**: None — epic 08's existing URLs already use matching identifiers
+
+- **Issue 2**: Platform filter open question still unresolved after 5 refinement passes (within-epic)
+  - "Should the Platform filter row be shown if only n8n is supported for MVP?"
+  - **Change**: `NEEDS CONFIRMATION` — tagged the existing open question
+
+### 07 — Automation Detail
+- **Issue**: Missing Dependencies section (forward dependency gap)
+  - Epic 07 uses risk level and governance signals from epic 05, regenerate server action from epic 04, and ConnectorConfig from epic 03, but had no explicit Dependencies section
+  - **Involved epics**: 03, 04, 05
+  - **Change**: Added Dependencies section listing epic 05 (risk section), epic 04 (regenerate + LLM fields), epic 03 (ConnectorConfig for "Open in n8n" link)
+  - **Cascade**: None
+
+### 08 — Workspace Snapshot
+No cross-epic issues found. All click-through URLs match epic 06's now-defined canonical param values. Exposure score consumption from epic 05 is consistent.
+
+### 09 — Production Hardening
+No cross-epic issues found. All referenced components (error boundaries, server actions, buttons) are defined in earlier epics and will exist by the time this epic runs.
+
+## Cross-Epic Consistency Verified
+
+| Concern | Epics involved | Status |
+|---------|---------------|--------|
+| Schema field references (all Automation fields) | 01→04→05→06→07→08 | Consistent |
+| Enum values (ImpactLevel, AutomationStatus, StatusOverride) | 01, 04, 05, 06, 07 | Consistent with Prisma schema |
+| Governance signal names (5 signals) | 05, 06, 07, 08 | Consistent |
+| Attention filter param identifiers | 06, 08 | Now explicitly defined in 06 |
+| `systemsTouched` normalization (lowercase) | 04→05→06→07 | Consistent |
+| Removed automation exclusion (`status != removed`) | 05, 06, 08 | Consistent |
+| Effective status (`statusOverride ?? status`) | 05, 06, 07, 08 | Consistent |
+| Effective impact (`impactOverride ?? impactProposal`) | 05, 06, 07, 08 | Consistent |
+| `documentationLastUpdated` lifecycle | 04 (sets) → 05 (reads for signal) → 06/07 (displays) | Consistent |
+| ConnectorConfig usage | 03 (creates) → 06 (lastSyncAt) → 07 (instanceUrl for "Open in n8n") | Consistent |
+| Risk level = governance signals only | 05, 07, 08 | Consistent |
+| Exposure score formula (impact_weight × risk_weight) | 05, 08 | Consistent |
+| Filter chip counts (global) | 06 | Now uniformly specified |
+| Epic 04 results: lazy client, fence stripping, app-level filtering | 05, 06 | No conflicts |
+| Epic 04 results: all impact classified as "high" | 05, 06, 07 | No spec impact (formulas correct regardless) |
+| Sort/order param values | 06, 08 | Now explicitly defined in 06 |
+
+## Cascading Changes
+None. All fixes were isolated to their respective specs.
+
+## Brainstorming
+
+### Epic 06 — Platform filter row visibility
+
+The Portfolio filter area has 6 rows: Systems, Platform, Owner, Attention, Impact, Risk. For MVP, only n8n is supported as a platform. The Platform row would show a single chip: `[n8n (23)]`.
+
+- **(a) Show it** — Communicates multi-platform support is coming. Shows the count. Consistent filter row layout. Trivial implementation cost.
+- **(b) Hide it** — One chip with one value adds no filtering utility. Removes visual clutter from an already filter-heavy screen. Can be added when a second platform is supported.
+
+**Recommendation:** (a) — the implementation cost is zero (it's just another chip row reading from the `platform` field), and removing a filter row now only to add it back later is churn. One-chip rows are common in faceted search UIs (they serve as a label/count, not just a filter).
+
+Your answer:  a
+
+## Confirmations Applied
+
+### Epic 06 — Platform filter row (confirmed: show it)
+
+1. **Spec 06 — Open question resolved**: Marked as resolved. Platform filter row is shown for MVP even with only n8n supported.
+2. **No other specs affected**: No cascading changes needed.

@@ -74,5 +74,5 @@ Depends on all prior epics (01-08). This is a hardening pass, not new functional
 
 ## Open questions
 
-- Should error boundaries offer a "Report issue" link or just "Try again"? (Proposed: just "Try again" for MVP)
-- Should loading skeletons match the exact layout of the loaded page, or use generic placeholders? (Proposed: approximate layout skeletons — not pixel-perfect, but recognizable)
+- ~~Resolved: Error boundaries show "Try again" only for MVP. No "Report issue" link — no external error tracking or support channel exists yet.~~
+- ~~Resolved: Loading skeletons use approximate layout (recognizable shapes, not pixel-perfect). Pages are still evolving through epics 05-08.~~

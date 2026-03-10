@@ -12,3 +12,4 @@ Results incorporated:
 - 01-project-setup-results.md
 - 02-auth-results.md
 - 03-n8n-connector-results.md
+- 04-llm-pipeline-results.md

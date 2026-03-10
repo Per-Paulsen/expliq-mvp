@@ -65,7 +65,7 @@ All data is derived from existing Automation records and the risk engine (epic 0
 
 ## Open questions
 
-- Should the "Recently changed" threshold (7 days) match the "Automation stale" threshold (14 days), or is it intentionally a shorter window to surface recent activity? (Proposed: keep 7 days — it's about surfacing recent activity, not staleness)
+- ~~Resolved: "Recently changed" uses a 7-day threshold, intentionally shorter than the 14-day "Automation stale" threshold. They measure different things: recent activity vs neglect.~~
 - ~~Resolved: Portfolio filter params (`impact`, `risk`, `updatedAfter`, `minSystems`) added to epic 06. All click-through URLs now have concrete param targets. See cross-epic review pass 4.~~
 - ~~Resolved: All 5 metrics cards are clickable, navigating to filtered Portfolio views.~~
 - ~~Resolved: When no automations are synced, the dashboard shows a guided empty state with a call-to-action linking to settings.~~

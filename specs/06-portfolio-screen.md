@@ -11,11 +11,11 @@ This epic depends on epic 05 (Risk Engine) for computing governance signals disp
 ### Layout (based on prototype screenshots)
 
 - **Header area**: search bar ("Search automations..."), sync status indicator
-- **Filter section** (collapsible — collapsed by default, auto-expands when any filter is active via URL params or user interaction; can be manually collapsed at any time, even with active filters — filters remain applied, only the filter UI is hidden):
+- **Filter section** (collapsible — collapsed by default, auto-expands when any filter is active via URL params or user interaction; can be manually collapsed at any time, even with active filters — filters remain applied, only the filter UI is hidden). All chip and badge counts across all filter rows are global — they always show total workspace counts regardless of other active filters:
   - **Systems** row: clickable chips showing each system with automation count (e.g., "Slack (10)", "Salesforce (10)"). Multiple can be selected. "Clear" button resets.
   - **Platform** row: clickable chips showing each platform with count (e.g., "n8n (5)"). Only n8n has data for MVP.
   - **Owner** row: clickable chips showing each owner with automation count (e.g., "Alice (5)", "Bob (3)", "No owner (2)"). Multiple can be selected. "Clear" button resets.
-  - **Attention** row: clickable badges for governance signals with global counts (always total workspace counts, not affected by other active filters) (e.g., "No owner assigned (3)", "Automation stale (4)", "Documentation outdated (7)", "Overdue review (5)", "Inactive (2)")
+  - **Attention** row: clickable badges for governance signals (e.g., "No owner assigned (3)", "Automation stale (4)", "Documentation outdated (7)", "Overdue review (5)", "Inactive (2)")
   - **Impact** row: clickable chips for each impact level with count (e.g., "Critical (3)", "High (7)", "Medium (10)", "Low (3)"). Uses effective impact (`impactOverride ?? impactProposal`). Multiple can be selected. "Clear" button resets.
   - **Risk** row: clickable chips for each risk level with count (e.g., "High (5)", "Medium (12)", "Low (6)"). Uses computed risk level from epic 05. Multiple can be selected. "Clear" button resets.
 - **URL-only filters** (no visible chip row — used by Snapshot "View all" links): `updatedAfter` (filters to automations updated within a time window, e.g., `?updatedAfter=7d`) and `minSystems` (filters to automations touching N+ systems, e.g., `?minSystems=3`). When active, a small dismissible "active filter" tag is shown above the results (e.g., "Filtered: recently changed ×" or "Filtered: 3+ systems ×").
@@ -40,6 +40,8 @@ Full-text search across automation name and description using Prisma `contains` 
 ### Filters
 
 Filters are combinable (AND logic across categories, OR logic within a category). URL query parameters reflect active filters for shareability and browser back/forward support. Filter parameters use repeated query params (e.g., `?system=Slack&system=Salesforce&owner=Alice&attention=no-owner`) parsed with `useSearchParams`. Available param names: `system`, `owner`, `attention`, `platform`, `impact`, `risk`, `search`, `sort`, `order`, `updatedAfter`, `minSystems`.
+
+Canonical param values for `attention` (map to governance signals from epic 05): `no-owner`, `documentation-outdated`, `automation-stale`, `overdue-review`, `inactive`. Canonical values for `sort`: `automationLastUpdated` (default), `documentationLastUpdated`, `name`. Values for `order`: `asc`, `desc`.
 
 ## Acceptance criteria
 
@@ -80,6 +82,6 @@ Filters are combinable (AND logic across categories, OR logic within a category)
 
 ## Open questions
 
-- Should the Platform filter row be shown if only n8n is supported for MVP? (Leaning yes — it communicates that multi-platform support is coming and shows the count)
+- ~~Resolved: Platform filter row is shown for MVP even with only n8n. Communicates multi-platform support is coming, shows the count, and has zero implementation cost.~~
 - ~~Resolved: Added Impact and Risk as visible filter chip rows. Added `updatedAfter` and `minSystems` as URL-only params with dismissible tags. Filter section is collapsible (collapsed by default, auto-expands when filters are active). See cross-epic review pass 4.~~
 - ~~Resolved: Filter badge counts are global — always show total workspace counts regardless of other active filters. Simpler to implement and matches standard faceted search UX.~~

@@ -4,6 +4,10 @@
 
 Build the Automation Detail screen (`/automations/[id]`) — the full view of a single automation showing all LLM-generated content, governance metadata, risk information, and user-editable fields. This is where Emma understands what an automation does and why it matters.
 
+### Dependencies
+
+This epic depends on epic 05 (Risk Engine) for computed risk level and governance signals displayed in the risk section. It depends on epic 04 (LLM Pipeline) for the regenerate server action and all LLM-generated display fields. It depends on epic 03 (n8n Connector) for the ConnectorConfig record used by the "Open in n8n" link.
+
 ### Layout (based on prototype screenshots)
 
 - **Back navigation**: "← Back to Automations" link returning to Portfolio
@@ -81,6 +85,7 @@ Available outside edit mode (no need to click "Edit" first):
 
 ## Open questions
 
+- ~~Resolved: Override dropdowns do not include a "Reset to default" option for MVP. Overrides are permanent once set. The user can manually select the matching value if needed. The effective impact/status is always correct regardless.~~
 - ~~Resolved: "Mark as reviewed" is standalone — a button visible outside edit mode. High-frequency, low-ceremony action.~~
 - ~~Resolved: Back navigation uses `router.back()` with fallback to `/automations`. Preserves Portfolio filter state from browser history.~~
 - ~~Resolved: `statusOverride` field added to schema (enum: active, inactive, deprecated — nullable). Edit mode writes to `statusOverride`; sync writes to `status`. Effective status = `statusOverride ?? status`.~~

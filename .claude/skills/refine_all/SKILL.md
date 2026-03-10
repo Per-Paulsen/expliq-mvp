@@ -64,7 +64,7 @@ If a fix to epic N requires a change to epic M (where M < N):
 
 ### Output
 
-Write `specs/cross-epic-review.md` with all findings and changes:
+Append a new dated pass section to `specs/cross-epic-review.md` (create the file if it doesn't exist). Each run adds a new section — never overwrite previous passes. Use a horizontal rule (`---`) to separate passes:
 
 ```markdown
 # Cross-Epic Review — {date}

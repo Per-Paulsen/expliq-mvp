@@ -26,7 +26,7 @@ Each automation gets a computed risk level (High / Medium / Low) derived from th
 - **Medium**: 1-2 active signals
 - **Low**: 0 active signals
 
-Note: The rules above use governance signal counts only. See open question below about whether impact classification should also factor into risk level elevation.
+Note: Risk level is derived from governance signal counts only. Impact classification is a separate dimension that factors into exposure scores (impact_weight × risk_weight) but does not elevate risk level.
 
 ### Scope Precondition
 

@@ -2,12 +2,12 @@
 
 ## Scope
 
-Build the Claude (Anthropic API) integration that transforms raw n8n workflow JSON into business-readable fields. This includes:
+Build the LLM integration (via OpenRouter) that transforms raw n8n workflow JSON into business-readable fields. Uses the OpenAI SDK with OpenRouter's OpenAI-compatible API, allowing model selection via environment variable. This includes:
 
 - **Schema migration**: add `impactReasoning String?` to the Automation model (this field was deferred from earlier epics)
 - **Prompt engineering**: design a structured prompt that takes a raw workflow JSON and returns all required fields in a reliable, parseable format (JSON output)
-- **API integration**: call the Anthropic API (Claude Sonnet or Haiku — choose appropriate model at implementation time; store model ID as a named constant) from a Next.js server action or internal service function
-- **`rawWorkflowJson` handling**: when reading `rawWorkflowJson` from the database, the value is Prisma's `JsonValue` type and must be serialized (e.g., `JSON.stringify()`) before sending to the Anthropic API
+- **API integration**: call the OpenRouter API using the OpenAI SDK (`openai` package) with base URL `https://openrouter.ai/api/v1`. Model is configured via `OPENROUTER_MODEL` env var with a fallback default (e.g., `anthropic/claude-sonnet-4`). JSON output via `response_format: { type: "json_object" }`.
+- **`rawWorkflowJson` handling**: when reading `rawWorkflowJson` from the database, the value is Prisma's `JsonValue` type and must be serialized (e.g., `JSON.stringify()`) before sending to the LLM
 - **Field extraction and storage**: parse the LLM response and store generated fields on the Automation record:
   - **Name** — human-readable name (e.g., "CRM → Slack Escalation")
   - **Description** — 1-2 sentence business summary
@@ -30,7 +30,7 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 ## Acceptance criteria
 
 - [ ] A Prisma schema migration adds `impactReasoning String?` to the Automation model
-- [ ] An endpoint (server action or API route) accepts an automation ID, verifies the automation belongs to the requesting user's workspace, and sends its `rawWorkflowJson` to the Anthropic API with a structured prompt
+- [ ] An endpoint (server action or API route) accepts an automation ID, verifies the automation belongs to the requesting user's workspace, and sends its `rawWorkflowJson` to the OpenRouter API (via OpenAI SDK) with a structured prompt
 - [ ] The LLM returns a JSON object containing: name, description, trigger, triggerType, coreLogic, systemsTouched, dataTypes, businessContext, sideEffects, impactProposal (level + reasoning)
 - [ ] Generated fields are persisted to the Automation record, including `impactReasoning` (the LLM's explanation for its impact classification); `documentationLastUpdated` is set to the current timestamp
 - [ ] After n8n sync, a separate server action triggers LLM processing for all automations where `documentationLastUpdated IS NULL OR automationLastUpdated > documentationLastUpdated` (sync returns immediately; LLM processing is a follow-up call)
@@ -38,7 +38,7 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 - [ ] The core LLM logic is in an internal service module (`src/lib/llm-pipeline.ts`), called by server actions for both post-sync processing and single-automation regeneration
 - [ ] If the LLM response is missing required fields or contains unparseable data, the automation's existing LLM fields are not overwritten and the error is reported to the caller
 - [ ] API errors (rate limits, network failures, malformed responses) are handled gracefully: existing data is not corrupted, and errors are returned to the caller
-- [ ] The Anthropic API key is stored as an environment variable (not in the database)
+- [ ] The OpenRouter API key (`OPENROUTER_API_KEY`) and model (`OPENROUTER_MODEL`) are stored as environment variables (not in the database)
 
 ## Out of scope
 
@@ -53,7 +53,7 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 
 | Term | Definition |
 |------|-----------|
-| **LLM pipeline** | The process of sending raw workflow JSON to Claude and parsing structured business-readable fields from the response |
+| **LLM pipeline** | The process of sending raw workflow JSON to an LLM (via OpenRouter) and parsing structured business-readable fields from the response |
 | **Impact proposal** | The LLM's suggested impact classification (Critical/High/Medium/Low) with reasoning; user can accept or override |
 | **impactReasoning** | The LLM's explanation for its impact classification, stored as free-form text alongside the `impactProposal` enum |
 | **Regeneration** | Re-running the LLM pipeline for a single automation to refresh its generated fields |
@@ -62,9 +62,9 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 
 ## Open questions
 
-- Should we store the raw LLM response alongside the parsed fields for debugging purposes?
+- ~~Resolved: Raw LLM response storage — No for MVP. Use temporary logging if debugging is needed.~~
 - ~~Resolved: Post-sync LLM trigger — (b) separate call. Sync returns immediately; UI triggers LLM processing via a follow-up server action.~~
 - ~~Resolved: Architecture — internal service module (`src/lib/llm-pipeline.ts`) with core logic, exposed via server actions. Follows existing `n8n-client.ts` → `actions/connector.ts` pattern.~~
 - ~~Resolved: LLM target selection — (b) query by timestamp (`documentationLastUpdated IS NULL OR automationLastUpdated > documentationLastUpdated`). Idempotent, handles interrupted runs.~~
 - ~~Resolved: Impact reasoning is stored in `impactReasoning String?` on the Automation model. Requires a schema migration in this epic.~~
-- ~~Resolved: Claude model choice — use appropriate model at implementation time; store model ID as a named constant for easy swapping.~~
+- ~~Resolved: LLM provider — OpenRouter (via OpenAI SDK) instead of direct Anthropic API. Model configured via `OPENROUTER_MODEL` env var with fallback default.~~

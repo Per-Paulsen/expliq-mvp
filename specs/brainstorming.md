@@ -256,3 +256,109 @@ Emma syncs her n8n instance on Monday. Expliq imports 20 workflows. On Wednesday
 **>> Recommendation for MVP:** Option A (upsert). Always show the latest state. We can track `automationLastUpdated` timestamps to surface the "recently changed" governance signal, but we don't need full version history for MVP.
 
 oke
+
+---
+
+## Round 4 — E2E Testing Strategy (Post Epic 05)
+
+### Context
+
+Through epics 01–05, e2e verification has been ad-hoc:
+- **Epic 02 (Auth)**: Playwright created a test account via signup flow
+- **Epic 04 (LLM Pipeline)**: Playwright created another test account, connected real n8n, synced 10 workflows, ran LLM processing
+- **Epic 05 (Risk Engine)**: Used a `scripts/verify-risk-engine.ts` script against the real DB (no browser)
+
+This left 2 test workspaces in Supabase with 10 real n8n automations each — all with LLM-generated fields, governance signals, and risk data. Useful, but accidental.
+
+### Problem
+
+Epics 06–09 are all UI-heavy screens that display real data (governance badges, risk levels, exposure rankings, filters, cards). Testing them meaningfully requires:
+1. A known test account with predictable credentials
+2. Real synced automations with LLM-generated fields (not mocked)
+3. Variety in the data — some automations with owners, some without; different impact levels; different review states — so filters, badges, and rankings actually exercise all states
+
+Right now the test data is homogeneous (all "high" impact, no owners, all overdue) which means filters like Impact and Owner have flat distributions. The exposure rankings would all cluster.
+
+### Questions
+
+23. Should we formalize a persistent test account with known credentials (stored in `.env.test` or similar) and update the `/dev` skill's verification step to use it for browser-based e2e testing of epics 06–09?
+
+24. Should we seed the test data with variety (assign owners to some automations, set different impact overrides, mark some as reviewed, etc.) before running epic 06? This would make filter/ranking testing meaningful. Options:
+    - (a) Write a one-time seed script that diversifies the existing test data in the DB
+    - (b) Have the `/dev` skill's verification step set up data as a first step before testing the UI
+    - (c) Both — a seed script for local dev, plus verification step sets up its own data
+
+please give me your recommendations on these questions. but let me go further: should the set up of a real test account not have been an individual epic itself?
+
+### Recommendations
+
+**Q23 — Formalize a test account: Yes.**
+
+Store credentials in `.env.test` (or `.env.local` with a `TEST_` prefix). The `/dev` skill's verification step logs in with these known credentials instead of creating throwaway accounts via signup. This gives repeatable, debuggable e2e runs.
+
+**Q24 — Seed data with variety: (c) Both.**
+
+A seed script creates the right data distribution once; the verification step can assume it exists. The seed script is also useful for manual dev testing. The verification step should validate the data is present (not blindly create it again).
+
+**On your deeper question — should this have been its own epic?**
+
+Honest answer: in a traditional project, yes — this is often called "Epic 0" or a "Test Infrastructure" epic. But in our case, the practical impact is small. Here's why:
+
+1. **Epics 01–05 are backend-heavy.** Their e2e verification was lightweight — signup, connect n8n, sync, check data. A formalized test account wouldn't have changed the implementation of those epics.
+
+2. **Epics 06–09 are where it matters.** These are UI screens displaying real data with filters, badges, rankings. Having diverse, predictable test data makes the difference between "page renders" and "all 6 filter rows work correctly with realistic distributions."
+
+3. **The cost of adding it now is tiny.** A seed script (~50 lines) + a `.env.test` file + a small update to the `/dev` skill. No schema changes, no new infrastructure. Maybe 30 minutes of work.
+
+So: **it would have been ideal as a pre-epic-06 task, but it's not worth a full epic.** I'd recommend a lightweight approach:
+
+- **Option A — Standalone seed script**: Write `scripts/seed-test-data.ts` that takes an existing test workspace (from the epic 02/04 Playwright runs) and diversifies it: assigns owners to 6/10 automations, sets different `impactOverride` values, marks 3 as reviewed, sets one `statusOverride = deprecated`. Run it once before epic 06. Update the `/dev` skill to reference the test credentials.
+
+- **Option B — New micro-epic "05.5"**: A tiny spec (`specs/05.5-test-infrastructure.md`) that formalizes the test account, seed script, and `/dev` skill update. More process overhead but keeps the audit trail clean.
+
+**>> Recommendation:** Option A. The seed script is too small to justify epic ceremony. Document the test credentials in `.env.example` and update the `/dev` skill. Ship it as a `chore:` commit before starting epic 06.
+
+What do you think? And do you want to go with the existing test workspace from the epic 04 Playwright run, or create a fresh one?
+
+i go with all your recommendations, except on the last one. i think we should create a new small epic that sets up a test account. however two questions result in general:
+- should we update the dev skill to always use this test account data, at least in the last e2e playwright test stage? but then the dev skill could not have applied this to epic01 because there was nothing to test. the dev skill would then need a way to find out in which epics applicable ... 
+- to create new epics we need another spec skill such as /spec_ind to create individual/additional specs. similar logic to the existing spec skill but as an outcome just creating specific spec. the brainstorming of phase 1 could then directly take place in the spec specific brainstorming file. i wanted to have this skill for a while now, as we have already added an additional epic09.
+- what do you think?
+
+### Response
+
+Good instincts on both points. Let me address them:
+
+**1. Dev skill + test account: conditional e2e stage**
+
+Yes — the `/dev` skill should use the test account for its Playwright e2e stage, but only when it makes sense. The logic is straightforward:
+
+- **Condition**: The e2e stage uses the test account **if the epic being implemented has UI output** (pages, components). Backend-only epics (like epic 05 — risk engine) use the script-based verification instead.
+- **How to detect**: The simplest approach is a marker in the spec itself. Add an optional field to specs like `e2e: browser` or `e2e: script-only`. The `/dev` skill reads this and decides which verification path to take.
+- **Alternatively**: The `/dev` skill's verifier agent already makes a judgment call about what to test. We could just add to its instructions: "If a test account exists (`.env.test` or test credentials in env), use it for browser-based e2e verification. If the epic is backend-only with no UI changes, use script-based verification instead."
+
+**>> Recommendation:** The second approach (instruction-based, not marker-based). The verifier agent already reads the spec to decide what to verify. Adding "use the test account for browser testing when the epic has UI" to its instructions is simpler than adding metadata fields to every spec. No per-epic configuration needed.
+
+**2. `/spec_ind` skill for individual/additional specs**
+
+Agreed — this is a real gap. The current `/spec` skill was designed for the initial PRD-to-epic-specs flow (reads the full PRD, produces all epics at once). It can't produce a single new spec in isolation.
+
+A `/spec_ind` skill would:
+- Take a brief description of what the new epic should accomplish (from the user, in chat or via a brainstorming file)
+- Read existing specs + results files to understand what's already built and what conventions to follow
+- Brainstorm in the epic-specific brainstorming file (e.g., `specs/05.5-test-infrastructure-brainstorming.md`)
+- Produce a single spec file following the established structure (Scope, Dependencies, ACs, Out of scope, Domain terms, Open questions)
+- Assign the next available epic number (or a sub-number like 05.5)
+
+**>> Recommendation:** Build the `/spec_ind` skill first, then use it to create the test infrastructure epic. This way the skill is immediately useful and battle-tested. The skill is small — mainly adapting the existing `/spec` skill's Phase 2 (spec writing) with a different input mechanism.
+
+**Proposed order of work:**
+1. Create `/spec_ind` skill
+2. Use `/spec_ind` to create epic 05.5 (test infrastructure)
+3. Update `/dev` skill to use test account for browser e2e
+4. Run `/dev` on epic 05.5 to implement the seed script + test account
+5. Continue with epic 06
+
+Does this sequence work? And for the `/spec_ind` skill — should I build it now, or do you want to review/refine the skill design first?
+
+the /spec_ind skill should have to phases like the spec skill and in phase 1 immediately generate the spec respective brainstorming file, in which then the content of the new spec can be discussed. everything else remains. i agree an all other issues and the proposed order of work. 

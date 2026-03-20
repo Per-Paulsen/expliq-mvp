@@ -56,7 +56,32 @@ tags:
 ### questions for marten
 
 - [ ] planning with claude and implementing with codex? planning then == planning mode? or what?
-- [ ] multi-agent wf best practices? where and how to implement? different or same from team mode? what about planning mode? isnt this already also team mode? 
+- [ ] multi-agent wf best practices? where and how to implement? different or same from team mode? what about planning mode? isnt this already also team mode?
+
+### Supabase RLS Security Warning (2026-03-18)
+
+Screenshots: `{65AF0D8A-897C-44AB-BB6B-1B9FE3102C3F}.png`, `{F757CD26-F093-41D4-9931-02E128BEA7C1}.png`
+
+Supabase Security Advisor flagged 10 errors:
+- **8x RLS Disabled in Public**: `_prisma_migrations`, `VerificationToken`, `Workspace`, `ConnectorConfig`, `Automation`, `Account`, `Session`, `User`
+- **2x Sensitive Columns Exposed**: `Account`, `VerificationToken`
+
+**Risk**: Not urgent — our app uses Prisma (direct DB connection), not PostgREST. But PostgREST is enabled by default on Supabase, so anyone with the project URL + anon key could theoretically query tables.
+
+**Fix**: Create a Prisma migration that enables RLS on all 8 tables with no policies. Prisma connects as the `postgres` role which bypasses RLS, so the app is unaffected. PostgREST (anon role) gets locked out.
+
+```sql
+ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "VerificationToken" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Workspace" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ConnectorConfig" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Automation" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Account" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Session" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
+```
+
+- [ ] Enable RLS on all Supabase tables (single migration, no code changes)
 
 ---
 

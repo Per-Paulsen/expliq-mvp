@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/done
+  - epic/07
+---
+
 # 07 — Automation Detail
+
+> Upstream: [PRD](../expliq_prd.md) | Previous: [06 — Portfolio Screen](06-portfolio-screen.md)
 
 ## Scope
 
@@ -96,3 +105,11 @@ Save and Cancel buttons appear in the sidebar. LLM-generated fields (main conten
 - ~~Resolved: "Mark as reviewed" is standalone — a button visible outside edit mode. High-frequency, low-ceremony action.~~
 - ~~Resolved: Back navigation uses `router.back()` with fallback to `/automations`. Preserves Portfolio filter state from browser history.~~
 - ~~Resolved: `statusOverride` field added to schema (enum: active, inactive, deprecated — nullable). Edit mode writes to `statusOverride`; sync writes to `status`. Effective status = `statusOverride ?? status`.~~
+
+---
+
+## Related
+
+- [Brainstorming](07-automation-detail-brainstorming.md)
+- [Results](07-automation-detail-results.md)
+- [Next: 08 — Workspace Snapshot](08-workspace-snapshot.md)

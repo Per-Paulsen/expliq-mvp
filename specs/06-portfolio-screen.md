@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/done
+  - epic/06
+---
+
 # 06 — Portfolio Screen
+
+> Upstream: [PRD](../expliq_prd.md) | Previous: [05.5 — Test Infrastructure](05.5-test-infrastructure.md)
 
 ## Scope
 
@@ -86,3 +95,14 @@ Canonical param values for `attention` (map to governance signals from epic 05):
 - ~~Resolved: Platform filter row is shown for MVP even with only n8n. Communicates multi-platform support is coming, shows the count, and has zero implementation cost.~~
 - ~~Resolved: Added Impact and Risk as visible filter chip rows. Added `updatedAfter` and `minSystems` as URL-only params with dismissible tags. Filter section is collapsible (collapsed by default, auto-expands when filters are active). See cross-epic review pass 4.~~
 - ~~Resolved: Filter badge counts are global — always show total workspace counts regardless of other active filters. Simpler to implement and matches standard faceted search UX.~~
+
+---
+
+## Related
+
+- [Brainstorming](06-portfolio-screen-brainstorming.md)
+- [Results](06-portfolio-screen-results.md)
+- [Next: 07 — Automation Detail](07-automation-detail.md)
+- [Patch: Fix Card Badge Labels](patches/fix-card-badge-labels.md)
+- [Patch: Dashboard Navigation](patches/no-return-to-dashboard-brainstorming.md)
+- [Patch: Vertical Card Layout](patches/portfolio-cards-vertical-layout-brainstorming.md)

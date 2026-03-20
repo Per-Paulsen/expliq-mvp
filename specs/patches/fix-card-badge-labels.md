@@ -1,4 +1,13 @@
+---
+tags:
+  - type/patch
+  - status/done
+  - epic/06
+---
+
 # Patch: Fix card badge labels and remove redundant "Inactive" attention signal (Epic 06) — Brainstorming
+
+> Upstream: [Epic 06: Portfolio Screen](../06-portfolio-screen.md)
 
 ## Context
 
@@ -59,3 +68,10 @@ Minimal and focused. No logic changes, no new behavior — just display label fi
 | `npm run lint` | Pass |
 | `npm run build` | Pass |
 | E2E verification | Playwright — risk shows "high risk"/"medium risk"/"low risk", systems capitalized, timestamps show "Automation updated:"/"Docs updated:", no "Inactive" attention badge (only status badge) |
+
+---
+
+## Related
+
+- [Epic 06 Spec](../06-portfolio-screen.md)
+- [Epic 06 Results](../06-portfolio-screen-results.md)

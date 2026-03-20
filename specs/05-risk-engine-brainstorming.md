@@ -1,4 +1,13 @@
+---
+tags:
+  - type/brainstorming
+  - status/done
+  - epic/05
+---
+
 # 05 — Risk Engine — Brainstorming
+
+> Upstream: [Epic 05: Risk Engine](05-risk-engine.md)
 
 ## Refinement Applied
 
@@ -13,3 +22,10 @@ Results incorporated:
 - 02-auth-results.md
 - 03-n8n-connector-results.md
 - 04-llm-pipeline-results.md
+
+---
+
+## Related
+
+- [Spec](05-risk-engine.md)
+- [Results](05-risk-engine-results.md)

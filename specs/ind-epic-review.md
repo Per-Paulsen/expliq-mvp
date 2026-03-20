@@ -1,4 +1,12 @@
+---
+tags:
+  - type/review
+  - status/done
+---
+
 # Individual Epic Review — 2026-03-10 (pass 2)
+
+> Upstream: [Cross-Epic Review](cross-epic-review.md) | [Map of Content](../_MOC.md)
 
 ## Summary
 - Specs reviewed: 05, 06, 07, 08, 09
@@ -309,3 +317,9 @@ No new issues. Reviewed against epic 07 results:
 ### Changes applied
 
 - None
+
+---
+
+## Related
+
+- [Cross-Epic Review](cross-epic-review.md)

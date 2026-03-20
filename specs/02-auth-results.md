@@ -1,4 +1,13 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/02
+---
+
 # Epic 02 — Authentication: Results
+
+> Upstream: [Epic 02: Authentication](02-auth.md)
 
 ## What Was Built
 
@@ -94,3 +103,10 @@ what is your recommendation on both?
 **Password strength** — Defer. The current 8-character minimum is fine for an MVP. Stronger validation (uppercase, numbers, symbols) adds friction without meaningfully reducing risk at this stage. Revisit when there are real users or before a public launch.
 
 **Middleware deprecation** — Defer. The `middleware.ts` convention still works in Next.js 16 (it compiles and runs correctly, just shows a warning). The `proxy` replacement is new and Auth.js v5 doesn't have official support for it yet. Migrating now would mean writing custom proxy logic without library support. Revisit when Auth.js ships a proxy-compatible API or when upgrading Next.js forces the change.
+
+---
+
+## Related
+
+- [Spec](02-auth.md)
+- [Brainstorming](02-auth-brainstorming.md)

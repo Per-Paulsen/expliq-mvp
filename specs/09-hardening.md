@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/pending
+  - epic/09
+---
+
 # 09 — Production Hardening
+
+> Upstream: [PRD](../expliq_prd.md) | Previous: [08 — Workspace Snapshot](08-workspace-snapshot.md)
 
 ## Scope
 
@@ -76,3 +85,9 @@ Depends on all prior epics (01-08). This is a hardening pass, not new functional
 
 - ~~Resolved: Error boundaries show "Try again" only for MVP. No "Report issue" link — no external error tracking or support channel exists yet.~~
 - ~~Resolved: Loading skeletons use approximate layout (recognizable shapes, not pixel-perfect). Pages are still evolving through epics 05-08.~~
+
+---
+
+## Related
+
+- [Brainstorming](09-hardening-brainstorming.md)

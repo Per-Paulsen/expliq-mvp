@@ -1,4 +1,13 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/07
+---
+
 # Epic 07 — Automation Detail: Results
+
+> Upstream: [Epic 07: Automation Detail](07-automation-detail.md)
 
 ## What Was Built
 
@@ -101,3 +110,10 @@ None.
 ## Commit
 
 `0d27489` — `feat: implement epic 7 — automation detail`
+
+---
+
+## Related
+
+- [Spec](07-automation-detail.md)
+- [Brainstorming](07-automation-detail-brainstorming.md)

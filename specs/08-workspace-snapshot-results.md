@@ -1,4 +1,13 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/08
+---
+
 # Epic 08 — Workspace Snapshot: Results
+
+> Upstream: [Epic 08: Workspace Snapshot](08-workspace-snapshot.md)
 
 ## What Was Built
 
@@ -94,3 +103,10 @@ None.
 ## Commit
 
 `be8231a` — `feat: implement epic 8 — workspace snapshot`
+
+---
+
+## Related
+
+- [Spec](08-workspace-snapshot.md)
+- [Brainstorming](08-workspace-snapshot-brainstorming.md)

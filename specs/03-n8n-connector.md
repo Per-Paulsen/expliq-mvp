@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/done
+  - epic/03
+---
+
 # 03 — n8n Connector
+
+> Upstream: [PRD](../expliq_prd.md) | Previous: [02 — Authentication](02-auth.md)
 
 ## Scope
 
@@ -53,3 +62,11 @@ At this stage, LLM-generated fields remain null — only raw workflow JSON and b
 - What encryption approach for the API key? (AES-256-GCM with a server-side secret from environment variables is the standard approach)
 - Should we store the n8n workflow `updatedAt` field from the API response to avoid re-processing unchanged workflows? (Optimization — probably yes)
 - ~~Resolved: Sync button lives on the settings page only. No header button.~~
+
+---
+
+## Related
+
+- [Brainstorming](03-n8n-connector-brainstorming.md)
+- [Results](03-n8n-connector-results.md)
+- [Next: 04 — LLM Pipeline](04-llm-pipeline.md)

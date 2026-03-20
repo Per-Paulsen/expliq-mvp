@@ -1,4 +1,13 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/04
+---
+
 # Epic 04 — LLM Pipeline: Results
+
+> Upstream: [Epic 04: LLM Pipeline](04-llm-pipeline.md)
 
 ## What Was Built
 
@@ -127,3 +136,10 @@ Full browser-based e2e verification passed:
 | E2E verification | Pass — seed script ran 25 automations in 3 batches (5 concurrent), 0 failures |
 
 **Commit:** `fd3fe40` — `perf: parallelize LLM processing with batched Promise.allSettled`
+
+---
+
+## Related
+
+- [Spec](04-llm-pipeline.md)
+- [Brainstorming](04-llm-pipeline-brainstorming.md)

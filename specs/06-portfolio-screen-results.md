@@ -1,4 +1,13 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/06
+---
+
 # Epic 06 — Portfolio Screen: Results
+
+> Upstream: [Epic 06: Portfolio Screen](06-portfolio-screen.md)
 
 ## What Was Built
 
@@ -166,3 +175,10 @@ None.
 | E2E verification | Playwright — Dashboard link navigates to `/`, logo links to `/`, three separated groups visible |
 
 **Commit:** `5c786fd` — `fix: add dashboard navigation to sidebar`
+
+---
+
+## Related
+
+- [Spec](06-portfolio-screen.md)
+- [Brainstorming](06-portfolio-screen-brainstorming.md)

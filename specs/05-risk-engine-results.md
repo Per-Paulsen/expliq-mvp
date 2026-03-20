@@ -1,4 +1,13 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/05
+---
+
 # Epic 05 — Risk Engine: Results
+
+> Upstream: [Epic 05: Risk Engine](05-risk-engine.md)
 
 ## What Was Built
 
@@ -88,3 +97,10 @@ None. The spec had no ambiguities and all open questions were pre-resolved.
 ## Commit
 
 `761eef4` — `feat: implement epic 5 — risk engine`
+
+---
+
+## Related
+
+- [Spec](05-risk-engine.md)
+- [Brainstorming](05-risk-engine-brainstorming.md)

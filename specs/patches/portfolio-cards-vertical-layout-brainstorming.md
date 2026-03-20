@@ -1,4 +1,13 @@
+---
+tags:
+  - type/patch
+  - status/done
+  - epic/06
+---
+
 # Patch: Vertical card layout on Portfolio screen (Epic 06) — Brainstorming
+
+> Upstream: [Epic 06: Portfolio Screen](../06-portfolio-screen.md)
 
 ## Initial Analysis
 
@@ -173,3 +182,10 @@ Does this match your vision? Confirm and I'll implement.
 | `npm run lint` | Pass |
 | `npm run build` | Pass |
 | E2E verification | Playwright — cards stack vertically, two-column layout works, sort order clear, card clicks navigate correctly |
+
+---
+
+## Related
+
+- [Epic 06 Spec](../06-portfolio-screen.md)
+- [Epic 06 Results](../06-portfolio-screen-results.md)

@@ -1,4 +1,13 @@
+---
+tags:
+  - type/patch
+  - status/done
+  - epic/04
+---
+
 # Patch: Parallelize LLM processing
+
+> Upstream: [Epic 04: LLM Pipeline](../04-llm-pipeline.md)
 
 **Epic:** 04 (LLM Pipeline)
 **Type:** Performance optimization
@@ -61,3 +70,10 @@ No test changes expected.
 ```
 /patch 'specs/patches/parallelize-llm.md' --epic 04
 ```
+
+---
+
+## Related
+
+- [Epic 04 Spec](../04-llm-pipeline.md)
+- [Epic 04 Results](../04-llm-pipeline-results.md)

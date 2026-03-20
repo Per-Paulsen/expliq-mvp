@@ -1,4 +1,13 @@
+---
+tags:
+  - type/brainstorming
+  - status/done
+  - epic/08
+---
+
 # 08 — Workspace Snapshot — Brainstorming
+
+> Upstream: [Epic 08: Workspace Snapshot](08-workspace-snapshot.md)
 
 ## Refinement Applied
 
@@ -17,3 +26,10 @@ Results incorporated:
 - 05.5-test-infrastructure-results.md
 - 06-portfolio-screen-results.md
 - 07-automation-detail-results.md
+
+---
+
+## Related
+
+- [Spec](08-workspace-snapshot.md)
+- [Results](08-workspace-snapshot-results.md)

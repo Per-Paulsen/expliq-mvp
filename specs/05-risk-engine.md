@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/done
+  - epic/05
+---
+
 # 05 — Risk Engine
+
+> Upstream: [PRD](../expliq_prd.md) | Previous: [04 — LLM Pipeline](04-llm-pipeline.md)
 
 ## Scope
 
@@ -85,3 +94,11 @@ Governance signals and risk levels are computed on-read (derived at query time) 
 - ~~Resolved: System name normalization — yes, epic 04 will lowercase all `systemsTouched` values during LLM response parsing to prevent casing inconsistencies in exposure scores.~~
 - ~~Resolved: Risk level is derived from governance signal counts only. Impact classification is a separate dimension that factors into exposure scores (impact_weight × risk_weight) but does not elevate risk level. This follows standard risk matrix practice — governance health and business impact are independent axes.~~
 - ~~Resolved: When effective impact is null (LLM hasn't run yet), exposure weight defaults to Low (1). This ensures automations are visible in exposure rankings during the brief window between sync and LLM processing.~~
+
+---
+
+## Related
+
+- [Brainstorming](05-risk-engine-brainstorming.md)
+- [Results](05-risk-engine-results.md)
+- [Next: 05.5 — Test Infrastructure](05.5-test-infrastructure.md)

@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/done
+  - epic/08
+---
+
 # 08 — Workspace Snapshot
+
+> Upstream: [PRD](../expliq_prd.md) | Previous: [07 — Automation Detail](07-automation-detail.md)
 
 ## Scope
 
@@ -69,3 +78,12 @@ All data is derived from existing Automation records and the risk engine (epic 0
 - ~~Resolved: Portfolio filter params (`impact`, `risk`, `updatedAfter`, `minSystems`) added to epic 06. All click-through URLs now have concrete param targets. See cross-epic review pass 4.~~
 - ~~Resolved: All 5 metrics cards are clickable, navigating to filtered Portfolio views.~~
 - ~~Resolved: When no automations are synced, the dashboard shows a guided empty state with a call-to-action linking to settings.~~
+
+---
+
+## Related
+
+- [Brainstorming](08-workspace-snapshot-brainstorming.md)
+- [Results](08-workspace-snapshot-results.md)
+- [Next: 09 — Production Hardening](09-hardening.md)
+- [Patch: Exercise 15 Features](patches/exercise-15-features.md)

@@ -1,4 +1,13 @@
+---
+tags:
+  - type/brainstorming
+  - status/done
+  - epic/07
+---
+
 # 07 — Automation Detail — Brainstorming
+
+> Upstream: [Epic 07: Automation Detail](07-automation-detail.md)
 
 ## Refinement Applied
 
@@ -307,3 +316,10 @@ Layout restructured from single-column to content + sidebar (two-column) based o
 6. **ACs updated** — new AC for two-column layout with responsive stacking; existing ACs updated to reference sidebar and main content column.
 7. **Domain term added** — "Governance sidebar" defined.
 8. **Attention badges clarification preserved** — sidebar signals use same set as Portfolio card badges (excludes "Inactive").
+
+---
+
+## Related
+
+- [Spec](07-automation-detail.md)
+- [Results](07-automation-detail-results.md)

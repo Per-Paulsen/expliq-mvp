@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/done
+  - epic/04
+---
+
 # 04 — LLM Pipeline
+
+> Upstream: [PRD](../expliq_prd.md) | Previous: [03 — n8n Connector](03-n8n-connector.md)
 
 ## Scope
 
@@ -68,3 +77,12 @@ LLM-generated fields are NOT user-editable. They can only be refreshed by re-run
 - ~~Resolved: LLM target selection — (b) query by timestamp (`documentationLastUpdated IS NULL OR automationLastUpdated > documentationLastUpdated`). Idempotent, handles interrupted runs.~~
 - ~~Resolved: Impact reasoning is stored in `impactReasoning String?` on the Automation model. Requires a schema migration in this epic.~~
 - ~~Resolved: LLM provider — OpenRouter (via OpenAI SDK) instead of direct Anthropic API. Model configured via `OPENROUTER_MODEL` env var with fallback default.~~
+
+---
+
+## Related
+
+- [Brainstorming](04-llm-pipeline-brainstorming.md)
+- [Results](04-llm-pipeline-results.md)
+- [Next: 05 — Risk Engine](05-risk-engine.md)
+- [Patch: Parallelize LLM](patches/parallelize-llm.md)

@@ -1,4 +1,13 @@
+---
+tags:
+  - type/patch
+  - status/done
+  - epic/06
+---
+
 # Patch: No Return to Dashboard (Epic 06) — Brainstorming
+
+> Upstream: [Epic 06: Portfolio Screen](../06-portfolio-screen.md)
 
 ## Initial Analysis
 
@@ -127,3 +136,11 @@ Ready to implement when you confirm.
 | `npm run lint` | Pass |
 | `npm run build` | Pass |
 | E2E verification | Playwright: navigated Automations → clicked Dashboard → landed on `/` with "Workspace Snapshot" heading. Sidebar shows 3 separated groups. |
+
+---
+
+## Related
+
+- [Epic 06 Spec](../06-portfolio-screen.md)
+- [Epic 06 Results](../06-portfolio-screen-results.md)
+- [Epic 08: Workspace Snapshot](../08-workspace-snapshot.md)

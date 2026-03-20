@@ -1,4 +1,13 @@
+---
+tags:
+  - type/brainstorming
+  - status/done
+  - epic/01
+---
+
 # 01 — Project Setup — Brainstorming
+
+> Upstream: [Epic 01: Project Setup](01-project-setup.md)
 
 ## Proactive Review
 
@@ -108,3 +117,10 @@ Changes made to `specs/01-project-setup.md`:
 6. **`impactProposal` / `impactOverride` clarified** — Defined as enums (`critical`, `high`, `medium`, `low`), both nullable; added to domain terms
 7. **Acceptance criteria updated** — Now lists all 7 models including Auth.js adapter models
 8. **Open question resolved** — Removed UUID vs CUID question (will use `cuid()` as the Prisma default)
+
+---
+
+## Related
+
+- [Spec](01-project-setup.md)
+- [Results](01-project-setup-results.md)

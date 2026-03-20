@@ -1,3 +1,8 @@
+---
+tags:
+  - type/index
+---
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -51,7 +56,7 @@ Run a single test file: `npx vitest run src/__tests__/home.test.tsx`
 
 ## Specs & Epics
 
-PRD at `expliq_prd.md`. Eight sequential epics in `specs/01-*.md` through `specs/08-*.md`. Each epic has a brainstorming companion file. Completed epics get a `specs/{number}-{name}-results.md`.
+PRD at [`expliq_prd.md`](expliq_prd.md). Ten sequential epics — see [Map of Content](_MOC.md) for the full index.
 
 ## Workflow Rules
 

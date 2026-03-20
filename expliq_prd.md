@@ -1,3 +1,9 @@
+---
+tags:
+  - type/prd
+  - status/done
+---
+
 ## 11. MINI‑PRD: First‑Time Control Snapshot
 
 PERSONA CONTEXT
@@ -51,3 +57,12 @@ OUT OF SCOPE
   - Enterprise compliance enforcement
   - Complex policy configuration
   - Multi-platform deep integrations beyond initial connectors
+
+---
+
+## Related
+
+- [Map of Content](_MOC.md)
+- [Tech Stack Proposal](tech-stack-idea.md)
+- [Initial Brainstorming](specs/brainstorming.md)
+- [Epic 01: Project Setup](specs/01-project-setup.md)

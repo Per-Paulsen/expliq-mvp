@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/done
+  - epic/02
+---
+
 # 02 — Authentication
+
+> Upstream: [PRD](../expliq_prd.md) | Previous: [01 — Project Setup](01-project-setup.md)
 
 ## Scope
 
@@ -47,3 +56,11 @@ Auth.js is configured with the Prisma adapter to store sessions and accounts in 
 ## Open questions
 
 - Should we use JWT or database session strategy for Auth.js? (JWT is simpler for Vercel deployment; database sessions are more secure for revocation)
+
+---
+
+## Related
+
+- [Brainstorming](02-auth-brainstorming.md)
+- [Results](02-auth-results.md)
+- [Next: 03 — n8n Connector](03-n8n-connector.md)

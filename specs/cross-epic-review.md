@@ -1,4 +1,12 @@
+---
+tags:
+  - type/review
+  - status/done
+---
+
 # Cross-Epic Review — 2026-03-09
+
+> Upstream: [PRD](../expliq_prd.md) | [Map of Content](../_MOC.md)
 
 ## Summary
 - Total specs reviewed: 8
@@ -662,3 +670,10 @@ No cross-epic issues found. All referenced components are properly scoped:
 
 ## Cascading Changes
 None. Both fixes were isolated to their respective specs.
+
+---
+
+## Related
+
+- [Individual Epic Review](ind-epic-review.md)
+- [Initial Brainstorming](brainstorming.md)

@@ -1,4 +1,13 @@
+---
+tags:
+  - type/brainstorming
+  - status/done
+  - epic/04
+---
+
 # 04 — LLM Pipeline — Brainstorming
+
+> Upstream: [Epic 04: LLM Pipeline](04-llm-pipeline.md)
 
 ## Refinement Applied
 
@@ -79,3 +88,10 @@ Three changes applied to `specs/04-llm-pipeline.md`:
 1. **Anthropic API → OpenRouter** — All references to Anthropic API, Anthropic SDK, and Claude-specific integration replaced with OpenRouter via OpenAI SDK. Base URL, env vars (`OPENROUTER_API_KEY`, `OPENROUTER_MODEL`), and JSON output mode updated throughout scope and ACs.
 2. **Model ID: named constant → env var** — Model selection changed from a hardcoded named constant to `OPENROUTER_MODEL` env var with a fallback default (`anthropic/claude-sonnet-4`). Enables runtime model swapping without redeployment.
 3. **Raw LLM response storage — closed as "No for MVP"** — Open question resolved. No schema field for raw responses; use temporary logging if debugging is needed.
+
+---
+
+## Related
+
+- [Spec](04-llm-pipeline.md)
+- [Results](04-llm-pipeline-results.md)

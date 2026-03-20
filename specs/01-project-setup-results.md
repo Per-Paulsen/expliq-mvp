@@ -1,4 +1,13 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/01
+---
+
 # 01 — Project Setup: Results
+
+> Upstream: [Epic 01: Project Setup](01-project-setup.md)
 
 ## What was built
 - Next.js App Router project with TypeScript, Tailwind CSS v4, and shadcn/ui
@@ -50,3 +59,10 @@
 
 ## Commit
 `f9ecf93` — `feat: implement epic 01 — project setup`
+
+---
+
+## Related
+
+- [Spec](01-project-setup.md)
+- [Brainstorming](01-project-setup-brainstorming.md)

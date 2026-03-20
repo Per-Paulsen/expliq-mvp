@@ -1,4 +1,13 @@
+---
+tags:
+  - type/brainstorming
+  - status/done
+  - epic/06
+---
+
 # 06 — Portfolio Screen — Brainstorming
+
+> Upstream: [Epic 06: Portfolio Screen](06-portfolio-screen.md)
 
 ## Refinement Applied
 
@@ -14,3 +23,10 @@ Results incorporated:
 - 03-n8n-connector-results.md
 - 04-llm-pipeline-results.md
 - 05-risk-engine-results.md
+
+---
+
+## Related
+
+- [Spec](06-portfolio-screen.md)
+- [Results](06-portfolio-screen-results.md)

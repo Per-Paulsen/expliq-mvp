@@ -1,4 +1,12 @@
+---
+tags:
+  - type/brainstorming
+  - status/done
+---
+
 # Brainstorming
+
+> Upstream: [PRD](../expliq_prd.md) | [Map of Content](../_MOC.md)
 
 ## Round 1 — Questions
 
@@ -361,4 +369,11 @@ A `/spec_ind` skill would:
 
 Does this sequence work? And for the `/spec_ind` skill — should I build it now, or do you want to review/refine the skill design first?
 
-the /spec_ind skill should have to phases like the spec skill and in phase 1 immediately generate the spec respective brainstorming file, in which then the content of the new spec can be discussed. everything else remains. i agree an all other issues and the proposed order of work. 
+the /spec_ind skill should have to phases like the spec skill and in phase 1 immediately generate the spec respective brainstorming file, in which then the content of the new spec can be discussed. everything else remains. i agree an all other issues and the proposed order of work.
+
+---
+
+## Related
+
+- [Epic 01: Project Setup](01-project-setup.md)
+- [Cross-Epic Review](cross-epic-review.md)

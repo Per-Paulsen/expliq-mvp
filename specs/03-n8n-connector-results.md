@@ -1,4 +1,13 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/03
+---
+
 # Epic 03 — n8n Connector: Results
+
+> Upstream: [Epic 03: n8n Connector](03-n8n-connector.md)
 
 ## What Was Built
 
@@ -83,3 +92,10 @@ n8n API connector and sync pipeline: settings page for configuring n8n credentia
 ## Commit
 
 `26bb7da` — `feat: implement epic 3 — n8n connector`
+
+---
+
+## Related
+
+- [Spec](03-n8n-connector.md)
+- [Brainstorming](03-n8n-connector-brainstorming.md)

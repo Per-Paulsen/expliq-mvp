@@ -1,4 +1,13 @@
+---
+tags:
+  - type/brainstorming
+  - status/pending
+  - epic/09
+---
+
 # 09 — Production Hardening — Brainstorming
+
+> Upstream: [Epic 09: Production Hardening](09-hardening.md)
 
 ## Implementation Refinement Applied
 
@@ -13,3 +22,9 @@ Results incorporated:
 - 05.5-test-infrastructure-results.md
 - 06-portfolio-screen-results.md
 - 07-automation-detail-results.md
+
+---
+
+## Related
+
+- [Spec](09-hardening.md)

@@ -1,4 +1,13 @@
+---
+tags:
+  - type/spec
+  - status/done
+  - epic/01
+---
+
 # 01 — Project Setup
+
+> Upstream: [PRD](../expliq_prd.md) | [Tech Stack](../tech-stack-idea.md)
 
 ## Scope
 
@@ -61,3 +70,11 @@ All application models include `workspaceId` foreign keys to support future mult
 
 - What Supabase project/region to use? (Can be decided at implementation time)
 - ~~Resolved: `statusOverride` field added to Automation model (enum: active, inactive, deprecated — nullable). Sync writes to `status`; user overrides write to `statusOverride`. Effective status = `statusOverride ?? status`.~~
+
+---
+
+## Related
+
+- [Brainstorming](01-project-setup-brainstorming.md)
+- [Results](01-project-setup-results.md)
+- [Next: 02 — Authentication](02-auth.md)

@@ -100,6 +100,32 @@ None. The spec had no ambiguities and all open questions were pre-resolved.
 
 ---
 
+---
+
+## Patch: Governance Change Notifier — Exercise 19 (2026-03-25)
+
+**What changed:** Added webhook notification when users edit automations. Both `saveAutomationEdits` and `markAsReviewed` now POST governance change events to an n8n webhook URL.
+
+**Files modified:**
+- `src/lib/actions/notify-governance-change.ts` — New helper: computes risk/signal delta, diffs governance fields, fetches user email, POSTs payload to `N8N_GOVERNANCE_WEBHOOK_URL`
+- `src/lib/actions/automation.ts` — Both server actions now capture Prisma update return value and call `notifyGovernanceChange(before, after, userId)`
+- `src/__tests__/notify-governance-change.test.ts` — 20 new tests (signal conversion, change diffing, payload shape, env var gating, error swallowing)
+- `.env.example` — Added `N8N_GOVERNANCE_WEBHOOK_URL=`
+
+**Why:** Exercise 19 requires Trigger → AI reasoning → automated action in n8n. The n8n workflow receives the change event, generates an AI explanation, and sends a Slack notification.
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (264 tests, 19 files) |
+| `npm run lint` | Pass (0 errors, 1 pre-existing warning) |
+| `npm run build` | Pass |
+| E2E verification | N/A — n8n workflow not yet built |
+
+**Commit:** `5442639` — `feat: add governance change notifier for exercise 19`
+
+---
+
 ## Related
 
 - [Spec](05-risk-engine.md)

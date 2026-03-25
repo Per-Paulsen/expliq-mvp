@@ -236,6 +236,22 @@ The biggest wow should NOT be hidden in a chatbot widget that users have to acti
 
 The cake is the always-visible prescriptive insights. The chatbot is the cherry on top.
 
+### Competitive Moat Insight (from Exercise 19 testing, 2026-03-25)
+
+During exercise 19 testing, the n8n AI workflow naturally generated prescriptive advice ("set up error notifications") from the governance change payload alone. This means n8n could theoretically build a governance dashboard itself — they have native access to all workflow data plus execution logs and real-time status.
+
+**Where n8n CAN'T compete with Expliq:**
+
+1. **Multi-platform governance** — Expliq governs n8n + OpenClaw + Zapier + Make + Salesforce Flows. n8n only knows n8n. A company with automations across platforms needs Expliq. n8n will never govern a competitor's workflows.
+
+2. **Independence** — Expliq is a neutral governance layer. n8n has a conflict of interest (wants you to build MORE workflows, not govern existing ones). Expliq's incentive aligns with the user.
+
+3. **Business intelligence layer** — n8n knows the technical graph. Expliq adds: impact classification, ownership, criticality, review cycles, lifecycle state, business context. n8n doesn't model "who owns this" or "what breaks if this fails."
+
+4. **Platform-agnostic prescriptive advisor** — recommendations across ALL platforms, exportable templates for any platform.
+
+**Conclusion:** The real moat = multi-platform + business intelligence + platform-agnostic advisor. OpenClaw as second connector is not just a demo feature — it IS the moat. The moment Expliq governs both n8n AND OpenClaw in one dashboard, n8n can't replicate that.
+
 ### Open: Execution Order vs Deadlines
 
 Exercises 19/22 are due this week. The prescriptive advisor needs a PRD 2.0 first. Exercise 19 (governance change notifier) is being implemented now as a patch.

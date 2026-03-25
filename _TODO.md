@@ -39,11 +39,12 @@ tags:
 - [ ] the impact and risk classification and the business context was surprisingly well done and insightful. the trainer had to laugh so good was it ... this is really valuable! can we do more of this sort?
 - [ ] there is otherwise too much text on the automation detail view, especially the nodes. and this is not so helpful when wanting to easily explain an automation. it might be good to have some kind of visualization of the workflow with it nodes and the nodes explanations then next to the nodes ... 
 - [ ] the fairtix n8n instance from the evening session had a "global"? error handling automation workflow, that somehow solved the error handling for all other workflows in the instance. expliq got this correct in the explanation and also assigned high criticality? in impact? but it did not show this in systems connected ... and maybe for such workflow we need another category such as connected automations? that might be really insightful?
-- [ ] we can work a lot and receive many insights from this fairtix n8n instance. it models a realy companies potential full n8n automation infrastructure. that might be worth gold as a testing instance for expliq. we are really lucky, that we had an entire evening session on n8n with such a complete model n8n instance - lets use it!!! the trainer already said about our current mvp: "thats a really cool tool you have there!"
+- [ ] we can work a lot and receive many insights from this fairtix n8n instance. it models a realy companies potential full n8n automation infrastructure. that might be worth gold as a testing instance for expliq. we are really lucky, that we had an entire evening session on n8n with such a complete model n8n instance - lets use it!!! the trainer already said about our current mvp: "thats a really cool tool you have there!" but how do we use it? how can we explore it and "test" its insights? do you know what i mean?
 - [ ] i included this fairtix n8n instance in our .env file with instance url and api key in a comment
 - [ ] i (think/hope) created the following account to import this n8n instance into expliq: email: abend@session.com, password: 123456789
+- [ ] automation detail page appears a bit crouded and overwhelming, and the important risk context appears a bit too small in the upper right hand corner
 
-### claude workflow logic
+### claude workflow logic and features
 
 - [ ] shall we save plans? similar to specs and results, e.g. from /dev skill "executed" in planning mode? shall we review these plans then already against problems such as typical AI problems e.g. scope expansion? or can we already simplify these plans, e.g. with /simplify, before implementation?
 - [ ] dev environment in windows? e.g. sandbox/WSL?
@@ -51,7 +52,23 @@ tags:
 - [ ] do we do harness engineering?
 - [ ] /auto-recommender?
 - [ ] shall we include a /simplify step in our /dev skill, after code implementation?
+- [ ] shall we include a documentation step in our /dev skill, e.g. write JSDocs? Do we already do that?
+- [ ] shall we implement the server calls as rest apis? 
+- [ ] can and should we use autonomous loops such as ralph loops? now plugin in claude code ...
 - [ ] claude code # warp terminal
+- [ ] shall we use wsl?
+- [ ] shall we do dark mode?
+- [ ] shall we use more @pointers in the claude.md file to give better context?
+- [ ] how to include claude code "vibe coding" sessions, e.g. "implement dark mode" - "no, a darker dark mode" - "make the header light, not dark" - "also the footer" ... or "the cards do not look correct" - "the cards need to be organized strictly vertical" - ..., in our spec driven development approach? do you understand the problem?
+- [ ] we need to separate seed, test and production dbs and env much better ...
+- [ ] shall or can we use "vectoring" when working with the llm? we are already sending in batches or not?
+- [ ] better ci/cd with feature dev on branches then github push and pull request with github actions for additional verification and then merge? is this the best practice way to do it?
+- [ ] shall we also demonstrate a different integration than n8n? maybe something like open claw automations? n8n appears to not be up-to-date anymore, so we cannot really demonstrate expliqs benefits with it? but with open claw it might be more "mind-blowing"? are there currently specific shortcomings or issues with open claw, where expliq might help?
+- [ ] in the bootcamp we have an exercise that requires us to implement n8n workflows for our projects. as this is done by all participants i can use this data as further testing data for expliq
+- [ ] we really need much better and separated testing and production environments now 
+
+(https://github.com/backnotprop/plannotator?tab=readme-ov-file#install-for-claude-code)
+
 
 ### questions for marten
 
@@ -81,9 +98,68 @@ ALTER TABLE "Session" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
 ```
 
-- [ ] Enable RLS on all Supabase tables (single migration, no code changes)
+- [x] Enable RLS on all Supabase tables (single migration, no code changes) — done 2026-03-25, migration `20260325175235_enable_rls` + direct SQL for `_prisma_migrations`
 
 ---
+
+Summary for expliq-mvp Discussion
+
+  Context
+
+  Bootcamp exercises 19, 20, and 22 require implementing AI-powered features for Expliq. 
+  Exercise 19 needs a working n8n workflow, exercise 22 needs a working chatbot. Both    
+  require new code in the expliq-mvp repo.
+
+  What needs to be built in expliq-mvp
+
+  For Exercise 19 (AI Native Workflow Automation):
+
+  A webhook endpoint that n8n can call when a workflow changes. The endpoint should:     
+  - Accept a workflow change event from n8n
+  - Re-sync that specific workflow (reuse existing syncWorkflows logic from connector.ts,
+   but for a single workflow)
+  - Re-run LLM analysis on the changed workflow (reuse processAutomation from
+  llm-pipeline.ts)
+  - Compare the old vs. new risk level (using getRiskLevel from risk-engine.ts)
+  - Return the delta (previous risk, new risk, which signals changed)
+
+  The n8n side then uses this delta to generate an AI explanation and send a Slack       
+  notification to the owner.
+
+  Exercise requirement: Trigger -> AI reasoning step -> automated action, implemented in 
+  n8n.
+
+  For Exercise 22 (AI Chatbot Integration):
+
+  A governance chatbot on the Automation Detail page that:
+  - Accepts user questions ("Why is this high-risk?")
+  - Retrieves relevant sections from a markdown knowledge base (governance concepts, FAQ)
+  - Builds a grounded prompt with knowledge + live automation data from Prisma
+  - Calls Claude via OpenRouter
+  - Returns a natural language explanation
+  - Implements at least 1 guardrail (domain detection: skip LLM for off-topic questions) 
+
+  New files needed: chat UI component, server action for chat, knowledge base markdown   
+  files, retrieval logic, prompt builder.
+
+  Exercise requirement: user input -> LLM -> response, using markdown knowledge, chosen  
+  retrieval strategy, at least 1 guardrail.
+
+  Exercise 20 (Agent Design) is design-only, no implementation needed.
+
+  Existing code to reuse
+
+  - src/lib/risk-engine.ts (getRiskLevel, getGovernanceSignals, getSystemExposure)       
+  - src/lib/llm-pipeline.ts (processAutomation, OpenRouter setup)
+  - src/lib/actions/connector.ts (syncWorkflows, n8n client)
+  - src/lib/n8n-client.ts (createN8nClient, getWorkflow)
+  - src/lib/session.ts (getRequiredSession for auth)
+
+  Key architectural decision
+
+  The current Expliq sync is pull-based (user clicks "Sync"). Exercise 19 requires       
+  push-based sync (n8n notifies Expliq when something changes). This means adding a      
+  webhook receiver to expliq-mvp, which is a new pattern for the codebase.
 
 ## Related
 

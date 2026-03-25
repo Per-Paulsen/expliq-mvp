@@ -88,7 +88,7 @@ export async function notifyGovernanceChange(
       event: "automation.governance_changed",
       automation: {
         id: after.id,
-        name: after.name,
+        name: (after.name ?? "").replace(/→/g, "->"),
         riskLevel,
         previousRiskLevel,
         riskLevelChanged: riskLevel !== previousRiskLevel,

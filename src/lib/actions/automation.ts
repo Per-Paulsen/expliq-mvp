@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getRequiredSession } from "@/lib/session";
 import { ImpactLevel, StatusOverride } from "@/generated/prisma/client";
 import type { EditFormState } from "@/lib/automation-detail-types";
+import { notifyGovernanceChange } from "@/lib/actions/notify-governance-change";
 
 const VALID_IMPACT_LEVELS = new Set(Object.values(ImpactLevel));
 const VALID_STATUS_OVERRIDES = new Set(Object.values(StatusOverride));
@@ -35,10 +36,12 @@ export async function saveAutomationEdits(
         : null,
     };
 
-    await prisma.automation.update({
+    const updated = await prisma.automation.update({
       where: { id: automationId },
       data: updatePayload,
     });
+
+    await notifyGovernanceChange(automation, updated, session.user.id);
 
     return { success: true };
   } catch (err) {
@@ -59,10 +62,12 @@ export async function markAsReviewed(automationId: string) {
       return { error: "Automation not found" };
     }
 
-    await prisma.automation.update({
+    const updated = await prisma.automation.update({
       where: { id: automationId },
       data: { lastReviewDate: new Date() },
     });
+
+    await notifyGovernanceChange(automation, updated, session.user.id);
 
     return { success: true };
   } catch (err) {

@@ -78,12 +78,13 @@ The files define three interconnected layers:
 
 Current proposed order:
 1. Risk model upgrade (transparent drivers) — foundation
-2. Chatbot as governance advisor (exercise 22) — interactive wow
+2. Prescriptive business advisor — visible by default on dashboard + detail pages (NOT hidden in chatbot)
 3. Missing automation suggestions + exportable JSON — "it builds workflows?!"
 4. Connected automations (fairtix error handler) — dependency awareness
 5. Webhook (exercise 19) — real-time story
 6. OpenClaw connector — second-act wow
 7. Dashboard redesign — wraps around features
+8. Chatbot (exercise 22) — interactive drill-down layer on TOP of the visible insights
 
 **But:** exercises 19/22 have bootcamp deadlines this week.
 
@@ -144,11 +145,11 @@ Current Workspace Snapshot is "overwhelming and asymmetric."
 
 ## Claude's recommendations (for discussion)
 
-1. **Ship exercises first** (days 1-2) — deadlines are deadlines. But build the chatbot as the prescriptive advisor from the start, not a basic Q&A that needs rework.
+1. **Ship exercises first** (days 1-2) — deadlines are deadlines.
 
 2. **Risk model upgrade** (day 3) — this is the foundation. Every other feature (advisor, dashboard, connected automations) depends on having a credible risk model.
 
-3. **Prescriptive advisor** is the biggest differentiator. Suggestion: build it into the chatbot first (exercise 22 requirement satisfied), then extract to dashboard cards and a dedicated recommendations view.
+3. **Prescriptive advisor — visible by default** is the biggest differentiator. Build as always-visible dashboard cards + detail page sections. Chatbot (exercise 22) is the interactive drill-down layer on top, not the primary surface.
 
 4. **Connected automations** (day 4) — high wow for fairtix demo specifically (the error handler).
 
@@ -157,8 +158,6 @@ Current Workspace Snapshot is "overwhelming and asymmetric."
 6. **OpenClaw** (week 2) — second act of the presentation.
 
 7. **Exportable n8n JSON** — this is the "drop the mic" feature. Build it into the prescriptive advisor. The LLM generates the template, user clicks export, imports into n8n. The audience loses it.
-
----
 
 ---
 
@@ -198,18 +197,20 @@ The core value proposition, in priority order:
 
 ### How This Changes the Exercises
 
-**Exercise 22 (chatbot):** Becomes the prescriptive business advisor. Same requirements (input → LLM → response, knowledge base, guardrail), but the output is business optimization advice, not just risk Q&A. "What automations am I missing?" "How can I improve my Stripe integration?" "What's the biggest business risk in my landscape?"
+**Exercise 22 (chatbot):** Satisfies exercise requirement (input -> LLM -> response, knowledge base, guardrail). But the prescriptive insights should be visible by default on dashboard + detail pages. The chatbot is the interactive drill-down layer, not the primary surface.
 
-**Exercise 19 (webhook):** Stays similar (n8n notifies Expliq on workflow change), but response includes business impact analysis alongside risk delta.
+**Exercise 19 (webhook):** Governance change notifier — Expliq POSTs to n8n when governance state changes. n8n runs AI reasoning + Slack notification.
 
 **Exercise 20 (agent design):** Design-only doc. Describes the full vision of Expliq as autonomous governance agent. Perfect alignment with prescriptive direction.
 
 ### Revised Priority Stack
 
-1. **Prescriptive business advisor chatbot** (exercise 22 + core differentiator)
-   - Per-automation: "what's wrong, how to fix, what you're missing"
-   - Workspace-level: "your top 3 business gaps across all automations"
+1. **Prescriptive business advisor — visible by default** (core differentiator)
+   - Dashboard: "Top 3 business gaps" cards — always visible, no interaction needed
+   - Detail page: "Recommendations for this automation" section — always visible
+   - Workspace-level: business gap analysis across all automations
    - Exportable n8n JSON for suggested workflows
+   - Chatbot (exercise 22) = interactive drill-down layer on top, NOT the primary surface
 2. **Risk model upgrade** (transparent drivers, 4 levels)
    - Foundation for credible insights
 3. **UX fixes** (search is catastrophe, dashboard is messy)
@@ -237,7 +238,7 @@ The cake is the always-visible prescriptive insights. The chatbot is the cherry 
 
 ### Open: Execution Order vs Deadlines
 
-Exercises 19/22 are due this week. But the chatbot (exercise 22) IS the prescriptive advisor — so building it right from the start satisfies both the deadline and the wow goal. The question is whether to fix UX/search BEFORE or AFTER the exercises.
+Exercises 19/22 are due this week. The prescriptive advisor needs a PRD 2.0 first. Exercise 19 (governance change notifier) is being implemented now as a patch.
 
 ---
 

@@ -104,9 +104,19 @@ export async function notifyGovernanceChange(
       timestamp: new Date().toISOString(),
     };
 
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    const secretName = process.env.N8N_GOVERNANCE_WEBHOOK_SECRET_NAME;
+    const secretValue = process.env.N8N_GOVERNANCE_WEBHOOK_SECRET;
+    if (secretName && secretValue) {
+      headers[secretName] = secretValue;
+    }
+
     await fetch(webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(payload),
     });
   } catch {

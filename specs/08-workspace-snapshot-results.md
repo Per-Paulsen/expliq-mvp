@@ -106,6 +106,40 @@ None.
 
 ---
 
+---
+
+## Patch: Dashboard UX Redesign — Exercise 21 (2026-03-31)
+
+**What changed:** Redesigned the Workspace Snapshot dashboard from plain cards/bars to a professional UI using design tokens extracted from Figma Make via MCP sub-agent. Same data, same features, better presentation.
+
+**Files modified:**
+- `src/components/metric-card.tsx` — New: card with title, value, subtitle, icon, accent color
+- `src/components/expliq-card.tsx` — New: clean container card with rounded borders
+- `src/components/expliq-badge.tsx` — New: badge variants (risk/impact/system/status/healthy/attention)
+- `src/components/progress-bar.tsx` — New: color-coded progress bar (teal→green→amber→red by value)
+- `src/components/snapshot-dashboard.tsx` — Rewritten: uses new components, icons, subtitles, colored bars, two-column layout
+- `src/__tests__/snapshot-dashboard.test.tsx` — 3 tests adapted for multiple text matches (same assertions, tolerant of repeated labels)
+
+**Why:** Dashboard feedback: "overwhelming and asymmetric." Exercise 21 required demonstrating context engineering with a sub-agent for Figma design extraction.
+
+**Sub-agent workflow (exercise 21):**
+1. Figma MCP connected to Figma Make file (key: 3bG7mlpucVffGMdoAFPcgc, version 2)
+2. `figma-design-extractor` sub-agent extracted: colors (neutral + teal accent), typography (Inter), spacing (8px grid), component specs (MetricCard, ExpliqCard, ExpliqBadge, ProgressBar)
+3. Main agent implemented dashboard from extracted tokens
+4. Playwright verified visual output
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (244 tests) |
+| `npm run lint` | Pass (0 errors) |
+| `npm run build` | Pass |
+| Playwright visual | Dashboard renders with new design, real data verified |
+
+**Commit:** `80ab674` — `feat: redesign dashboard with Figma v2 design tokens (exercise 21)`
+
+---
+
 ## Related
 
 - [Spec](08-workspace-snapshot.md)

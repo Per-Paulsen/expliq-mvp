@@ -91,8 +91,9 @@ describe("SnapshotDashboard", () => {
     expect(screen.getByText("12")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();
-    expect(screen.getByText("4")).toBeInTheDocument();
-    expect(screen.getByText("5")).toBeInTheDocument();
+    // "4" and "5" may appear in other contexts (e.g. "4 automations"), use getAllByText
+    expect(screen.getAllByText("4").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("5").length).toBeGreaterThanOrEqual(1);
   });
 
   it("total automations links to /automations", () => {
@@ -151,12 +152,16 @@ describe("SnapshotDashboard", () => {
   it("owner exposure renders owner names", () => {
     render(<SnapshotDashboard data={makeSnapshotData()} />);
     expect(screen.getByText("alice")).toBeInTheDocument();
-    expect(screen.getByText("Unassigned")).toBeInTheDocument();
+    // "Unassigned" may appear in metric card subtitle and owner exposure
+    expect(screen.getAllByText("Unassigned").length).toBeGreaterThanOrEqual(1);
   });
 
   it("owner 'Unassigned' links to ?owner=_none", () => {
     render(<SnapshotDashboard data={makeSnapshotData()} />);
-    const link = screen.getByText("Unassigned").closest("a");
+    const unassignedElements = screen.getAllByText("Unassigned");
+    const link = unassignedElements
+      .map((el) => el.closest("a"))
+      .find((a) => a?.getAttribute("href")?.includes("owner=_none"));
     expect(link).toHaveAttribute("href", "/automations?owner=_none");
   });
 

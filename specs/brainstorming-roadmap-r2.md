@@ -252,6 +252,32 @@ During exercise 19 testing, the n8n AI workflow naturally generated prescriptive
 
 **Conclusion:** The real moat = multi-platform + business intelligence + platform-agnostic advisor. OpenClaw as second connector is not just a demo feature — it IS the moat. The moment Expliq governs both n8n AND OpenClaw in one dashboard, n8n can't replicate that.
 
+### Design Decision: Business-first detail page (2026-03-26)
+
+The default automation detail view should show ONLY business intelligence:
+- Business context / impact reasoning (the wow)
+- Risk level with transparent drivers
+- Prescriptive recommendations (new)
+- Owner, review status, lifecycle (governance)
+- Connected automations (dependency awareness)
+
+Technical details (nodes, core logic, trigger type, data types, side effects) are **collapsed by default** — expandable for users who want to verify the LLM's understanding.
+
+**Why:** The trainer's wow was the business understanding. The technical details are the most text-heavy part and were called out as overwhelming. Users already have n8n for the technical view — Expliq's value is what the workflow *means*, not what it *does*.
+
+**Implementation:** Collapsible section at the bottom of the detail page, hidden by default.
+
+### Future Vision: Direct SaaS connectors (2026-03-26)
+
+Expliq already sees connected systems (Stripe, HubSpot, Slack, etc.) via n8n's `systemsTouched`. System exposure is already computed. The next logical step: connect directly to those systems' APIs to enrich the picture.
+
+Current: "You have 4 automations touching Stripe" (from n8n data)
+Future: "...AND Stripe has 3 built-in billing rules, 2 webhook endpoints, dunning retry set to 3 attempts. Here's your complete Stripe automation picture."
+
+This means Expliq governs ALL automation — not just dedicated platforms (n8n, Make) but also automations embedded inside SaaS tools themselves. Cross-system advisory becomes: "Your Stripe dunning retry is set to 3 attempts, but no HubSpot workflow notifies the account manager after 3 failures."
+
+Post-presentation growth path. Not for the 2-week sprint.
+
 ### Open: Execution Order vs Deadlines
 
 Exercises 19/22 are due this week. The prescriptive advisor needs a PRD 2.0 first. Exercise 19 (governance change notifier) is being implemented now as a patch.

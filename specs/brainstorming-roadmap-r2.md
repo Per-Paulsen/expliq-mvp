@@ -500,3 +500,313 @@ The system should make immediately visible:
 6. Structural & Dependency Exposure (multi-system, cross-platform, complexity)
 
 Control = deterministic + explainable + reproducible + non-opaque + action-oriented
+
+---
+
+## Figma Vision vs. TODO Comparison (2026-04-02)
+
+Systematic cross-reference of every TODO item against the current Figma Make design (latest version). Items marked with how the Figma vision addresses them — or doesn't.
+
+### Checkin-Session Feedback
+
+| # | TODO Item | Figma Vision Status |
+|---|-----------|-------------------|
+| 17 | Auth forms more professional | Figma has a clean Login page with gradient background — addresses this |
+| 18 | Loading states / waiting screens | Not explicitly in Figma — still needs implementation |
+| 19 | Multiple instances / multi-workspace | Not in Figma — future feature |
+| 20 | Settings page confusing | Figma has "Settings coming soon" placeholder — not addressed yet |
+| 21 | Dashboard overwhelming and asymmetric | **Fully addressed** — new Dashboard is "Automation Command Center" with Portfolio Value bar, 3-column layout, Process Coverage table |
+| 22 | DB security | **Done** — RLS migration applied 2026-03-25 |
+| 23 | Query more n8n fields (creator) | Figma shows technical metadata (error rate, execution time, runs/week) — implies richer n8n data extraction needed |
+| 24 | Internal node-logic / LLM transparency | Figma Governance view shows Core Logic with node-level detail + improvement markers — addresses this, but we may sacrifice node visualization for scope |
+| 25 | Search function broken | Not addressed by Figma — still a code fix needed |
+| 26 | Much better modern SaaS dashboard | **Fully addressed** — professional design with teal accent, process-centric layout, AI banners |
+| 27 | Actionable advice + business perspective | **Core of the Figma vision** — "Your next move" AI banner, Top Opportunities, Roadmap page, Company Intelligence, Deploy to n8n |
+| 28 | Additional scope files (lifecycle, risk, exposure) | **Superseded** — Figma vision goes far beyond those files. Feature Index in this brainstorming file captures everything |
+
+### n8n Evening Session Insights
+
+| # | TODO Item | Figma Vision Status |
+|---|-----------|-------------------|
+| 32 | Monitoring | Figma Dashboard shows "Recent Activity" with status dots (healthy/error) — partial monitoring via activity feed |
+| 33 | Re-run LLM on sync | Not addressed by Figma — implementation detail |
+| 34 | Status filter or sort | Figma Workflows page has extensive filtering (governance, impact, domain, platform, status) — **fully addressed** |
+| 35 | Duplicate automations | Not addressed — still needs investigation |
+| 36 | Risk classification nuance | **Fully addressed** — Figma uses Impact Tiers (critical-path / high-impact / supporting) + Domain Tags (revenue / compliance / efficiency / experience) instead of simple high/medium/low. Business/Governance toggle separates business risk from governance signals |
+| 37 | Automation names from JSON | Not addressed — still needs investigation |
+| 38 | Sync history | Not in Figma — still a feature gap |
+| 39 | Business context was great, do more | **Core of vision** — Company Intelligence page, benchmark comparison, process-level business cases, ROI per automation |
+| 40 | Too much text, need visualization | **Addressed** — Figma detail page has Business view (concise) vs. Governance view (technical). Business view is clean: description, business case, process position. Workflow Visualization in governance view is simplified node flow |
+| 41 | Connected automations (error handler) | **Addressed** — Detail page has Connections section: upstream (feeds this) / downstream (this feeds) with dependency badges |
+| 42 | Fairtix instance as test data | Not a Figma concern — operational decision |
+| 43 | Fairtix .env credentials | Info item — not a Figma concern |
+| 44 | Fairtix account | Info item |
+| 45 | Detail page crowded, risk context too small | **Fully addressed** — Business view is clean with prominent business case card. Governance view separates technical details |
+
+### Claude Workflow / Dev Process Items
+
+These are development process questions, not product features. The Figma vision doesn't address them. **All remain open** — to be discussed separately.
+
+### Exercises
+
+| Exercise | Figma Vision Status |
+|----------|-------------------|
+| Exercise 19 (webhook) | **Done** — governance change notifier implemented on feature branch |
+| Exercise 20 (agent design) | Design-only doc — not a Figma concern |
+| Exercise 22 (chatbot) | Figma doesn't show a chatbot — aligns with our decision that prescriptive insights should be **visible by default**, not in a chatbot. Exercise 22 requirement can be met with a minimal chatbot that drills into the visible insights |
+
+### Key Observations
+
+**What the Figma vision adds that was NOT in the TODO:**
+
+1. **Process-centric organization** — grouping automations by business process (Lead-to-Close, Billing & Dunning, etc.) was never discussed in the TODO. This is the biggest new idea.
+
+2. **Company Intelligence page** — inferring company profile, industry benchmarks, maturity assessment from automation data. Completely new concept.
+
+3. **Business/Governance toggle** — dual-lens approach throughout the app. Not in any TODO or brainstorming before Figma.
+
+4. **"Your next move" AI banner** — single prioritized recommendation. New concept.
+
+5. **Process Coverage with maturity levels** — Advanced / Developing / Early per process. New.
+
+6. **ROI per automation** — time saved, revenue impact, ROI ratio, failure impact. The TODO hinted at "actionable advice" but never articulated ROI quantification.
+
+7. **Technical Improvements with "Apply" button** — specific n8n improvements (add retry logic, parallelize branches) per workflow. New.
+
+8. **Deploy to n8n modal** — exportable workflow concept. Discussed in brainstorming but Figma makes it concrete.
+
+9. **Roadmap page with priority tiers** — Recommendations organized as Immediate / Strategic / Future. Business view shows "what to build next" with ROI per recommendation. Governance view shows "what to fix now" with technical improvements per existing workflow. Each recommendation has: impact tier (critical-path / high-impact / supporting), domain tag (revenue / compliance / efficiency / experience), effort level (quick-win / medium / complex), time savings, business case, implementation notes, suggested platform, and dependencies.
+
+10. **AI-suggested new process lanes** — Expliq doesn't just improve existing processes. It suggests entirely NEW business processes (Security & Compliance, Marketing Ops) based on the detected system landscape. Example: "You have Okta and BambooHR but no access review automation — here's a SOC 2 compliance process with 2 workflows."
+
+11. **Workflow specifications ready for deployment** — Each recommendation includes source/destination systems, data in/out, implementation notes, and suggested platform (n8n/Make/Zapier). These are not vague suggestions but deployable workflow specs.
+
+**What's in the TODO but NOT in the Figma vision:**
+
+1. Search fix (broken search) — code bug, not a design issue
+2. Loading states — implementation detail
+3. Sync history — feature gap
+4. Multi-workspace — future
+5. Settings page clarity — Figma has placeholder only
+6. Environment separation — dev process
+7. CI/CD — dev process
+8. OpenClaw integration — future (still planned for week 2)
+9. Dark mode — Figma has dark sidebar but light content area
+
+**Bottom line:** The Figma vision addresses ~70% of the product TODO items and adds 11 major new concepts that weren't in the TODO at all. The remaining ~30% are code bugs (search), dev process items, and future features (multi-workspace, OpenClaw).
+
+---
+
+## Figma Vision — Deep Architecture Analysis (2026-04-02, decomposed version)
+
+After thorough review of the fully decomposed Figma Make prototype, here is a complete analysis of the product vision, its data model, and how it maps to implementation.
+
+### Product Identity
+
+**Expliq is an Automation Opportunity Engine.** It connects to your automation platforms, infers who your company is, shows you what you have, what's broken, what's missing, and what to build next — with business justification, prioritized implementation plans, and deployable workflow specs.
+
+### Five Screens, One Story
+
+1. **Dashboard** = "What needs my attention right now?" — command center with AI "Your next move" banner, attention items, top opportunities, process coverage
+2. **Workflows** = "What do I have and what's possible?" — all existing + recommended workflows organized by business process, with Business/Governance dual lens
+3. **Roadmap** = "What should I build and fix, in what order?" — prioritized implementation plan with ROI justification, deploy-to-n8n capability
+4. **Company** = "Why should I trust these recommendations?" — AI-inferred company profile, industry benchmarks with published sources, methodology transparency
+5. **AutomationDetail** = "Tell me everything about this one workflow" — business case, process position, connections, technical profile, improvements
+
+### The Business/Governance Toggle — Core UX Innovation
+
+Every page that shows workflows has a dual-lens toggle:
+
+**Business lens (Map icon):**
+- Workflows grouped by business process (Lead-to-Close, Billing & Dunning, etc.)
+- Each workflow shows: step name in process, business brief, impact tier, domain tag, systems flow, data flow, ROI
+- "Show Recommendations" reveals gaps: recommended new workflows appear inline where the gap is
+- "Sort by Revenue" reorders processes by business impact
+- AI summary explains strategic priorities
+
+**Governance lens (Shield icon):**
+- Same workflows grouped by severity (Critical → Needs Attention → Healthy)
+- Each workflow shows: governance state, signals, platform, error rate, owner, technical details
+- "Show Improvements" reveals technical fixes inline per workflow
+- Sort by severity is default
+- AI summary focuses on risk reduction priorities
+
+This toggle is NOT two separate views — it's two lenses on the SAME data. The URL preserves the toggle state (`?view=governance`), and switching views on the detail page carries over when navigating back.
+
+### Data Architecture (What the LLM Needs to Generate)
+
+The prototype has a clean data layer that reveals exactly what Expliq needs to produce:
+
+**Per-workflow (ExistingWorkflow):**
+- Identity: name, stepName, process assignment, platform
+- Business: impact tier (critical-path/high-impact/supporting), domain tag (revenue/compliance/efficiency/experience), systems flow (source→destination), data flow (dataIn→dataOut), runs/week
+- Business value: timeSavings ("~6 hrs/wk"), revenueImpact ("$18K/mo")
+- Governance: state (healthy/needs-attention/critical), signals array, owner, errorRate, lastRun
+- Brief: one-sentence business-context description
+
+**Per-recommendation (RecommendedWorkflow):**
+- Same as ExistingWorkflow plus: effort level, description, businessCase, framework reference, implementationNotes, suggestedPlatform, dependencies
+- Each recommendation sits at a specific stepName in a specific process — it fills a gap
+
+**Per-technical-improvement (TechnicalImprovement):**
+- Linked to a specific existing workflow (workflowId)
+- Title, brief, effort, benefit, category (reliability/performance/architecture/monitoring)
+- Description, implementationNotes, targetPlatform
+
+**Per-process-suggestion (ProcessSuggestion):**
+- Entirely new business process the AI recommends starting
+- basedOn: why the AI suggests this ("Detected Okta, BambooHR in your stack")
+- Comes with child RecommendedWorkflows
+
+**Company Intelligence:**
+- Inferred profile: industry, size, stage, signal
+- Systems grouped by function (Revenue, Support, Operations, Data & Intelligence)
+- Benchmarks: metric comparison against published industry data (with sources)
+- Insights: actionable items with impact, confidence, methodology explanation
+- Process maturity: per-process automation maturity level
+
+### The Roadmap — Expliq's USP
+
+The Roadmap page is the product's main deliverable. Two views:
+
+**Business view — "What to build next":**
+- Priority tiers: Immediate (quick wins, highest ROI) → Strategic (complex but high value) → Future (aspirational)
+- Each tier contains WorkflowRecs and ProcessSuggestions
+- Each item: ROI, effort, business case, implementation notes, systems, dependencies
+- Deploy button → modal with n8n JSON preview → one-click deploy
+
+**Governance view — "What to fix now":**
+- Severity tiers: Necessary (broken, leaking value) → Recommended (degraded, at risk) → Optimization (nice-to-have improvements)
+- Each tier shows TechnicalImprovements linked to parent workflows
+- Each improvement: specific implementation instructions, affected nodes, effort, benefit
+- Apply button for individual fixes
+
+### Deploy Modal — Closing the Loop
+
+The DeployModal generates n8n-compatible workflow JSON from recommendations. It shows:
+- Node count, estimated impact
+- Full JSON preview with copy button
+- "Deploy to n8n" button that simulates pushing to connected instance
+- "Generated by Expliq AI" attribution
+
+This is the "drop the mic" feature — Expliq doesn't just tell you what to build, it builds the scaffold for you.
+
+### What an LLM Can Credibly Produce from n8n Data
+
+Mapping the prototype's data requirements to what's actually derivable:
+
+| Data Field | Source | LLM Role |
+|-----------|--------|----------|
+| Workflow name, nodes, connections | n8n API (existing) | Clean up / make business-readable |
+| Business process assignment | LLM infers from systems + naming | **Core LLM task** — cluster workflows into business processes |
+| Step name in process | LLM assigns position in process flow | **Core LLM task** |
+| Impact tier | LLM + rules (revenue systems = critical-path) | **Core LLM task** |
+| Domain tag | LLM infers (Stripe = revenue, Zendesk = experience) | **Core LLM task** |
+| Systems flow (source → destination) | Parseable from n8n node types | Deterministic + LLM normalization |
+| Data flow (dataIn → dataOut) | LLM infers from node parameters | **LLM task** |
+| Business brief | LLM generates from workflow structure | **Core LLM task** (already proven in MVP) |
+| Time savings | LLM estimates from complexity + frequency | **LLM task** — approximate |
+| Revenue impact | LLM estimates from system type + domain | **LLM task** — approximate, must show reasoning |
+| Governance state | Deterministic from signals | Existing risk engine |
+| Error rate, runs/week | n8n execution API (if available) | Not LLM |
+| Recommended workflows | LLM identifies gaps in process flow | **Core LLM task** — the wow feature |
+| Technical improvements | LLM analyzes workflow structure for anti-patterns | **LLM task** |
+| Process suggestions | LLM identifies missing business processes from system landscape | **Core LLM task** |
+| Company profile | LLM infers from systems + workflow patterns | **Core LLM task** |
+| Benchmark comparisons | LLM's general knowledge + reasoning | **LLM task** — must cite sources transparently |
+
+**Key insight:** ~70% of the prototype's data is LLM-generated. The remaining 30% comes from the n8n API (workflow definitions, node types) and the existing risk engine (governance signals). This is not a data engineering challenge — it's a prompt engineering challenge.
+
+### Implementation Priority for Presentation
+
+Based on wow-per-effort and the principle "Roadmap IS the product":
+
+**Must have (the demo story):**
+1. Company Intelligence — who you are, why we recommend what we recommend
+2. Workflows page with Business toggle — process-centric view with recommendations inline
+3. Roadmap page with Business toggle — prioritized implementation plan
+4. Dashboard with "Your next move" AI banner
+5. Deploy modal (even if deploy is simulated)
+
+**Nice to have:**
+6. Governance toggle on Workflows + Roadmap
+7. Technical improvements inline
+8. AutomationDetail with Business/Governance views
+9. Process suggestions modal
+
+**Can sacrifice:**
+10. Full filter/search system
+11. Editable process names
+12. Sort by revenue
+13. Node-level workflow visualization on detail page
+
+---
+
+## Decisions & Next Steps (2026-04-02)
+
+### Critical Evaluation of Figma Prototype
+
+The Figma prototype is brainstorming, not final design. Before implementing, evaluate critically:
+
+**ROI framing needs rework:**
+- There is no monetary "investment" — reframe as "estimated business impact" not "ROI"
+- Time savings ("~6 hrs/wk") = credible, LLM can estimate from complexity + frequency
+- Revenue impact ("$18K/mo") = speculative, chain of assumptions — must show reasoning transparently
+- Annual value ("$31K/yr") = industry benchmark applied to inferred profile — label as estimate, not fact
+- Always show the reasoning chain: "Based on your 520 invoices/week and industry 3-5% failure rate..."
+
+**Benchmark sources:**
+- LLM knows general industry stats but shouldn't fabricate specific report titles
+- Better: cite the insight + general source without inventing exact report names
+- Company Intelligence page must explain methodology transparently
+
+**Process clustering:**
+- LLM can reliably group obvious cases (Stripe workflows → Billing)
+- Edge cases will be fuzzy — users must be able to correct/rename processes
+- Editable process names are in the Figma prototype (good)
+
+**n8n API data availability:**
+- Verify: does n8n API expose execution stats (runs/week, error rate)?
+- If not, these fields become LLM estimates or "unknown"
+
+### Design Evaluation Needed
+
+The Figma prototype optimized for **completeness** (show everything), not **clarity** (show what matters). Most pages feel cluttered:
+
+- Dashboard: 5+ sections stacked vertically
+- Workflows: 8+ layers before seeing an actual workflow
+- Company Intelligence: 6 sections on one page
+- AutomationDetail governance: 7 sections all visible at once
+
+**Decision:** Create `specs/design-evaluation.md` BEFORE implementing. For each screen: what's the ONE thing the user came here to see? Everything else is secondary or hidden.
+
+**Approach:** Write the evaluation in markdown first (thinking exercise), then redesign in Figma Make with constraints, then review via MCP.
+
+### How to Proceed — Agreed Roadmap
+
+1. **Merge feature branches** — exercise 19 + exercise 21 to main
+2. **Write `specs/design-evaluation.md`** — critical evaluation of each Figma screen, simplify
+3. **Write `prd-2.0.md`** — extension PRD capturing the opportunity engine vision with honest data requirements
+4. **Derive specs per screen** via `/spec` skill — Dashboard, Workflows, Roadmap, Company, AutomationDetail
+5. **Implement incrementally** — one screen per feature branch, Figma MCP as design reference
+6. **Screen order:** Dashboard → Company Intelligence → Workflows → Roadmap → AutomationDetail
+
+### What Stays from Current MVP
+
+- Auth system (Auth.js, sessions, middleware)
+- n8n connector (API client, sync pipeline, encrypted credentials)
+- LLM pipeline (OpenRouter, processAutomation) — will be EXTENDED with new prompts
+- Prisma schema — will need NEW fields/models for process assignment, recommendations, company profile
+- Risk engine — stays as governance foundation, deprioritized in UI
+- Exercise 19 webhook notifier — stays
+- Exercise 21 dashboard redesign — will be superseded by new dashboard but components (MetricCard, ExpliqCard, ProgressBar, ExpliqBadge) reusable
+
+### What's New
+
+- Process clustering LLM task (group workflows into business processes)
+- Company Intelligence LLM task (infer profile from automation landscape)
+- Recommendations LLM task (identify gaps, suggest new workflows + processes)
+- Technical improvements LLM task (analyze workflows for anti-patterns)
+- Business/Governance toggle UI pattern
+- Deploy modal with n8n JSON generation
+- New Prisma models: Process, Recommendation, CompanyProfile (TBD in specs)

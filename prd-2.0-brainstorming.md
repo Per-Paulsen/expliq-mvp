@@ -1484,3 +1484,767 @@ This is a significant scope reduction. The Figma prototype's most complex featur
 ---
 
 > Per: this is captured. Go ahead with your questions.
+
+---
+
+## Round 9 — Guaranteeing One-Shot LLM Quality (2026-04-03)
+
+### The Problem
+
+It took us 5 iterations on the fairtix analysis to get from governance-heavy output to consulting-grade business opportunity analysis. In production, the LLM gets ONE call and needs to produce the right output immediately.
+
+### Why the First Shot Defaulted to Governance
+
+LLMs gravitate toward "safe" output — factual, technical, verifiable. Governance analysis (error rates, missing config, no retry logic) is safe because it's objectively true. Business opportunity analysis (revenue impact, process gaps, confidence-graded recommendations) requires judgment, estimation, and explicit reasoning about uncertainty. The LLM needs PERMISSION and INSTRUCTION to do that.
+
+### The Prompt IS the Product
+
+Everything we learned across 5 iterations must be encoded in the prompt design:
+
+**1. Persona** — Not "analyze these workflows" but: "You are a business consultant who reads automation landscapes. You lead with business impact, not technical findings. You frame every insight in terms of what it means for the business. Technical details are evidence, not headlines."
+
+**2. Exact output schema** — Structured JSON, not free-form text. Every field the UI needs is a required field in the response. The LLM fills a template, not writes an essay. This guarantees the screens get the data they need.
+
+**3. Recommendation framework embedded** — The Act Now / Investigate / Explore tiers are defined IN the prompt with clear criteria:
+- Act Now: "high confidence from the data + high business impact"
+- Investigate: "high business impact but you can't verify from n8n data alone — say so"
+- Explore: "valuable but requires platform expansion or further investigation"
+
+**4. Confidence calibration** — Defined in the prompt:
+- Data-driven: "you computed this from the user's actual workflow data or execution stats"
+- Benchmark-based: "you're applying general industry knowledge to their situation"
+- AI-suggested: "you're inferring based on patterns, with uncertainty — label it"
+
+**5. Anti-patterns** — Explicit "do NOT" rules:
+- Do NOT lead with governance/technical findings
+- Do NOT recommend things that are clearly platform-level code (verification flows, payment processing)
+- Do NOT estimate numbers without showing the reasoning chain
+- Do NOT claim to see what you can't see — acknowledge blind spots
+- Do NOT present all recommendations with equal confidence
+
+**6. Few-shot example** — Include a condensed version of our final fairtix analysis (Part 5) as "this is what good output looks like." The LLM sees the target quality before generating.
+
+**7. The honest framing rules** — Encoded in the prompt:
+- "If a recommendation might be handled by another system, say: 'We don't see this in your n8n workflows. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest.'"
+- "Every estimate must include: the number, the reasoning, and the evidence source"
+
+### The Research Spike Validates This
+
+The research spike (Phase 0, before Epic 10) is where we:
+1. Write the actual prompts (per-automation + workspace-level)
+2. Run them against real fairtix workflow JSONs + execution data
+3. Evaluate: does the one-shot output match Part 5 quality?
+4. Iterate on prompts until it does
+5. Document the proven prompts as the foundation for Epic 10
+
+Only after the prompts are proven do we encode them in code. The spike de-risks the entire product.
+
+### What the PRD Must Define
+
+The PRD should specify the **prompt architecture**, not just "the LLM analyzes workflows." Specifically:
+- The persona and framing rules
+- The output schema (per-automation fields, workspace-level fields)
+- The recommendation framework with tier criteria
+- The confidence calibration scale
+- The anti-patterns
+- The honest framing rules for uncertain recommendations
+
+This is the most important section of the PRD. The screens are just display logic. The prompts are where the product value is created.
+
+---
+
+> Per: captured. Continue with your questions.
+
+---
+
+## Round 11 — Evaluating All Screens from a Consulting Expert Perspective (2026-04-03)
+
+Per asked: evaluate every page from a McKinsey/Celonis point of view. Are we structuring content the way professional advisors would?
+
+### The Consulting Report Structure (reference frame)
+
+A McKinsey deliverable follows:
+1. **Executive Summary** — "Here's what you need to know and do" (1 page, 3-5 key messages)
+2. **Situation Analysis** — "Here's what we found" (organized by theme/process, evidence-backed)
+3. **Recommendations** — "Here's what to do about it" (prioritized, with business case per item)
+4. **Deep Dives** — "Here's the evidence" (per-topic detail, for verification)
+
+A Celonis dashboard follows:
+1. **Overview** — KPIs, conformance rate, value at stake
+2. **Process View** — each process with variants, bottlenecks, automation rate
+3. **Improvement Opportunities** — ranked by value, with root cause linked
+4. **Case-level Detail** — drill into any specific case/transaction
+
+### Dashboard — The Executive Summary
+
+**Consulting benchmark:** McKinsey executive summaries are ruthlessly focused. They answer THREE questions: (1) What's the situation? (2) What's at stake? (3) What should you do first? Everything else is below the fold.
+
+**Current plan:** Your next move banner + metrics + process coverage + system landscape + maturity.
+
+**Evaluation:**
+
+What works:
+- "Your next move" banner = perfect McKinsey opening. One recommendation, with reasoning. The CEO slide.
+- Process coverage table = situation at a glance. Celonis does exactly this.
+
+What needs rethinking:
+- **System landscape with full narratives on Dashboard is too much.** McKinsey executive summaries don't include detailed analysis — that's for the body of the report. The Dashboard should show systems as a COMPACT summary (icon grid or single row: "5 systems: Gmail, Google Sheets, Anthropic, Google Docs, n8n"), not full narratives. The narratives belong on the Detail page or as expandables.
+- **Maturity bars might be redundant with coverage.** Coverage already communicates "how complete is this process." Maturity adds a label (Advanced/Developing/Early) but is it saying anything coverage doesn't? Celonis uses ONE metric per process (conformance rate), not two. Consider: coverage IS maturity. One number, one bar.
+- **Metrics section — what metrics?** We discussed "Portfolio Value bar" (hrs/wk saved, $/mo impact). But these are LLM estimates with caveats. A cleaner approach: lead with FACTS. "8 workflows, 4 processes, 1 active, 7 recommendations." Then below: "Estimated value: ~X hrs/wk (methodology)" as a secondary line with the methodology link.
+
+**Recommended Dashboard structure (McKinsey-grade):**
+
+```
+┌─────────────────────────────────────────────────────┐
+│ YOUR NEXT MOVE                                       │
+│ [Specific recommendation with reasoning, 2-3 lines] │
+│ [Link to Roadmap]                                    │
+├─────────────────────────────────────────────────────┤
+│ FACTS BAR                                            │
+│ 8 workflows · 4 processes · 5 systems · 1 active    │
+│ 7 recommendations · est. value ~X hrs/wk             │
+├──────────────────────┬──────────────────────────────┤
+│ ATTENTION (3 items)  │ TOP OPPORTUNITIES (3 items)   │
+│ [workflow cards with │ [recommendation cards with    │
+│  issue + impact]     │  impact + confidence badge]   │
+├──────────────────────┴──────────────────────────────┤
+│ PROCESS COVERAGE                                     │
+│ [Process table: name, existing/recommended, bar,     │
+│  hrs/wk, impact indicator]                           │
+├─────────────────────────────────────────────────────┤
+│ SYSTEMS (compact)                                    │
+│ Gmail(8) · Sheets(6) · Claude(2) · Docs(1)          │
+│ [One line per system with role + insight, or just    │
+│  icons with counts]                                  │
+└─────────────────────────────────────────────────────┘
+```
+
+Top half: action-oriented (what to do). Bottom half: context (what you have). This is the McKinsey pyramid — answer first, evidence second.
+
+### Workflows — The Situation Analysis
+
+**Consulting benchmark:** McKinsey situation analysis is organized by THEME, not alphabetically. Each theme gets a summary, then the evidence beneath it. Celonis organizes by PROCESS, showing the "happy path" and deviations.
+
+**Current plan:** Process groups with collapsible sections, workflow cards inside, inline recommendations, process suggestions.
+
+**Evaluation:**
+
+What works:
+- Process grouping = the correct organizing principle. Celonis does exactly this.
+- Collapsible sections = handles information density well.
+- Inline recommendations = Celonis pattern ("here's the gap, right where you'd notice it").
+- Process suggestions = the "explore" tier of recommendations, naturally embedded.
+
+What needs rethinking:
+- **The process header is trying to do too much.** Current plan: name, summary, workflow count, recommended count, coverage %, hrs/wk, $/mo, system flow, data flow. That's 9 data points per process header. Celonis process headers show: name, case count, conformance rate, value at stake. Four things.
+- **Recommendation: simplify process header to:** name, summary (one line), existing/recommended count, coverage bar. Everything else (system flow, hrs/wk, $/mo) is discoverable by expanding the section or clicking into Detail.
+- **Workflow cards are also dense.** Current plan: name/step, business brief, impact badge, governance dot, system flow, data in/out, time savings, revenue impact, active/inactive, owner, connection badge. That's 11 fields. Celonis case cards show: ID, status indicator, key metric, deviation flag. Four things.
+- **Recommendation: simplify workflow cards to:** name + step label, business brief (one line), impact/confidence badge, governance dot, system flow (source → destination). Five things. Active/inactive shown by the dot. Owner shown on hover or in Detail. Time/money shown in Detail.
+
+**Recommended Workflows structure:**
+
+```
+PROCESS: Ticket Lottery Lifecycle
+  Summary: Core revenue flow — lottery draw to ticket purchase
+  2 existing · 3 recommended · 40% coverage
+  ├── [●] LotteryWin Notification          Google Sheets → Gmail
+  │       Notifies winners to complete purchase within 24h
+  │       ⚠ 31% error rate · ⟷ 2 connected
+  ├── [○] LotteryWin Published             Google Sheets → Gmail  
+  │       Production copy — inactive despite "Published" label
+  ├── [┈] Lottery-Loss Notification  ✦ Act Now
+  │       Notify non-selected participants — reduces support volume
+  ├── [┈] Purchase Window Reminder   ✦ Act Now
+  │       12h + 22h reminders before window expires
+  └── [┈] Purchase Confirmation      ✦ Investigate
+          Confirm purchase + deliver ticket — may be handled by platform
+```
+
+Clean. Scannable. The brief does the work. The badges signal priority. Drill into Detail for everything else.
+
+### Roadmap — The Recommendations
+
+**Consulting benchmark:** McKinsey recommendation pages have: the recommendation title, the business case (1-2 sentences), the estimated impact, the confidence/evidence level, and the next step. They do NOT have lengthy descriptions on the recommendation page itself — that's for the appendix.
+
+Celonis improvement opportunities show: title, value at stake (one number), effort indicator, root cause link, and an "apply" button.
+
+**Current plan:** Act Now / Investigate / Explore tiers with recommendation cards showing title, impact, confidence, evidence, affected scope, expandable reasoning, deploy button.
+
+**Evaluation:**
+
+What works:
+- Three named tiers = correct consulting pattern (McKinsey waves, BCG quadrants).
+- Per-card evidence label = builds trust.
+- Deploy button = the differentiator. No consulting firm can do this.
+- Expandable reasoning = appendix-level detail without cluttering the page.
+
+What needs rethinking:
+- **The Roadmap and Workflows pages might overlap.** Workflows shows inline recommendations. Roadmap shows the same recommendations reorganized by priority. The user sees the same recommendation twice in different contexts. Is this redundant?
+- **Consulting answer: no, it's complementary.** The Workflows page says "here's what's missing in THIS process." The Roadmap says "here's what to do FIRST across all processes." Different questions, same data. A McKinsey deck has a "by-business-unit" view AND a "prioritized recommendations" view. Both are needed.
+- **BUT: the workflow cards on the Roadmap should be more compact than on the Workflows page.** The Roadmap is a prioritization tool, not an analysis tool. Each card needs: title, business impact (one line), confidence badge, deploy button. That's it. The details are available via expand or via the Workflows page.
+
+**Recommended Roadmap structure:**
+
+```
+ACT NOW — No-regret moves, data-driven evidence
+┌────────────────────────────────────────────────────┐
+│ Stabilize Lottery-Win Notification                  │
+│ 31% error rate on revenue-critical workflow          │
+│ [Data-driven] [3 workflows affected] [Fix existing] │
+├────────────────────────────────────────────────────┤
+│ Add Lottery-Loss Notification                       │
+│ Non-winners get silence — drives support volume      │
+│ [Data-driven] [Lottery Lifecycle]  [Deploy to n8n ▶]│
+├────────────────────────────────────────────────────┤
+│ Purchase Window Reminders                           │
+│ 24h window with no reminder = lost conversions       │
+│ [Data-driven] [Lottery Lifecycle]  [Deploy to n8n ▶]│
+└────────────────────────────────────────────────────┘
+
+INVESTIGATE — High impact, needs verification
+┌────────────────────────────────────────────────────┐
+│ Purchase Confirmation                               │
+│ Not seen in n8n — may be handled by platform         │
+│ [AI-suggested] [Lottery Lifecycle] [Deploy to n8n ▶]│
+│ ⓘ "If handled by your platform, connect it for...  │
+└────────────────────────────────────────────────────┘
+```
+
+Compact. Action-oriented. The business case is ONE LINE. Expand for methodology.
+
+### Detail — The Deep Dive
+
+**Consulting benchmark:** The appendix / deep-dive section answers: "show me the evidence." It's where the analyst proves the recommendation. Nobody reads it first — they go here when they want to verify or understand more deeply.
+
+Celonis case detail shows: the process instance, node-by-node execution, deviations from happy path, timestamps, and linked improvement opportunities.
+
+**Current plan:** Header → business narrative → business case card → process position → connected automations → technical evidence below.
+
+**Evaluation:**
+
+What works:
+- Business narrative first = correct. The user came here to understand WHAT this workflow does and WHY it matters.
+- Business case card (failure impact, time savings, revenue connection) = the "so what."
+- Connected automations = unique Expliq value. No other tool shows this.
+- Process position (step X of Y in process Z) = Celonis-style context.
+
+What needs rethinking:
+- **The Detail page should connect back to recommendations.** If this workflow has a recommendation attached (e.g., "fix the 31% error rate"), it should be VISIBLE on the Detail page. Celonis links improvement opportunities to the specific cases they affect. Pattern: "Recommendation for this workflow: [R1 — Stabilize notification pipeline] → View on Roadmap"
+- **Evidence should be explicit.** Show the actual data: "36 executions, 11 errors, last error 2 days ago, error handler caught 9 of them." This is the appendix — don't summarize, show the data.
+- **The technical section (nodes, connections) should be presented as an "evidence" section, not a "technical details" section.** Reframing: "How we know this" instead of "Technical details." The user isn't looking for technical info — they're looking for WHY Expliq says what it says.
+
+**Recommended Detail structure:**
+
+```
+← Back to Workflows
+
+LOTTERY-WIN NOTIFICATION
+● Active · n8n · Google Sheets → Gmail · Step 2 of 5 in Lottery Lifecycle
+
+WHAT THIS DOES
+[Business narrative — 2-3 sentences]
+
+WHY THIS MATTERS
+┌──────────────┬────────────────┬─────────────────┐
+│ If this fails │ Time savings   │ Revenue          │
+│ Winners don't │ ~2 min/winner  │ Direct — purchase│
+│ hear back,    │ at scale       │ CTA is in this   │
+│ window expires│                │ email            │
+└──────────────┴────────────────┴─────────────────┘
+
+RECOMMENDATIONS FOR THIS WORKFLOW
+[R1] Stabilize — fix 31% error rate  [Act Now] [Data-driven]
+[R4] Add error handling on support    [Act Now] [Data-driven]
+
+PROCESS POSITION
+Lottery Lifecycle: [Draw] → [★ Win Notification] → [Purchase] → [Confirmation]
+
+CONNECTED AUTOMATIONS
+→ Error handler: Generic Error Workflow (active, catching 40 errors)
+→ Related: LotteryWin Published (duplicate variant)
+
+HOW WE KNOW THIS (expandable)
+  36 executions · 11 errors (31%) · last error 2026-03-29
+  Gmail node: retryOnFail=false, onError=stopWorkflow
+  errorWorkflow linked to oZy3vc0yli2xdR45
+  Trigger: Google Sheets poll every 1 minute
+  [Full workflow JSON →]
+```
+
+### Cross-Page Insights
+
+**1. Information hierarchy is consistent across all pages:**
+- Dashboard: answer → context → evidence (scroll)
+- Workflows: process → workflows → recommendations (expand)
+- Roadmap: priority → recommendation → evidence (expand)
+- Detail: what → why → how we know (scroll)
+
+Every page follows: **conclusion first, evidence second.** This is the McKinsey pyramid principle applied to a product.
+
+**2. Every recommendation appears in exactly two places:**
+- On the **Roadmap** (prioritized, with deploy button)
+- On the **Workflows** page or **Detail** page (in context, where the gap is visible)
+
+This is the consulting dual-view: "here's what to do first" (Roadmap) AND "here's where the gap is" (Workflows/Detail). Not redundant — complementary.
+
+**3. Celonis's key pattern we should adopt: "value at stake"**
+
+Celonis shows ONE number per improvement: the value at stake. Not multiple metrics, not a paragraph — one number that communicates "this is how much this matters."
+
+For Expliq, "value at stake" per recommendation could be:
+- R1 (fix error rate): "~11 failed notifications/week" (from execution data)
+- R2 (loss notification): "100% of non-winners hear nothing" (from workflow inventory)
+- R3 (purchase reminders): "24h window, 0 reminders" (from email template)
+
+One number. One fact. The rest is expandable.
+
+**4. The "how we know this" section is Expliq's trust mechanism**
+
+McKinsey earns trust through reputation. Celonis earns trust through data volume. Expliq earns trust through **transparency of reasoning.** Every page should have a way to answer "why does Expliq say this?" — and the answer should always trace back to specific data from the user's own n8n instance.
+
+---
+
+> Per: respond to this evaluation. Major structural changes? Or are we aligned on the 4-screen approach with these layout refinements?
+
+Per: "I just really like this analysis. I think we should just follow your recommendations."
+
+### Decision: Follow the consulting-grade layout recommendations for all 4 screens.
+
+### Round 11b — One More Thing: The Delta / Progress Tracking (2026-04-03)
+
+One thing both McKinsey and Celonis do that we missed entirely:
+
+**McKinsey follow-ups:** "Since our last assessment, you've implemented 3 of 7 recommendations. Here's the impact."
+
+**Celonis:** Shows conformance rate OVER TIME, not just a snapshot.
+
+**For Expliq: the re-sync moment.** After the user acts on recommendations (deploys a workflow, fixes error handling), the next sync should show a **delta banner on the Dashboard:**
+
+> "Since last analysis: error rate on LotteryWin improved from 31% to 4%. 1 new workflow deployed. Coverage in Ticket Lottery Lifecycle improved from 40% to 60%. 2 recommendations resolved, 5 remaining."
+
+This is the "living document" Per wanted — but it's a Dashboard banner, not a separate page. It answers: "Is what I'm doing working?"
+
+**For the demo:** Sync once → show analysis → deploy a recommendation → sync again → show improvement. The audience sees the complete cycle: analyze → recommend → deploy → verify.
+
+**Implementation:** Store the previous analysis results. On re-sync, compute deltas: new workflows, changed error rates, resolved recommendations, coverage changes. Show as a collapsible "Changes since last analysis" section on the Dashboard.
+
+**Priority for demo:** Nice-to-have. The core demo is: sync → analyze → recommend → deploy. The delta cycle is a bonus if time allows.
+
+---
+
+## Brainstorming Summary — What Changed Since Round 6
+
+The brainstorming was declared "complete" at Round 6. Rounds 7-11 added significant refinements:
+
+| Round | What changed |
+|-------|-------------|
+| 7 | Fairtix analysis evaluation — business framing was missing, system narratives needed |
+| 7a | Consulting recommendation frameworks — Act Now / Investigate / Explore with impact + confidence |
+| 8 | Eliminated business/governance distinction — everything is just insight with business impact |
+| 8b | Merged Automation Intelligence into Dashboard — 4 screens instead of 5 |
+| 9 | Prompt engineering = product design — one-shot quality requires encoded persona, schema, anti-patterns |
+| 10 | Prompt best practices — XML tags, prefilled JSON, chain-of-thought, schema-first, named confidence levels |
+| 11 | McKinsey/Celonis page evaluation — simplified headers, compact cards, pyramid principle, "value at stake" pattern |
+| 11b | Delta/progress tracking — re-sync shows improvement, completes the cycle |
+
+### Final Product Definition (updated from Round 6)
+
+**Expliq is an Automation Opportunity Engine.** 4 screens. No governance toggle. Unified insight view.
+
+**Dashboard** (Executive Summary + Situation Analysis)
+- Your next move banner (1 chained recommendation with reasoning)
+- Facts bar (workflows, processes, systems, active count, recommendations count)
+- Two sections: Attention items | Top Opportunities
+- Process coverage table (name, summary, existing/recommended, bar, impact)
+- Systems compact (icon + count per system)
+- Delta banner on re-sync ("Since last analysis: ...")
+
+**Workflows** (Detailed Situation Analysis)
+- Process groups (collapsible): name, summary, count, coverage bar
+- Workflow cards (compact): name+step, brief, impact badge, governance dot, system flow
+- Inline recommendations (dashed cards with confidence badge)
+- Process suggestions (new processes the LLM recommends)
+
+**Roadmap** (Recommendations)
+- Three tiers: Act Now / Investigate / Explore
+- Compact cards: title, one-line business case, confidence badge, deploy button
+- Per-card expandable: full reasoning, evidence chain, key assumptions
+- Deploy modal: n8n JSON preview + deploy to connected instance
+- Visibility expansions: "Connect X platform for ..."
+
+**Detail** (Deep Dive)
+- Header: name, status, platform, system flow, process step
+- Business narrative (what this does, why it matters)
+- Business case card (failure impact, time savings, revenue connection)
+- Recommendations for this workflow (linked from Roadmap)
+- Process position (visual step in process)
+- Connected automations (upstream/downstream)
+- "How we know this" (expandable: execution stats, node config, evidence)
+
+**Prompt architecture** defines the product quality:
+- Persona: business opportunity consultant
+- Output: structured JSON schemas per call
+- Two-call strategy: Understand → Advise
+- Confidence: named levels (data-driven / benchmark-based / AI-suggested)
+- Anti-patterns: don't lead with governance, don't recommend platform code, show reasoning
+- Few-shot example from different domain
+- Honest framing for uncertain recommendations
+
+**Research spike validates prompts before coding.**
+
+### Brainstorming complete (for real this time)
+
+Per, this brainstorming is ready to become a PRD. Everything from Rounds 1-11 is captured. Confirm and I'll write `prd-2.0.md`.
+
+---
+
+> Per: confirm to proceed to PRD.
+
+---
+
+## Round 12 — First Principles: What Would McKinsey/Celonis Actually Do? (2026-04-03)
+
+Per asked: if McKinsey or Celonis had access to the exact same n8n workflow data, what would they FUNDAMENTALLY do with it? Same as us, or something different?
+
+### The Uncomfortable Truth
+
+We've been building from the inside out: **"We have workflow data → what can we show?"** McKinsey/Celonis would build from the outside in: **"What does a company need to know about its operational automation → what data answers that?"**
+
+The primary entity shifts:
+
+| | Our current approach | McKinsey would | Celonis would |
+|---|---|---|---|
+| **Primary entity** | Workflows | Business capabilities | Business processes |
+| **Headline** | "Here are your 8 workflows" | "Your automation maturity is Level 2 of 5" | "Your Ticket Lottery process has 40% automation rate" |
+| **Organization** | Workflows grouped into processes | Capabilities assessed for maturity | Processes with conformance + automation rate |
+| **Recommendations** | "Build this missing workflow" | "Invest in this capability to reach Level 3" | "Closing this process gap recovers $X" |
+| **Detail level** | Node parameters, error rates | Capability maturity drivers | Process variant analysis |
+
+**The fundamental difference: workflows are EVIDENCE, not the headline.**
+
+Nobody at McKinsey would present "here are your 8 workflows." They'd present "we identified 4 business processes in your automation landscape. Here's how mature each one is and where to invest next." The workflows appear when you drill in — they're the proof, not the finding.
+
+### How McKinsey Would Structure This
+
+**Their analytical framework:**
+
+1. **Automation Maturity Assessment** — per business process, not per workflow:
+   - Level 1 (Ad-hoc): manual, no automation
+   - Level 2 (Emerging): some automation, fragmented, no error handling
+   - Level 3 (Defined): automated processes with monitoring and error handling
+   - Level 4 (Managed): measured, optimized, SLAs tracked
+   - Level 5 (Optimized): self-healing, predictive, continuously improving
+
+2. **Value Mapping** — which processes create the most business value?
+   - Not "which workflow has errors" but "which business process depends on automation for revenue?"
+   - FairTix example: "Ticket Lottery Lifecycle" = revenue-critical. "Customer Support" = retention-critical. "Platform Operations" = reliability-critical.
+
+3. **Investment Prioritization** — per process, not per workflow:
+   - Value at stake × probability of improvement × inverse of effort
+   - "Investing in Ticket Lottery Lifecycle automation moves you from Level 2 to Level 3, protecting ~$X in revenue."
+
+**Their variables (process-level, not workflow-level):**
+
+| Variable | What it measures | Source |
+|----------|-----------------|--------|
+| Automation Coverage | % of process steps that are automated | workflow count vs. LLM-estimated ideal count |
+| Automation Reliability | % of automated runs that succeed | execution data aggregated per process |
+| Automation Impact | value delivered by automation | time saved + revenue protected per process |
+| Risk Concentration | single points of failure, owner concentration | errorWorkflow links, user data |
+| Maturity Level | ad-hoc → optimized | composite of coverage, reliability, error handling, monitoring |
+| Value at Stake | cost of current gaps | LLM estimate per process gap |
+
+**Key insight: ALL of these are PROCESS-LEVEL metrics.** Individual workflow stats (error rates, node config) are the evidence beneath. McKinsey would never show a per-workflow error rate on a summary page — they'd show "Ticket Lottery process reliability: 69%" and let the user drill in to discover it's the LotteryWin workflow with a 31% error rate.
+
+### How Celonis Would Structure This
+
+**Their analytical framework:**
+
+1. **Process Discovery** — map the actual flow of work:
+   - Not "what workflows exist" but "what is the end-to-end process from trigger to outcome?"
+   - FairTix: Lottery Draw → Winner Notification → Purchase → Ticket Delivery (each step may or may not be automated)
+
+2. **Process Variants** — where does reality deviate from the ideal?
+   - FairTix has 3 variants of LotteryWin — which is canonical? Which is the "happy path?"
+   - The happy path has error handling + error workflow link. The actual execution path doesn't.
+
+3. **Quantified Gaps** — each gap has a dollar/time value:
+   - "No lottery-loss notification" = X support tickets/month × Y minutes per ticket = Z hours wasted
+   - "31% error rate on notifications" = X winners/week × 31% = Y missed notifications × ticket value = $Z at risk
+
+4. **Automation Rate** — what % of each process is automated?
+   - Ticket Lottery Lifecycle: 2 of 5 steps automated = 40%
+   - Customer Support: 3 of 4 steps automated = 75%
+
+**Celonis's unique variable: throughput time.**
+- How long does the process take end-to-end?
+- Where are the bottlenecks?
+- We can compute this from execution timestamps: "Average time from lottery draw to winner notification: 1.2 minutes (when it works). But 31% of the time: ∞ (notification never arrives)."
+
+### What This Means for Expliq
+
+**The reframe we should apply:**
+
+Our "Workflows" page should not be called "Workflows." It should be the **Process Map** — because that's what it actually shows. The user doesn't come here to see a list of n8n workflows. They come to see: "What are my business processes, how automated are they, where are the gaps?"
+
+This changes the hierarchy:
+
+```
+BEFORE (workflow-centric):
+  Workflows page → process groups → workflow cards → detail
+
+AFTER (process-centric):
+  Process Map page → process cards (maturity, coverage, reliability, value) 
+    → expand: workflow cards + gap cards → detail
+```
+
+The process becomes the card. The workflow becomes the evidence inside the card.
+
+**What a process card looks like (Celonis-inspired):**
+
+```
+┌─────────────────────────────────────────────────┐
+│ TICKET LOTTERY LIFECYCLE                         │
+│ Revenue-critical · 2 of 5 steps automated        │
+│                                                   │
+│ [████████░░░░░░░░░░░░] 40% coverage              │
+│                                                   │
+│ Reliability: 69% · Value at stake: high          │
+│ Maturity: Level 2 (Emerging)                     │
+│                                                   │
+│ ▸ Expand: 2 workflows + 3 recommendations        │
+└─────────────────────────────────────────────────┘
+```
+
+Compare this to our current plan (workflow card):
+```
+┌─────────────────────────────────────────────────┐
+│ LotteryWin Notification    Google Sheets → Gmail │
+│ Notifies winners to complete purchase within 24h │
+│ ⚠ 31% error rate · ⟷ 2 connected               │
+└─────────────────────────────────────────────────┘
+```
+
+The process card communicates the BUSINESS picture. The workflow card communicates the IMPLEMENTATION detail. McKinsey would show the process card on the main page and the workflow card on drill-in.
+
+### On Merging Workflows and Roadmap
+
+**Celonis merges them.** The process view shows the process, its gaps, AND the improvement opportunities — all in one view. You don't go to a separate "recommendations" page.
+
+**McKinsey separates them.** The situation analysis and recommendations are separate sections of the deck.
+
+**For Expliq's demo, I recommend keeping them separate** but for a different reason than before:
+
+The demo narrative is a STORY with acts:
+1. **Dashboard** — "Here's the headline" (30 seconds)
+2. **Process Map** — "Here's what you have" (1 minute — show processes, drill into one)
+3. **Roadmap** — "Here's what to do" (1 minute — show tiers, click deploy)
+4. **Detail** — "Here's the proof" (30 seconds — show one workflow deep dive)
+
+Merging 2 and 3 would make one page too dense and break the narrative arc. The separation creates MOMENTUM in the demo: discovery → understanding → action → proof.
+
+But conceptually they're parts of the same analysis. The Roadmap is "the same processes, but showing only the gaps with action plans." A future version could offer a toggle: "Show all" (Process Map) vs "Show gaps only" (Roadmap).
+
+### On Variables: What Should Expliq Actually Track?
+
+Based on the McKinsey/Celonis synthesis, Expliq's core variables should be PROCESS-LEVEL:
+
+| Variable | Description | Source | Shown On |
+|----------|-------------|--------|----------|
+| **Coverage** | % of process steps automated | workflow count / (workflows + recommendations) | Process card, Dashboard |
+| **Reliability** | % of executions that succeed | execution data aggregated per process | Process card, Dashboard |
+| **Maturity** | Composite level (1-5 or named) | coverage × reliability × error handling × monitoring | Process card, Dashboard |
+| **Value at Stake** | Impact of current gaps | LLM estimate with reasoning | Process card, Roadmap |
+| **Recommendations** | Count of actionable items | per process | Process card, Roadmap |
+
+Individual WORKFLOW-level variables (error rate, last run, connections) are shown on Detail and inside expanded process cards — never on the top-level pages.
+
+**This is cleaner than our Round 11 plan.** Instead of showing workflow-level metrics on the Dashboard (error rates, system flows), we show process-level metrics. The Dashboard becomes a true executive summary.
+
+### Does This Change the 4-Screen Approach?
+
+No — but it RENAMES and REFRAMES one screen:
+
+| Before | After | Why |
+|--------|-------|-----|
+| Dashboard | Dashboard | Same — executive summary |
+| Workflows | **Process Map** | Primary entity is the process, not the workflow |
+| Roadmap | Roadmap | Same — prioritized recommendations |
+| Detail | Detail | Same — deep dive per workflow |
+
+The content of each screen is the same. The FRAMING changes from workflow-centric to process-centric. This is how McKinsey/Celonis would do it.
+
+### Final Check: Are We Doing Anything McKinsey/Celonis Would NOT Do?
+
+| What we do | Would McKinsey? | Would Celonis? | Verdict |
+|-----------|----------------|----------------|---------|
+| Process grouping | Yes — by capability | Yes — by process | Correct |
+| Recommendations with confidence | Yes — with assumptions | Yes — with value at stake | Correct |
+| Deploy to n8n | No — they advise, don't implement | No — they analyze, don't implement | **This is our differentiator.** Neither can do this. |
+| System narratives | Yes — in situation analysis | Partially — system context | Correct, but keep compact |
+| Per-workflow detail | Only as evidence | Yes — case-level drill-down | Correct |
+| "Your next move" banner | Yes — the CEO slide | No — not their style | Correct for our audience |
+| Confidence/evidence labels | Yes — assumption tracking | Yes — data quality indicators | Correct |
+| LLM-generated analysis | Neither uses LLMs | Neither uses LLMs | **This is our second differentiator.** They use human consultants / algorithms. We use LLMs. |
+
+**What they do that we should adopt:**
+- Process-level metrics as primary (not workflow-level) ← adding now
+- Maturity levels per process ← adding now
+- Value at stake per gap ← we have this, but it should be more prominent
+- Delta tracking ("since last assessment") ← adding now
+
+**What they do that we should NOT adopt:**
+- Heavy methodology documentation (Celonis publishes whitepapers) — too heavy for V1
+- Stakeholder-specific views (CEO vs VP vs manager) — single user for V1
+- Historical trend analysis — not enough data for demo
+
+**Our two unique differentiators that neither can match:**
+1. **Deploy button** — Expliq doesn't just recommend, it generates deployable workflow JSON
+2. **LLM-powered analysis** — from raw JSON to business insight in one click, no human consultant needed
+
+---
+
+> Per: this is the deepest we can go. The Process Map reframe and process-level variables are the final refinement. Ready for the PRD?
+---
+
+## Round 8b — Decision: Merge Automation Intelligence into Dashboard (2026-04-03)
+
+The Automation Intelligence page had 4 purposes:
+1. Relieve the Dashboard with detail → solved by scrollable depth on Dashboard itself
+2. "Living document" of Expliq's understanding → the Dashboard IS the living document, it updates on every sync
+3. Trust building ("we understand you") → trust is built by recommendation quality + inline evidence, not a separate page
+4. Deep-dive for recommendations → solved by expandable sections on Roadmap recommendation cards
+
+**Decision: 4 screens, not 5.**
+
+| Screen | Role | Content |
+|--------|------|---------|
+| **Dashboard** | Executive Summary + Situation Analysis | Your next move, metrics, process coverage, system landscape with narratives, maturity |
+| **Workflows** | Detailed Situation Analysis | Process groups, workflow cards, inline recommendations, process suggestions |
+| **Roadmap** | Recommendations | Act Now / Investigate / Explore, deploy modal, per-recommendation evidence |
+| **Detail** | Deep Dive | Per-workflow business narrative, business case, connections, technical evidence |
+
+The Automation Intelligence content merges into Dashboard (system landscape, maturity) and Roadmap (methodology, evidence per recommendation). If Dashboard feels overloaded during implementation, we can split — easier to split than to justify an empty page.
+
+---
+
+## Round 10 — Prompt Engineering Best Practices (2026-04-03)
+
+Per asked: what's the best practice for designing prompts that deliver on the first shot?
+
+### Key Techniques for Expliq's LLM Pipeline
+
+**1. System prompt with role + constraints (Claude/Anthropic best practice)**
+
+Claude responds best to clear system prompts with XML-tagged sections:
+```
+<role>You are a business consultant who analyzes automation landscapes...</role>
+<instructions>Lead with business impact. Show your reasoning...</instructions>
+<output_format>Return a JSON object matching this schema...</output_format>
+<anti_patterns>Do NOT lead with governance findings. Do NOT...</anti_patterns>
+```
+XML tags help Claude parse structure and follow each section independently.
+
+**2. Prefilled response for structured output**
+
+Anthropic's recommended technique for reliable JSON: start the assistant response with the opening of the expected structure. Claude continues it naturally. Example: prefill with `{"processes": [` and Claude fills the rest. More reliable than "please return JSON."
+
+We should use this for both the per-automation call and the workspace-level calls.
+
+**3. Chain-of-thought in a scratchpad**
+
+For analytical tasks: ask Claude to reason in a `<thinking>` section BEFORE producing the structured output. The thinking improves quality — the LLM "figures out" the business context before committing to the schema fields. The thinking block can be discarded or stored for debugging.
+
+Pattern: "First, in `<analysis>` tags, reason about what this workflow does and why it matters. Then, produce the JSON output."
+
+**4. Two-call strategy is validated**
+
+Breaking complex analysis into steps (Call 1: Understand → Call 2: Advise) is a proven pattern for complex tasks. Each call has a focused scope and clear output schema. Call 2 receives Call 1's output as input context, not the raw data again. This is better than one massive call because:
+- Each prompt is shorter and more focused
+- The output schema per call is simpler
+- Errors are isolated — if Call 1 produces bad process clustering, we can debug that independently
+- The intermediate result (Call 1 output) can be cached and reused
+
+**5. One few-shot example**
+
+Include ONE high-quality example in the prompt — a condensed version of our final fairtix analysis (Part 5). This shows the LLM the target quality, tone, confidence framing, and honest uncertainty handling. One example is sufficient for Claude — more examples waste context window.
+
+The example should be from a DIFFERENT company/domain than the input, so the LLM generalizes rather than copies.
+
+**6. Negative instructions work with Claude — but pair with positives**
+
+"Do NOT lead with governance findings" is effective. Claude respects negative constraints. But always pair with the positive alternative: "Instead, lead with the business impact of each finding. Technical details are evidence, not headlines."
+
+**7. Named confidence levels with criteria — not numeric scores**
+
+LLMs are notoriously overconfident with numeric scores. The fix: define named levels WITH criteria directly in the prompt:
+- **Data-driven:** "You computed this from the user's actual workflow data or execution stats. You can point to the specific field or metric."
+- **Benchmark-based:** "You're applying general industry knowledge to their situation. State the general principle."
+- **AI-suggested:** "You're inferring based on patterns. You might be wrong. Say what you can't see and what would need to be true."
+
+Don't ask for 0-100. Ask for a named level with the evidence that justifies it.
+
+**8. Schema-first prompting**
+
+Define the exact JSON schema WITH descriptions per field BEFORE asking for analysis. Claude fills the schema more reliably than generating free-form text and then structuring it.
+
+```json
+{
+  "businessBrief": "One sentence: what this workflow does in business terms",
+  "businessImpact": "Why this matters. What breaks if it fails. Revenue connection.",
+  "timeSavingsEstimate": "Range estimate with reasoning: '~X hrs/wk based on Y'",
+  "confidence": "data-driven | benchmark-based | ai-suggested",
+  "evidenceChain": ["list of specific data points that support this analysis"]
+}
+```
+
+The field descriptions ARE the instructions. The LLM reads them and produces content matching each description.
+
+### How This Applies to Expliq's Two-Call Architecture
+
+**Call 1: "Understand" prompt structure:**
+```
+<role>Business automation analyst</role>
+<task>Analyze all workflows and organize into business processes</task>
+<input>Per-workflow summaries (from per-automation enrichment)</input>
+<thinking>Reason about what this company does, what systems they use, 
+  how workflows relate to each other</thinking>
+<output_schema>
+{
+  "processes": [{ "name": "", "summary": "", "workflows": [...], "coverage": "" }],
+  "systemLandscape": [{ "name": "", "role": "", "narrative": "", "insight": "" }],
+  "connectedAutomations": [{ "from": "", "to": "", "type": "" }]
+}
+</output_schema>
+```
+
+**Call 2: "Advise" prompt structure:**
+```
+<role>Business opportunity consultant</role>
+<task>Based on the landscape understanding, identify gaps and recommend actions</task>
+<input>Call 1 output + per-workflow summaries</input>
+<framework>
+  Act Now: high impact + high confidence (data-driven evidence)
+  Investigate: high impact + uncertain (may exist in other systems)
+  Explore: valuable + requires expansion
+</framework>
+<few_shot_example>[condensed fairtix Part 5 output]</few_shot_example>
+<anti_patterns>Do NOT lead with governance. Do NOT recommend platform-level code...</anti_patterns>
+<output_schema>
+{
+  "recommendations": [{ "title": "", "impact": "", "confidence": "", "evidence": [...], 
+    "tier": "act_now|investigate|explore", "businessCase": "", "deployable": true/false }],
+  "processSuggestions": [...],
+  "nextMove": { "text": "", "reasoning": "" },
+  "visibilityExpansions": [{ "platform": "", "reasoning": "" }]
+}
+</output_schema>
+```
+
+### Key Insight
+
+The prompt design is not a coding task — it's a PRODUCT DESIGN task. The prompts define what Expliq says, how it says it, and what quality bar it meets. The research spike should treat prompt design like UX design: iterate, test against real data, evaluate, refine.
+
+---
+
+> Per: captured. Continue with your questions.

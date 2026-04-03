@@ -1,0 +1,65 @@
+{
+  "_source": "n8n community example + OpenAPI spec — GET /api/v1/executions/{id}?includeData=true",
+  "_note": "With includeData=true, includes per-node execution data, timing, and the workflow definition at time of execution.",
+  "id": "4949",
+  "finished": true,
+  "mode": "manual",
+  "status": "success",
+  "workflowId": "kJMFFhFfEhsYN3Uj",
+  "startedAt": "2023-12-12T15:32:22.597Z",
+  "stoppedAt": "2023-12-12T15:32:22.810Z",
+  "retryOf": null,
+  "retrySuccessId": null,
+  "waitTill": null,
+  "customData": {},
+  "data": {
+    "startData": {
+      "destinationNode": "OpenWeatherMap",
+      "runNodeFilter": ["When clicking \"Execute Workflow\"", "OpenWeatherMap"]
+    },
+    "resultData": {
+      "runData": {
+        "When clicking \"Execute Workflow\"": [
+          {
+            "startTime": 1702394542597,
+            "executionTime": 0,
+            "executionStatus": "success",
+            "source": [],
+            "data": {
+              "main": [[{ "json": {}, "pairedItem": { "item": 0 } }]]
+            }
+          }
+        ],
+        "OpenWeatherMap": [
+          {
+            "startTime": 1702394542597,
+            "executionTime": 213,
+            "executionStatus": "success",
+            "source": [{ "previousNode": "When clicking \"Execute Workflow\"" }],
+            "data": {
+              "main": [[{ "json": { "temperature": 22.5, "humidity": 65 }, "pairedItem": { "item": 0 } }]]
+            }
+          }
+        ]
+      },
+      "pinData": {},
+      "lastNodeExecuted": "OpenWeatherMap"
+    },
+    "executionData": {
+      "contextData": {},
+      "nodeExecutionStack": [],
+      "metadata": {},
+      "waitingExecution": {},
+      "waitingExecutionSource": {}
+    }
+  },
+  "workflowData": {
+    "id": "kJMFFhFfEhsYN3Uj",
+    "name": "Example workflow with execution data",
+    "active": false,
+    "nodes": [],
+    "connections": {},
+    "settings": {},
+    "pinData": {}
+  }
+}

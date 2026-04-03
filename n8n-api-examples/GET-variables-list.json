@@ -1,0 +1,50 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/variables",
+  "_note": "Global configuration variables accessible in workflows via $vars.KEY_NAME. Reveals environment configuration and shared settings.",
+  "data": [
+    {
+      "id": "var-1",
+      "key": "API_BASE_URL",
+      "value": "https://api.production.company.com",
+      "type": "string",
+      "project": {
+        "id": "proj1",
+        "name": "Sales Team",
+        "type": "team"
+      }
+    },
+    {
+      "id": "var-2",
+      "key": "ENVIRONMENT",
+      "value": "production",
+      "type": "string",
+      "project": {
+        "id": "proj1",
+        "name": "Sales Team",
+        "type": "team"
+      }
+    },
+    {
+      "id": "var-3",
+      "key": "SLACK_CHANNEL_ALERTS",
+      "value": "#ops-alerts",
+      "type": "string",
+      "project": null
+    }
+  ],
+  "nextCursor": null,
+
+  "_llm_can_infer": [
+    "Environment configuration: is this a production, staging, or dev instance?",
+    "Shared API endpoints reveal what external services are centrally configured",
+    "Slack channel names in variables = standardized notification infrastructure",
+    "Project-scoped variables show team-level configuration patterns",
+    "Variable naming conventions reveal organizational maturity (well-named = structured team)"
+  ],
+
+  "_business_value": {
+    "environment_detection": "ENVIRONMENT=production confirms this is a live instance, not a test setup. Affects confidence in all analysis.",
+    "shared_config": "Centralized API URLs and channels show a mature automation setup with shared infrastructure.",
+    "team_organization": "Project-scoped vs global variables show how the team organizes shared resources."
+  }
+}

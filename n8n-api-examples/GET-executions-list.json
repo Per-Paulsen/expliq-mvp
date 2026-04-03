@@ -1,0 +1,43 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/executions",
+  "_note": "Summary response (includeData=false). With includeData=true, each execution also contains full resultData with per-node timing and output.",
+  "data": [
+    {
+      "id": 1000,
+      "finished": true,
+      "mode": "webhook",
+      "status": "success",
+      "workflowId": "HC57JS1iKZRafE78",
+      "startedAt": "2025-04-29T14:03:58.555Z",
+      "stoppedAt": "2025-04-29T14:03:58.888Z",
+      "retryOf": null,
+      "retrySuccessId": null,
+      "waitTill": null,
+      "customData": {}
+    },
+    {
+      "id": 1001,
+      "finished": true,
+      "mode": "trigger",
+      "status": "error",
+      "workflowId": "HC57JS1iKZRafE78",
+      "startedAt": "2025-04-29T15:00:00.000Z",
+      "stoppedAt": "2025-04-29T15:00:03.200Z",
+      "retryOf": null,
+      "retrySuccessId": null,
+      "waitTill": null,
+      "customData": {}
+    }
+  ],
+  "nextCursor": "MTIzZTQ1NjctZTg5Yi0xMmQzLWE0NTYtNDI2NjE0MTc0MDA",
+
+  "_mode_enum": ["cli", "error", "integrated", "internal", "manual", "retry", "trigger", "webhook", "evaluation", "chat"],
+  "_status_enum": ["canceled", "crashed", "error", "new", "running", "success", "unknown", "waiting"],
+  "_query_params": {
+    "workflowId": "filter by workflow",
+    "status": "filter by status enum",
+    "includeData": "boolean — include full execution payload",
+    "limit": "page size (default 100, max 250)",
+    "cursor": "pagination cursor"
+  }
+}

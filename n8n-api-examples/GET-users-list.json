@@ -1,0 +1,56 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/users",
+  "_note": "Returns all users on the n8n instance. Combined with workflow shared[] data, this gives ownership mapping without manual assignment.",
+  "data": [
+    {
+      "id": "user-uuid-1",
+      "email": "jane@company.com",
+      "firstName": "Jane",
+      "lastName": "Doe",
+      "isPending": false,
+      "role": "global:owner",
+      "createdAt": "2022-04-29T11:02:29.842Z",
+      "updatedAt": "2022-04-29T11:02:29.842Z"
+    },
+    {
+      "id": "user-uuid-2",
+      "email": "marcus@company.com",
+      "firstName": "Marcus",
+      "lastName": "Williams",
+      "isPending": false,
+      "role": "global:admin",
+      "createdAt": "2023-01-15T09:00:00.000Z",
+      "updatedAt": "2023-06-20T14:22:00.000Z"
+    },
+    {
+      "id": "user-uuid-3",
+      "email": "intern@company.com",
+      "firstName": "Alex",
+      "lastName": "Kim",
+      "isPending": true,
+      "role": "global:member",
+      "createdAt": "2024-03-01T10:00:00.000Z",
+      "updatedAt": "2024-03-01T10:00:00.000Z"
+    }
+  ],
+  "nextCursor": null,
+
+  "_role_enum": ["global:owner", "global:admin", "global:member"],
+
+  "_llm_can_infer": [
+    "How many people work with automations in this company",
+    "Who is the instance owner (likely the main automation person or IT lead)",
+    "Whether there are pending invites (team growth / onboarding signal)",
+    "Combined with workflow shared[].role: who OWNS which workflows — deterministic ownership",
+    "Bus factor: if 1 user owns 15 of 18 workflows, that's a concentration risk",
+    "Team structure: admin vs member distribution shows how centralized automation responsibility is",
+    "Activity: createdAt/updatedAt shows when users were added — recent additions = growing automation team"
+  ],
+
+  "_business_value": {
+    "ownership_mapping": "Expliq currently requires manual owner assignment. With users + shared[] data, we can auto-assign owners from n8n. 'Sarah Chen owns 6 workflows' becomes a FACT.",
+    "bus_factor_analysis": "If 1 person owns 80% of workflows, that's a governance risk Expliq should surface. The Automation Intelligence page can say: 'Your automation knowledge is concentrated in 1 person — consider cross-training.'",
+    "team_size_signal": "Number of n8n users hints at automation team size. 2 users = small team. 10 users = dedicated automation function. This informs the LLM's company analysis.",
+    "pending_users": "isPending=true means invited but haven't accepted. Could indicate team transition or onboarding issues."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "_source": "Official n8n API docs — exact JSON Schema for the workflow object, copied verbatim from docs.n8n.io",
+  "_date": "2026-04-03",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "nodes", "connections", "settings"],
+  "properties": {
+    "id": { "type": "string", "readOnly": true, "examples": ["2tUt1wbLX592XDdX"] },
+    "name": { "type": "string", "examples": ["Workflow 1"] },
+    "active": { "type": "boolean", "readOnly": true },
+    "createdAt": { "type": "string", "format": "date-time", "readOnly": true },
+    "updatedAt": { "type": "string", "format": "date-time", "readOnly": true },
+    "isArchived": { "type": "boolean", "readOnly": true },
+    "versionId": { "type": "string", "readOnly": true, "description": "Current version identifier used for optimistic locking" },
+    "triggerCount": { "type": "integer", "readOnly": true, "description": "Number of active trigger nodes in the workflow" },
+    "nodes": { "type": "array", "items": { "$comment": "see node schema below" } },
+    "connections": { "type": "object" },
+    "settings": { "$comment": "see settings schema below" },
+    "staticData": { "anyOf": [{"type": ["string","null"], "format": "jsonString"}, {"type": ["object","null"]}] },
+    "pinData": { "type": ["object","null"], "description": "Pinned sample data for nodes, keyed by node name" },
+    "meta": { "type": ["object","null"], "readOnly": true, "description": "Workflow metadata such as template information" },
+    "tags": { "type": "array", "readOnly": true },
+    "shared": { "type": "array" },
+    "activeVersion": { "type": "object", "readOnly": true }
+  }
+}

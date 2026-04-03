@@ -1225,3 +1225,262 @@ Three insights that fundamentally shaped the PRD:
 Per, if you're satisfied, I'll write `prd-2.0.md` now. It will be derived from everything in this file.
 
 Confirm and I'll start.
+
+---
+
+## Round 7a — Consulting Recommendation Frameworks Research (2026-04-03)
+
+Per asked: are there best practices from consulting on how to structure and present recommendations?
+
+### Research Findings (distilled)
+
+**The universal pattern from McKinsey/BCG/Bain:**
+- Lead with the answer (recommendation), then evidence, then data — never the reverse
+- Group into 3-5 named buckets — never a flat list
+- Every recommendation gets a rough business value estimate (even a range)
+- Handle uncertainty through language: **"recommend"** (high confidence) → **"consider"** (medium) → **"explore"** (low)
+- List key assumptions explicitly — users trust recommendations more when they see what must be true
+- **"No-regret moves"** concept: actions beneficial regardless of scenario. These always go first.
+
+**The ICE framework (Impact × Confidence × Ease):**
+- Dead simple scoring: each dimension 1-10
+- Confidence calibration: 10 = proven from data, 8 = strong benchmark, 5 = hypothesis, 2 = gut feel
+- Best for fast prioritization of 10-50 items — exactly our use case
+
+**Celonis (process mining — closest to Expliq):**
+- Finds process gaps and quantifies "value at stake"
+- Every recommendation links to the specific data that triggered it
+- Uses "automation rate" as metric — "this process is 40% automated, could be 80%"
+
+**Evidence spectrum for AI-powered products:**
+
+| Evidence Source | Label | Confidence |
+|----------------|-------|-----------|
+| Computed from user's own data | "Data-driven" | Highest |
+| Matched against industry benchmark | "Benchmark-based" | High |
+| Pattern matched from similar cases | "Pattern-based" | Medium |
+| Inferred by AI analysis | "AI-suggested" | Medium-Low |
+| General best practice | "Best practice" | Low |
+
+**Key insight from Gartner:** Never use more than 2 dimensions for the primary sort. Users handle a 2x2 intuitively. A third dimension (bubble size or color) is max before cognitive overload.
+
+### What This Means for Expliq's Roadmap Page
+
+The research says: **Impact first, confidence as a visual modifier.**
+
+1. Users care about "what matters most" (impact) not "what you're most sure about" (confidence)
+2. Confidence is a trust signal, not a priority signal — it tells users HOW MUCH to trust the recommendation, not WHETHER to act
+3. The consulting standard: group by impact tier, show confidence per recommendation
+
+**Proposed structure for Expliq's Roadmap:**
+
+Three named tiers:
+
+**"Act Now"** — High impact, high confidence. No-regret moves.
+- Fix lottery-win error rate (31% → <5%). Evidence: Data-driven (real execution stats).
+- Add lottery-loss notification. Evidence: Data-driven (support categories prove gap).
+- Add purchase window reminder. Evidence: Data-driven (24h window in email, no reminder exists).
+
+**"Investigate"** — High impact, but Expliq can't fully verify.
+- Purchase confirmation. Evidence: AI-suggested ("not seen in n8n, may be handled by platform").
+- Event announcement. Evidence: AI-suggested ("no evidence of proactive notifications").
+- Payment failure handler. Evidence: AI-suggested ("if not handled by payment provider...").
+
+**"Explore"** — Valuable but lower urgency or requires platform expansion.
+- Connect ticketing platform for full lifecycle visibility.
+- Add Slack as second notification channel.
+- Resale/transfer automation (if not handled by platform).
+
+**Each recommendation card shows:**
+1. Title + one-line business impact
+2. Evidence label: "Data-driven" / "Benchmark-based" / "AI-suggested"
+3. Confidence indicator (visual: solid/dashed/outline)
+4. Affected scope ("3 automations" / "your lottery lifecycle")
+5. Expandable: full reasoning, linked evidence, key assumptions
+6. Deploy button (for n8n-deployable recommendations)
+
+**How this connects to Per's insight:** Impact sorts the list. Confidence is shown per card but doesn't change the order. The tier names communicate both: "Act Now" = high impact + high confidence. "Investigate" = high impact + needs verification. "Explore" = interesting + uncertain or requires expansion.
+
+---
+
+> Per: does this framework work? If so, we carry it into the PRD.
+
+---
+
+## Round 7 — Evaluating the Fairtix Analysis Against Our Decisions (2026-04-03)
+
+We ran the LLM analysis on real fairtix data (`n8n-api-examples/fairtix/reference/ANALYSIS.md`). Here's how it measures up against what we agreed in this brainstorming.
+
+### What the analysis NAILS (aligned with our decisions)
+
+**1. Deductive reasoning about connected systems — EXACTLY what Per wanted.**
+
+From the Gmail node's HTML email template, the LLM deduced:
+- FairTix operates a lottery-based ticket allocation ("Fair Queue")
+- They price in EUR with zero hidden fees
+- They enforce identity verification
+- They cap resale at face value + 20%
+
+None of this is hallucination — it's all literally in the node `parameters`. This is the "Expliq understands your business" proof point.
+
+**2. Process clustering — works naturally.**
+
+4 business processes identified: Customer Onboarding, Ticket Lottery Notification, AI-Powered Support, Operational Monitoring. Clean, intuitive grouping. The "Infrastructure" process category we discussed (for the error handler) maps to "Operational Monitoring."
+
+**3. Connected automations — deterministic and correct.**
+
+`errorWorkflow` links correctly identified: LotteryWin → Generic Error Workflow. The analysis even detected that the "improved" version (02b) DOESN'T link to the error workflow — which is itself a governance finding.
+
+**4. Execution data used as FACTS.**
+
+"31% error rate", "40 executions", "rapid-fire clusters every ~1 minute" — all from real API data, not estimates. Mixed beautifully with reasoning: "the clusters suggest a polling trigger failing on every cycle."
+
+**5. "Your next move" — specific, actionable, reasoning-first.**
+
+"Activate and harden the LotteryWin workflow. Revenue is at stake — 31% error rate, not active despite having a 'Published' version. Then add lottery-loss notifications." This is exactly the chained, specific recommendation we wanted.
+
+**6. Gap detection — 13 specific recommendations.**
+
+"No lottery-loss notification" is genuinely insightful — in a lottery system, losers outnumber winners. "No purchase window expiration" — the 24-hour CTA has no automated follow-up. These are real business gaps.
+
+### What the analysis DEVIATES from or MISSES
+
+**1. Company profile inference — we said cut this, but the analysis does it anyway.**
+
+The analysis says: "FairTix is an early-stage European ticketing startup in prototype-to-production transition."
+
+We agreed in Round 3: "CUT company size, industry, stage inference (unless the LLM can derive it with certainty from the data)."
+
+Honest evaluation: "European" (from EUR pricing) and "ticketing" (from workflow content about tickets, events, lottery) ARE certainly derivable. But "early-stage" and "prototype-to-production transition" are JUDGMENTS about business maturity, not facts from the data. The workflows could be a demo instance for a mature company. We should keep the factual parts ("ticketing company, European market") and drop the speculative parts ("early-stage"), or at minimum label them clearly as inference.
+
+**Question for Per:** The analysis infers "ticketing company" and "European" — both traceable to real data. Keep these? And should we label "early-stage" as an inference rather than a fact?
+
+i actually think the analysis is fine. even if it was a demo instance for a mature company, "judgements" such as "early-stage" and "prototype-to-production transition" would not be totally wrong and quite nice and funny. 
+
+**2. No time savings / revenue impact estimates.**
+
+The brainstorming decided: every workflow should show business case with time savings and revenue impact as benchmark ranges with reasoning. The analysis doesn't estimate these. It says "business importance" and "what breaks if it fails" but never "this saves ~X min/run" or "comparable companies see ~$Y from similar automation."
+
+This is a significant gap. The Dashboard's Portfolio Value bar needs aggregate time/money numbers. The Roadmap's recommendation cards need impact estimates. The Detail page Business Case card needs time savings + revenue impact.
+
+For fairtix specifically, with `timeSavedPerExecution: 1 min` on two workflows and execution counts from the API, we could compute: "LotteryWin: 1 min saved × 36 runs = 36 min saved." But the LLM should also estimate for workflows WITHOUT `timeSavedPerExecution` set.
+
+**3. Recommendations lean governance, not business opportunity.**
+
+The brainstorming's core thesis: "Prescriptive BUSINESS optimization > prescriptive risk reduction."
+
+But the analysis recommendations are mostly governance:
+- "Add error handling on AI workflows" — technical governance
+- "Consolidate duplicate workflows" — governance hygiene
+- "Add a second notification channel" — operational governance
+
+The business-opportunity recommendations exist but are buried:
+- "No lottery-loss notification" — business opportunity
+- "No payment/purchase confirmation" — business opportunity  
+- "No event notification / on-sale alerts" — business opportunity
+
+These should be LEADING. "You're missing a lottery-loss notification — in a lottery system, losers outnumber winners. Not notifying them drives support volume and erodes trust. Build this." THEN the governance stuff follows.
+
+**4. No "connect additional platform" recommendation.**
+
+We explicitly agreed: include recommendations like "Connect your ticketing platform for deeper visibility." The analysis notes "no connection to the actual FairTix product/platform" but doesn't frame it as an actionable recommendation on the Roadmap. It should say: "Connect your ticketing platform (the FairTix product itself) — Expliq can analyze your entire automation landscape when it sees both the n8n orchestration layer AND the internal platform automations."
+
+**5. Systems landscape is a table, not a narrative.**
+
+We decided (C9, Per's answer): full per-system narrative (option c) on the Automation Intelligence page.
+
+The analysis has a table:
+| System | Role | Integration Method | Credentials |
+| Gmail | Email sending | OAuth2 | ... |
+
+But Per wanted:
+> **Gmail** — Your notification backbone.
+> 8 workflows connect here. Gmail handles three distinct functions: winner lottery notifications, AI-generated support replies, and operational error alerts. All three use the same OAuth2 credential (DL-School-Automations), creating a single point of failure for all outbound communication.
+> **Insight:** No alternative notification channel exists. If this Gmail account is suspended or the OAuth token expires, ALL automated communication — customer-facing and operational — goes silent simultaneously.
+
+The analysis has this depth in the per-workflow sections but not aggregated at the system level.
+
+**6. Analysis structure doesn't map to the 5 screens.**
+
+The analysis is a flat report. But Expliq has 5 screens with specific data needs. To validate the product, the analysis should show what would appear WHERE:
+
+- **Dashboard**: "Your next move" text, portfolio value, attention items, top opportunities, process coverage
+- **Automation Intelligence**: system narratives, actionable insights, maturity per process
+- **Workflows**: process groups with cards, inline recommendations
+- **Roadmap**: priority-tiered recommendations with business case
+- **Detail**: per-workflow business narrative, business case card, process position, connections
+
+### Summary: The Analysis Proves the Product, But Needs Reframing
+
+The raw intelligence is there. The LLM produced genuinely insightful analysis from real workflow data. But the FRAMING needs adjustment to match our product decisions:
+
+| What the analysis does | What the product needs | Gap |
+|----------------------|----------------------|-----|
+| Governance-first risk assessment | Business-opportunity-first with governance as supporting | Reorder recommendations, lead with business value |
+| Flat report format | Mapped to 5 specific screens | Restructure output for screen-specific data |
+| System table | Per-system narrative with deductive reasoning | Aggregate system insights from per-workflow analysis |
+| No time/money estimates | Benchmark-range estimates with transparent reasoning | Add time savings + revenue impact per workflow and aggregate |
+| Company profile inference | Stick to certainly derivable facts | Label speculative inferences explicitly |
+| No platform connection recommendations | "Connect your ticketing platform" on Roadmap | Add as a recommendation type |
+
+**The good news:** These are all PROMPT ENGINEERING adjustments, not architecture changes. The underlying data extraction and analysis capability is proven. We just need to shape the output to match our product screens and business-first framing.
+
+**This directly informs Epic 10 (LLM Pipeline V2):** The prompts need to be designed screen-by-screen, with explicit output schemas matching what each screen needs to display.
+
+---
+
+> Per: respond to this evaluation. Then I think we're truly ready for the PRD.
+
+---
+
+## Round 8 — Eliminating the Business/Governance Distinction (2026-04-03)
+
+### Decision: There is no "governance view." There is only insight with business impact.
+
+The fairtix analysis proved that the business/governance distinction is artificial:
+
+| What the analysis found | "Governance" label | Actual meaning |
+|------------------------|-------------------|----------------|
+| 31% error rate | Technical risk | Every failed notification is a lost ticket sale |
+| No error handling on AI pipeline | Governance gap | Customers get silence during API outage |
+| No owner assigned | Governance hygiene | Nobody accountable when this breaks |
+| Lottery-loss notification missing | Business gap | Users lose trust in the fairness promise |
+| `retryOnFail: false` on Gmail node | Technical debt | Revenue-critical email has no retry = preventable failures |
+
+**Every finding is just an insight with evidence and business impact.** The word "governance" adds nothing.
+
+### What this eliminates
+
+- The governance toggle (already cut — now confirmed unnecessary, even as a future feature)
+- The business/governance framing tension throughout the product
+- Duplicate UI components for two views
+- The cognitive load of "which view am I in?"
+
+### What replaces it
+
+**One unified view per screen.** Each insight/recommendation shows:
+1. **What** — the finding or recommendation
+2. **Impact** — why it matters to the business
+3. **Evidence** — the data (may be technical: error rates, missing config. Or business: missing workflow, support category proving a gap)
+4. **Confidence** — how sure Expliq is
+5. **Action** — what to do (fix, build, connect, investigate)
+
+Technical details (nodes, connections, retry config, errorWorkflow links) live on the detail page — not behind a toggle, just lower on the page. Summary at top, evidence below.
+
+The governance dots on workflow cards survive — they're just another visual signal (healthy/attention/critical), not a "governance feature."
+
+### Impact on the 5 screens
+
+| Screen | Before (with governance toggle) | After (unified) |
+|--------|--------------------------------|-----------------|
+| Dashboard | Would have needed two "Your next move" variants | One banner, one view |
+| Automation Intelligence | Would have needed two system landscape views | One narrative with insights |
+| Workflows | Would have needed business cards + governance cards | One card type showing impact + evidence |
+| Roadmap | Would have needed business tiers + governance tiers | One recommendation list sorted by impact |
+| Detail | Would have needed business view + governance view | One page: business narrative top, technical evidence below |
+
+This is a significant scope reduction. The Figma prototype's most complex feature (the dual-lens toggle on every page) is gone — not deferred, but recognized as unnecessary.
+
+---
+
+> Per: this is captured. Go ahead with your questions.

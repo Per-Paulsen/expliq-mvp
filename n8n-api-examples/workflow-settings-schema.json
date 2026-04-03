@@ -1,0 +1,72 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — workflowSettings schema",
+  "_note": "All fields in the settings object on a workflow. This is the richest source of governance and dependency data.",
+
+  "saveExecutionProgress": {
+    "type": "boolean",
+    "description": "Whether to save execution progress (intermediate results per node)"
+  },
+  "saveManualExecutions": {
+    "type": "boolean",
+    "description": "Whether to save manually triggered executions"
+  },
+  "saveDataErrorExecution": {
+    "type": "enum",
+    "values": ["all", "none"],
+    "description": "Whether to save execution data on error. 'all' = keeps all data (potential data retention risk)"
+  },
+  "saveDataSuccessExecution": {
+    "type": "enum",
+    "values": ["all", "none"],
+    "description": "Whether to save execution data on success. 'all' = keeps all data"
+  },
+  "executionTimeout": {
+    "type": "number",
+    "max": 3600,
+    "example": 3600,
+    "description": "Max execution time in seconds. 0 or unset = no timeout"
+  },
+  "errorWorkflow": {
+    "type": "string",
+    "example": "VzqKEW0ShTXA5vPj",
+    "description": "ID of another workflow that handles errors for this one. KEY FIELD: creates deterministic connected-automations link."
+  },
+  "timezone": {
+    "type": "string",
+    "example": "America/New_York",
+    "description": "IANA timezone for the workflow"
+  },
+  "executionOrder": {
+    "type": "string",
+    "example": "v1",
+    "description": "Execution order version"
+  },
+  "callerPolicy": {
+    "type": "enum",
+    "values": ["any", "none", "workflowsFromAList", "workflowsFromSameOwner"],
+    "default": "workflowsFromSameOwner",
+    "description": "Controls which workflows can call this workflow via Execute Workflow node. 'any' = no restrictions. 'none' = completely blocked. 'workflowsFromSameOwner' (default) = only workflows from same project (for personal: same user; for team: same team project). 'workflowsFromAList' = only specific IDs listed in callerIds.",
+    "_expliq_insight": "KEY FIELD for dependency graph. 'workflowsFromAList' + callerIds = explicit sub-workflow dependencies. 'workflowsFromSameOwner' means dependencies exist within the same project scope."
+  },
+  "callerIds": {
+    "type": "string",
+    "example": "14, 18, 23",
+    "description": "Comma-separated workflow IDs allowed to call this workflow. Only used when callerPolicy = 'workflowsFromAList'."
+  },
+  "timeSavedPerExecution": {
+    "type": "number",
+    "unit": "MINUTES",
+    "description": "Estimated time saved per execution IN MINUTES. KEY FIELD: n8n's own ROI data. If set, combine with execution count: 'You estimated 5 min/run × 520 runs/wk = ~43 hrs/wk saved'."
+  },
+  "availableInMCP": {
+    "type": "boolean",
+    "default": false,
+    "description": "Controls whether this workflow is accessible via the Model Context Protocol (MCP). When enabled, AI assistants and MCP clients can discover and execute this workflow. Requirements: workflow must be active, must contain at least one active Webhook node. Security note: any MCP client with API credentials can execute it.",
+    "_expliq_insight": "If a workflow is MCP-enabled, the company is actively exposing automations to AI tools. This is a maturity signal AND a security consideration. Expliq should flag MCP-exposed workflows."
+  },
+  "continueOnFail": {
+    "type": "boolean",
+    "deprecated": true,
+    "description": "DEPRECATED — use onError instead. Legacy field: if true, workflow continues after a node fails. Still present in older workflows."
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/workflows/{id}",
+  "_note": "Returns the SAME workflow schema as the list endpoint. According to the spec, both use the same $ref. However, the single endpoint is guaranteed to have full data, while the list endpoint MAY omit some fields in practice (e.g., large node parameter payloads). Always use the single endpoint when you need the complete workflow JSON for LLM analysis.",
+
+  "_vs_list_endpoint": {
+    "same_schema": true,
+    "practical_difference": "The list endpoint returns ALL workflows with full nodes/connections/settings. For large instances, this could be a very large response. The single endpoint is safer for getting complete data per workflow. Our current code fetches the list first, then calls getWorkflow(id) for each — this is the right pattern.",
+    "excludePinnedData_param": "The list endpoint has ?excludePinnedData=true to reduce response size. pinData contains sample/test data and is not useful for LLM analysis."
+  },
+
+  "id": "2tUt1wbLX592XDdX",
+  "name": "CRM Sync Pipeline",
+  "active": true,
+  "isArchived": false,
+  "versionId": "7c6b9e3f-8d4a-4b2c-9f1e-6a5d3b8c7e4f",
+  "triggerCount": 1,
+  "createdAt": "2022-04-29T11:02:29.842Z",
+  "updatedAt": "2024-06-20T14:22:00.000Z",
+
+  "nodes": [
+    {
+      "id": "0f5532f9-36ba-4bef-86c7-30d607400b15",
+      "name": "Salesforce Trigger",
+      "type": "n8n-nodes-base.salesforceTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "resource": "opportunity",
+        "event": "updated"
+      },
+      "credentials": {
+        "salesforceOAuth2Api": { "id": "12", "name": "Salesforce Prod" }
+      },
+      "disabled": false,
+      "retryOnFail": false,
+      "onError": "stopWorkflow"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Check Stage Change",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.StageName }}",
+              "rightValue": "Closed Won",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "disabled": false,
+      "retryOnFail": false,
+      "onError": "stopWorkflow"
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Notify Sales Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [650, 200],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channelId": { "__rl": true, "value": "#won-deals", "mode": "name" },
+        "text": "=:tada: Deal *{{ $json.Name }}* just closed! Amount: ${{ $json.Amount }}\nOwner: {{ $json.OwnerName }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "8", "name": "Slack Workspace" }
+      },
+      "disabled": false,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "name": "Update Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [650, 400],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms",
+        "sheetName": "Won Deals Q1",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "values": {
+            "Deal Name": "={{ $json.Name }}",
+            "Amount": "={{ $json.Amount }}",
+            "Close Date": "={{ $json.CloseDate }}",
+            "Owner": "={{ $json.OwnerName }}"
+          }
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "15", "name": "Google Sheets" }
+      },
+      "disabled": false,
+      "retryOnFail": false,
+      "onError": "stopWorkflow",
+      "notes": "Logs all won deals to the Q1 tracking sheet for finance review"
+    }
+  ],
+
+  "connections": {
+    "Salesforce Trigger": {
+      "main": [
+        [{ "node": "Check Stage Change", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check Stage Change": {
+      "main": [
+        [{ "node": "Notify Sales Team", "type": "main", "index": 0 }],
+        [{ "node": "Update Google Sheet", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+
+  "settings": {
+    "errorWorkflow": "err-handler-wf-id",
+    "executionTimeout": 120,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "callerPolicy": "none",
+    "timeSavedPerExecution": 3,
+    "executionOrder": "v1"
+  },
+
+  "tags": [
+    { "id": "tag-prod", "name": "Production", "createdAt": "2022-04-29T11:02:29.842Z", "updatedAt": "2022-04-29T11:02:29.842Z" },
+    { "id": "tag-sales", "name": "Sales", "createdAt": "2022-04-29T11:02:29.842Z", "updatedAt": "2022-04-29T11:02:29.842Z" }
+  ],
+
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "projectId": "proj-sales",
+      "project": { "id": "proj-sales", "name": "Sales Automation", "type": "team" }
+    }
+  ],
+
+  "_llm_analysis_of_this_workflow": {
+    "what_it_does": "Monitors Salesforce Opportunity updates. When a deal moves to 'Closed Won', it simultaneously notifies the #won-deals Slack channel and logs the deal to a Google Sheet named 'Won Deals Q1' for finance tracking.",
+    "systems_connected": ["Salesforce (CRM — trigger source)", "Slack (team notification)", "Google Sheets (financial tracking)"],
+    "data_flowing": "Deal records with Name, Amount, CloseDate, OwnerName flow from Salesforce → Slack notification + Google Sheet row",
+    "what_must_be_true": {
+      "salesforce": "Has Opportunity objects with StageName, Name, Amount, CloseDate, OwnerName fields. Uses 'Closed Won' as a stage value. Deal amounts are tracked.",
+      "slack": "Has a #won-deals channel. Sales team monitors it for real-time deal closure notifications.",
+      "google_sheets": "Has a specific spreadsheet for Q1 deal tracking. Finance reviews this sheet. Columns: Deal Name, Amount, Close Date, Owner."
+    },
+    "business_importance": "Revenue recognition pipeline. Every closed deal is tracked in two places (Slack for team awareness, Sheets for finance). Missing this = delayed revenue visibility + manual finance tracking.",
+    "governance_signals": {
+      "error_handling": "Has errorWorkflow configured. Slack node retries 3x with 5s backoff. Google Sheets node stops on error — finance data integrity prioritized over notification delivery.",
+      "data_retention": "Error executions saved, success executions not saved — lean retention policy.",
+      "time_saved": "User estimated 3 min saved per execution.",
+      "tags": "Tagged as 'Production' and 'Sales' — confirms this is live and business-critical."
+    },
+    "failure_impact": "If this breaks: (1) sales team loses real-time deal closure visibility, (2) finance loses automated deal logging — manual entry needed, risk of missed/delayed entries."
+  }
+}

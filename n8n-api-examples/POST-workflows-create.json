@@ -1,0 +1,84 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — POST /api/v1/workflows",
+  "_note": "Required fields: name, nodes, connections, settings. 'active' is READ-ONLY — use POST /workflows/{id}/activate after creation.",
+
+  "_request_body": {
+    "name": "Payment Failure Recovery",
+    "nodes": [
+      {
+        "id": "trigger-uuid",
+        "name": "Stripe Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [250, 300],
+        "parameters": {
+          "path": "stripe-payment-failed",
+          "httpMethod": "POST",
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "lookup-uuid",
+        "name": "Get Customer",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [450, 300],
+        "parameters": {
+          "url": "https://api.stripe.com/v1/customers/{{ $json.data.object.customer }}",
+          "method": "GET",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth"
+        },
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "stripe-cred-id",
+            "name": "Stripe API Key"
+          }
+        }
+      },
+      {
+        "id": "notify-uuid",
+        "name": "Notify Team",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2,
+        "position": [650, 300],
+        "parameters": {
+          "authentication": "oAuth2",
+          "channelId": "#billing-alerts",
+          "text": "=Payment failed for {{ $json.email }} — amount: {{ $json.amount }}"
+        },
+        "credentials": {
+          "slackOAuth2Api": {
+            "id": "slack-cred-id",
+            "name": "Slack"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Stripe Webhook": {
+        "main": [[{ "node": "Get Customer", "type": "main", "index": 0 }]]
+      },
+      "Get Customer": {
+        "main": [[{ "node": "Notify Team", "type": "main", "index": 0 }]]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "saveDataErrorExecution": "all",
+      "saveDataSuccessExecution": "all"
+    }
+  },
+
+  "_response": {
+    "_note": "Returns the created workflow with generated id. Then call POST /workflows/{id}/activate to make it live.",
+    "id": "newly-generated-id",
+    "name": "Payment Failure Recovery",
+    "active": false,
+    "createdAt": "2026-04-03T10:00:00.000Z",
+    "updatedAt": "2026-04-03T10:00:00.000Z",
+    "nodes": "... (same as request)",
+    "connections": "... (same as request)",
+    "settings": "... (same as request)"
+  }
+}

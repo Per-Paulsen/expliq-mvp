@@ -1,0 +1,141 @@
+{
+  "_source": "Real examples from n8n workflow templates and community",
+  "_note": "These show what nodes[].parameters actually contains in practice. This is what the LLM reads to understand business logic.",
+
+  "salesforce_update_opportunity": {
+    "node_type": "n8n-nodes-base.salesforce",
+    "parameters": {
+      "resource": "opportunity",
+      "operation": "update",
+      "opportunityId": "={{ $json.id }}",
+      "updateFields": {
+        "stageName": "Closed Won",
+        "amount": "={{ $json.dealValue }}"
+      }
+    },
+    "_llm_can_infer": [
+      "Salesforce has Opportunity objects with stages and amounts",
+      "This workflow updates deals to 'Closed Won' — it's a deal-closing process",
+      "The company tracks revenue through deal stages",
+      "dealValue comes from upstream data — another system provides the amount"
+    ]
+  },
+
+  "slack_notification": {
+    "node_type": "n8n-nodes-base.slack",
+    "parameters": {
+      "authentication": "oAuth2",
+      "channelId": { "__rl": true, "value": "#sales-notifications" },
+      "text": "=Deal {{ $json.dealName }} moved to {{ $json.stage }}",
+      "otherOptions": {}
+    },
+    "_llm_can_infer": [
+      "Sales team has a #sales-notifications Slack channel",
+      "Real-time deal stage updates matter to the team",
+      "Deal names and stage values are tracked and propagated"
+    ]
+  },
+
+  "http_request_stripe": {
+    "node_type": "n8n-nodes-base.httpRequest",
+    "parameters": {
+      "url": "https://api.stripe.com/v1/invoices",
+      "method": "POST",
+      "authentication": "genericCredentialType",
+      "genericAuthType": "httpHeaderAuth",
+      "options": { "timeout": 10000 }
+    },
+    "_llm_can_infer": [
+      "Company creates Stripe invoices programmatically",
+      "This is a billing automation — invoices are generated via API",
+      "10-second timeout suggests reliable but not instant processing"
+    ]
+  },
+
+  "code_node_filter": {
+    "node_type": "n8n-nodes-base.code",
+    "parameters": {
+      "jsCode": "const items = $input.all();\nconst filtered = items.filter(i => i.json.amount > 1000);\nreturn filtered;"
+    },
+    "_llm_can_infer": [
+      "Filters transactions by amount > 1000",
+      "High-value transactions get different handling than small ones",
+      "The company has threshold-based processing logic"
+    ]
+  },
+
+  "if_node_error_check": {
+    "node_type": "n8n-nodes-base.if",
+    "parameters": {
+      "conditions": {
+        "boolean": [
+          { "value1": "={{ $json.status }}", "operation": "equals", "value2": "failed" }
+        ]
+      }
+    },
+    "_llm_can_infer": [
+      "Branches on failure status",
+      "This is an error-handling or retry path",
+      "The workflow actively monitors for failures"
+    ]
+  },
+
+  "webhook_trigger": {
+    "node_type": "n8n-nodes-base.webhook",
+    "parameters": {
+      "path": "stripe-payment-failed",
+      "httpMethod": "POST",
+      "responseMode": "onReceived"
+    },
+    "_llm_can_infer": [
+      "Triggered by external webhook — likely from Stripe",
+      "Specifically listens for payment failure events",
+      "Responds immediately (onReceived) — low-latency requirement"
+    ]
+  },
+
+  "schedule_trigger": {
+    "node_type": "n8n-nodes-base.scheduleTrigger",
+    "parameters": {
+      "rule": {
+        "interval": [{ "field": "hours", "hoursInterval": 1 }]
+      }
+    },
+    "_llm_can_infer": [
+      "Runs every hour — scheduled/batch process",
+      "Not event-driven — polling or aggregation pattern",
+      "Runs/week computable: 168 (24 * 7)"
+    ]
+  },
+
+  "google_sheets_append": {
+    "node_type": "n8n-nodes-base.googleSheets",
+    "parameters": {
+      "operation": "appendOrUpdate",
+      "documentId": "1abc...",
+      "sheetName": "Q4 Pipeline",
+      "columns": {
+        "mappingMode": "autoMapInputData"
+      }
+    },
+    "_llm_can_infer": [
+      "Data is being logged to a Google Sheet named 'Q4 Pipeline'",
+      "Auto-mapping means all incoming fields are written — likely a reporting/tracking workflow",
+      "The company uses Google Sheets for pipeline reporting"
+    ]
+  },
+
+  "execute_sub_workflow": {
+    "node_type": "n8n-nodes-base.executeWorkflow",
+    "parameters": {
+      "workflowId": "abc123",
+      "mode": "once",
+      "options": {}
+    },
+    "_llm_can_infer": [
+      "This workflow calls another workflow (abc123) as a sub-workflow",
+      "Deterministic dependency link — this workflow depends on abc123",
+      "Modular architecture — the team splits logic across workflows"
+    ]
+  }
+}

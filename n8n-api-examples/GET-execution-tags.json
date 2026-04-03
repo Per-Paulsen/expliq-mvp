@@ -1,0 +1,33 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/executions/{id}/tags",
+  "_note": "Execution tags (annotations) label individual workflow RUNS — not the workflow definition itself. Users tag executions during post-execution review to classify outcomes.",
+
+  "_difference_from_workflow_tags": {
+    "workflow_tags": "Categorize the workflow DEFINITION ('Production', 'Sales', 'Billing'). Applied once, describe the workflow's identity.",
+    "execution_tags": "Categorize individual RUNS of a workflow ('needs-review', 'false-positive', 'customer-escalation', 'data-quality-issue'). Applied per execution, describe what happened in that specific run."
+  },
+
+  "_response": [
+    { "id": "tag-1", "name": "needs-review", "createdAt": "2025-01-10T09:30:00.000Z", "updatedAt": "2025-01-10T09:30:00.000Z" },
+    { "id": "tag-2", "name": "customer-escalation", "createdAt": "2025-01-10T09:30:00.000Z", "updatedAt": "2025-01-10T09:30:00.000Z" }
+  ],
+
+  "_llm_can_infer": [
+    "Execution tag names reveal HOW the team triages and classifies operational incidents",
+    "Tags like 'false-positive' show the team actively reviews and filters automation outputs",
+    "Tags like 'customer-escalation' show automations directly impact customer experience",
+    "Tag frequency across executions reveals recurring operational patterns",
+    "Presence of execution tags at all = mature ops team that reviews automation outcomes",
+    "ABSENCE of execution tags = team doesn't review runs (governance gap signal)"
+  ],
+
+  "_business_value": {
+    "operational_maturity": "If a team tags executions, they review automation outcomes. This is a strong maturity signal — most teams don't do this.",
+    "incident_classification": "Tag names reveal the team's mental model for problems. 'data-quality-issue' vs 'timeout' vs 'customer-impact' shows what they care about.",
+    "pattern_detection": "If 30% of executions for one workflow are tagged 'needs-review', that workflow has reliability issues the team is manually compensating for. Expliq should surface this.",
+    "governance_signal": "Execution tags per workflow = active governance. No tags = nobody is checking outputs. This directly feeds the risk engine.",
+    "recommendation_fuel": "Many 'false-positive' tags → recommend better filtering logic. Many 'timeout' tags → recommend retry/timeout configuration. The tags TELL us what to recommend."
+  },
+
+  "_priority_for_demo": "Medium-low. Depends on whether fairtix instance has execution tags. If it does, it's a nice insight. If not, skip gracefully."
+}

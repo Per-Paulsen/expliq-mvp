@@ -1,0 +1,64 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/projects + GET /api/v1/projects/{id}/users",
+  "_note": "Projects organize workflows into teams. Combined with workflow shared[] and users, this maps the organizational structure behind automations.",
+
+  "_projects_response": {
+    "data": [
+      {
+        "id": "proj-sales",
+        "name": "Sales Automation",
+        "type": "team"
+      },
+      {
+        "id": "proj-support",
+        "name": "Customer Support",
+        "type": "team"
+      },
+      {
+        "id": "proj-personal",
+        "name": "Jane's Workflows",
+        "type": "personal"
+      }
+    ],
+    "nextCursor": null
+  },
+
+  "_project_members_response": {
+    "_endpoint": "GET /api/v1/projects/{projectId}/users",
+    "data": [
+      {
+        "id": "user-uuid-1",
+        "email": "jane@company.com",
+        "role": "project:admin"
+      },
+      {
+        "id": "user-uuid-2",
+        "email": "marcus@company.com",
+        "role": "project:editor"
+      },
+      {
+        "id": "user-uuid-3",
+        "email": "alex@company.com",
+        "role": "project:viewer"
+      }
+    ],
+    "nextCursor": null
+  },
+
+  "_role_enum": ["project:viewer", "project:editor", "project:admin"],
+
+  "_llm_can_infer": [
+    "How the company organizes its automation work (by team? by function? personal?)",
+    "Which teams actively build automations (Sales, Support, etc.)",
+    "Team sizes per project — how many people collaborate on automation",
+    "Personal vs team projects — is automation centralized or distributed?",
+    "Project names often reveal business domains ('Sales Automation', 'Billing Ops')"
+  ],
+
+  "_business_value": {
+    "org_structure": "Projects map to teams/departments. 'Sales Automation' + 'Customer Support' as separate projects = departmental automation ownership. This directly informs process clustering.",
+    "process_hints": "Project names are strong hints for business process grouping. If workflows are organized into 'Sales', 'Support', 'Finance' projects, the LLM should respect this organizational signal.",
+    "collaboration_patterns": "Multiple editors on a project = collaborative automation. Single editor = concentrated knowledge.",
+    "automation_maturity": "Many projects with clear names = mature automation practice. One 'Default' project with everything = early-stage, unorganized."
+  }
+}

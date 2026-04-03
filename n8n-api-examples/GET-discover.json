@@ -1,0 +1,68 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/discover",
+  "_note": "Discovery endpoint — tells us what the connected n8n instance supports. Useful for feature detection before querying endpoints that may not exist on older n8n versions.",
+
+  "_response": {
+    "data": {
+      "scopes": [
+        "workflow:list",
+        "workflow:read",
+        "workflow:create",
+        "workflow:update",
+        "workflow:delete",
+        "execution:list",
+        "execution:read",
+        "credential:list",
+        "credential:read",
+        "tag:list",
+        "user:list",
+        "variable:list",
+        "project:list",
+        "dataTable:list",
+        "dataTable:read",
+        "audit:generate"
+      ],
+      "resources": {
+        "workflow": {
+          "operations": ["list", "read", "create", "update", "delete", "activate", "deactivate"],
+          "endpoints": [
+            { "method": "GET", "path": "/workflows", "operationId": "getWorkflows" },
+            { "method": "GET", "path": "/workflows/{id}", "operationId": "getWorkflow" },
+            { "method": "POST", "path": "/workflows", "operationId": "createWorkflow" },
+            { "method": "POST", "path": "/workflows/{id}/activate", "operationId": "activateWorkflow" },
+            { "method": "POST", "path": "/workflows/{id}/deactivate", "operationId": "deactivateWorkflow" }
+          ]
+        },
+        "execution": {
+          "operations": ["list", "read"],
+          "endpoints": [
+            { "method": "GET", "path": "/executions", "operationId": "getExecutions" },
+            { "method": "GET", "path": "/executions/{id}", "operationId": "getExecution" }
+          ]
+        }
+      },
+      "filters": {
+        "status": {
+          "description": "Execution status filter",
+          "values": ["canceled", "crashed", "error", "new", "running", "success", "unknown", "waiting"]
+        }
+      },
+      "specUrl": "/api/v1/docs/openapi.json"
+    }
+  },
+
+  "_query_params": {
+    "include": "schemas — includes request schemas inline",
+    "resource": "filter to specific resource type",
+    "operation": "filter to specific operation"
+  },
+
+  "_business_value": {
+    "version_detection": "The scopes and resources available tell us what n8n version we're connecting to. Older instances may not have data-tables, projects, or discover itself.",
+    "permission_check": "The API key's scopes tell us exactly what we CAN and CANNOT do. If workflow:create is missing, we can't deploy. If execution:list is missing, we can't get run stats.",
+    "feature_gating": "Before calling any endpoint, check discover first. If data-tables aren't in the resources, don't show data table insights. Graceful degradation.",
+    "self_documenting": "specUrl gives us the full OpenAPI spec from the instance itself — we could even auto-generate our UI based on what's available."
+  },
+
+  "_for_expliq": "Call GET /discover FIRST during sync. Cache the result. Use it to decide which data collection endpoints to call. This prevents errors on older n8n instances that don't support newer endpoints like data-tables."
+}

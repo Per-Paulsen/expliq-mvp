@@ -1,0 +1,96 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/workflows",
+  "_note": "This is the documented response schema with example values. Real responses from fairtix will have actual workflow data.",
+  "data": [
+    {
+      "id": "2tUt1wbLX592XDdX",
+      "name": "Workflow 1",
+      "active": true,
+      "isArchived": false,
+      "versionId": "7c6b9e3f-8d4a-4b2c-9f1e-6a5d3b8c7e4f",
+      "triggerCount": 1,
+      "createdAt": "2022-04-29T11:02:29.842Z",
+      "updatedAt": "2022-04-29T11:02:29.842Z",
+      "nodes": [
+        {
+          "id": "0f5532f9-36ba-4bef-86c7-30d607400b15",
+          "name": "Jira",
+          "type": "n8n-nodes-base.jira",
+          "typeVersion": 1,
+          "position": [-100, 80],
+          "parameters": {},
+          "credentials": {
+            "jiraSoftwareCloudApi": {
+              "id": "35",
+              "name": "jiraApi"
+            }
+          },
+          "webhookId": null,
+          "disabled": false,
+          "notesInFlow": false,
+          "notes": "",
+          "executeOnce": false,
+          "alwaysOutputData": false,
+          "retryOnFail": false,
+          "maxTries": 3,
+          "waitBetweenTries": 1000,
+          "continueOnFail": false,
+          "onError": "stopWorkflow"
+        }
+      ],
+      "connections": {
+        "Jira": {
+          "main": [
+            [
+              { "node": "Jira", "type": "main", "index": 0 }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "saveExecutionProgress": true,
+        "saveManualExecutions": true,
+        "saveDataErrorExecution": "all",
+        "saveDataSuccessExecution": "all",
+        "executionTimeout": 3600,
+        "errorWorkflow": "VzqKEW0ShTXA5vPj",
+        "timezone": "America/New_York",
+        "executionOrder": "v1",
+        "callerPolicy": "workflowsFromSameOwner",
+        "callerIds": "14, 18, 23",
+        "timeSavedPerExecution": 5,
+        "availableInMCP": false
+      },
+      "staticData": { "lastId": 1 },
+      "pinData": null,
+      "meta": {
+        "templateId": null,
+        "instanceId": "instance-uuid",
+        "templateCredsSetupCompleted": true
+      },
+      "tags": [
+        {
+          "id": "tag1",
+          "name": "Production",
+          "createdAt": "2022-04-29T11:02:29.842Z",
+          "updatedAt": "2022-04-29T11:02:29.842Z"
+        }
+      ],
+      "shared": [
+        {
+          "role": "workflow:owner",
+          "workflowId": "2tUt1wbLX592XDdX",
+          "projectId": "proj1",
+          "project": {
+            "id": "proj1",
+            "name": "Sales Team",
+            "type": "team"
+          },
+          "createdAt": "2022-04-29T11:02:29.842Z",
+          "updatedAt": "2022-04-29T11:02:29.842Z"
+        }
+      ]
+    }
+  ],
+  "nextCursor": "MTIzZTQ1NjctZTg5Yi0xMmQzLWE0NTYtNDI2NjE0MTc0MDA"
+}

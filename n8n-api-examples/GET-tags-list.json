@@ -1,0 +1,12 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/tags",
+  "data": [
+    {
+      "id": "2tUt1wbLX592XDdX",
+      "name": "Production",
+      "createdAt": "2022-04-29T11:02:29.842Z",
+      "updatedAt": "2022-04-29T11:02:29.842Z"
+    }
+  ],
+  "nextCursor": "MTIzZTQ1NjctZTg5Yi0xMmQzLWE0NTYtNDI2NjE0MTc0MDA"
+}

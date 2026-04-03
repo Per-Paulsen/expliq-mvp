@@ -1,0 +1,80 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/data-tables + GET /api/v1/data-tables/{id}/rows",
+  "_note": "Data Tables are structured data storage within n8n. They reveal what data the company tracks alongside their automations.",
+
+  "_tables_response": {
+    "data": [
+      {
+        "id": "dt-1",
+        "name": "Customer Escalations",
+        "columns": [
+          { "id": "col-1", "name": "ticket_id", "type": "string", "index": 0 },
+          { "id": "col-2", "name": "customer_email", "type": "string", "index": 1 },
+          { "id": "col-3", "name": "severity", "type": "string", "index": 2 },
+          { "id": "col-4", "name": "escalated_at", "type": "date", "index": 3 },
+          { "id": "col-5", "name": "resolved", "type": "boolean", "index": 4 }
+        ],
+        "projectId": "proj-support",
+        "createdAt": "2024-06-01T10:00:00.000Z",
+        "updatedAt": "2024-12-15T14:00:00.000Z"
+      },
+      {
+        "id": "dt-2",
+        "name": "Failed Payments Log",
+        "columns": [
+          { "id": "col-1", "name": "invoice_id", "type": "string", "index": 0 },
+          { "id": "col-2", "name": "amount", "type": "number", "index": 1 },
+          { "id": "col-3", "name": "failure_reason", "type": "string", "index": 2 },
+          { "id": "col-4", "name": "retry_count", "type": "number", "index": 3 },
+          { "id": "col-5", "name": "recovered", "type": "boolean", "index": 4 }
+        ],
+        "projectId": "proj-billing",
+        "createdAt": "2024-09-01T10:00:00.000Z",
+        "updatedAt": "2025-01-10T14:00:00.000Z"
+      }
+    ],
+    "nextCursor": null
+  },
+
+  "_rows_response": {
+    "_endpoint": "GET /api/v1/data-tables/{dataTableId}/rows",
+    "_query_params": {
+      "filter": "{\"type\":\"and\",\"filters\":[{\"columnName\":\"resolved\",\"condition\":\"eq\",\"value\":false}]}",
+      "sortBy": "escalated_at:desc",
+      "search": "free text search across string columns",
+      "limit": 100,
+      "cursor": "pagination"
+    },
+    "data": [
+      {
+        "id": 1,
+        "ticket_id": "TKT-4521",
+        "customer_email": "vip@enterprise.com",
+        "severity": "critical",
+        "escalated_at": "2025-01-10T09:30:00.000Z",
+        "resolved": false,
+        "createdAt": "2025-01-10T09:30:00.000Z",
+        "updatedAt": "2025-01-10T09:30:00.000Z"
+      }
+    ],
+    "nextCursor": null
+  },
+
+  "_column_type_enum": ["string", "number", "boolean", "date"],
+
+  "_llm_can_infer": [
+    "Table names reveal what data the company actively tracks ('Customer Escalations', 'Failed Payments Log')",
+    "Column schemas show the data model — what fields matter to the business",
+    "Column types indicate data sophistication (dates, booleans, numbers = structured tracking)",
+    "Project ownership shows which team manages which data",
+    "Table creation dates show when data tracking started — business timeline",
+    "Row data (if queried) shows actual operational volume and patterns"
+  ],
+
+  "_business_value": {
+    "data_landscape": "Data tables reveal what the company tracks OUTSIDE of workflow data. 'Failed Payments Log' = they monitor payment failures. 'Customer Escalations' = they track support escalations. This enriches the business narrative.",
+    "process_evidence": "A 'Failed Payments Log' table is EVIDENCE that billing is a concern. The LLM can reference this: 'You already track failed payments in a data table — our recommendation to automate recovery builds on data you already collect.'",
+    "volume_estimation": "Row counts per table (from pagination) give volume hints without querying individual rows. 500 rows in 'Failed Payments' = significant payment failure volume.",
+    "cross_reference": "Tables referenced in workflow nodes (via the Data Table node type) create links between automation logic and stored data."
+  }
+}

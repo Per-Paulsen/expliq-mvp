@@ -45,3 +45,6 @@ next-env.d.ts
 
 # obsidian
 .obsidian/
+
+# n8n API exploration — contains real instance data (credentials, workflow details)
+n8n-api-examples/fairtix/

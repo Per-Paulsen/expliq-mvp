@@ -1,0 +1,45 @@
+{
+  "_source": "n8n OpenAPI spec v1.1.1 — GET /api/v1/workflows/{id}/{versionId}",
+  "_note": "Returns a historical version of a workflow. Different schema from the main workflow object — no settings, tags, or shared data. Has authors and description instead.",
+
+  "_schema_differences_from_workflow": {
+    "has": ["versionId", "workflowId", "nodes", "connections", "authors", "name", "description", "createdAt", "updatedAt"],
+    "missing": ["settings", "staticData", "pinData", "tags", "shared", "activeVersion", "active", "isArchived", "triggerCount", "meta"],
+    "unique": ["authors (string — comma-separated user names)", "description (nullable string)"]
+  },
+
+  "versionId": "7c6b9e3f-8d4a-4b2c-9f1e-6a5d3b8c7e4f",
+  "workflowId": "2tUt1wbLX592XDdX",
+  "name": "CRM Sync Pipeline",
+  "description": "Syncs closed deals from Salesforce to Slack and Google Sheets",
+  "authors": "Jane Doe, Marcus Williams",
+  "nodes": [
+    {
+      "id": "0f5532f9-36ba-4bef-86c7-30d607400b15",
+      "name": "Salesforce Trigger",
+      "type": "n8n-nodes-base.salesforceTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "resource": "opportunity",
+        "event": "updated"
+      }
+    }
+  ],
+  "connections": {
+    "Salesforce Trigger": {
+      "main": [
+        [{ "node": "Check Stage Change", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "createdAt": "2024-06-20T14:22:00.000Z",
+  "updatedAt": "2024-06-20T14:22:00.000Z",
+
+  "_business_value": {
+    "change_tracking": "Compare versions to detect what changed. New nodes added? Connections modified? Parameters updated? This is drift detection.",
+    "authorship": "Who made this version — shows who actively maintains each workflow. Better than just 'owner'.",
+    "description": "User-written workflow description — free context for the LLM if available.",
+    "priority_for_demo": "Low. Version history is governance depth, not business opportunity. Park for future."
+  }
+}

@@ -2105,6 +2105,292 @@ The content of each screen is the same. The FRAMING changes from workflow-centri
 ---
 
 > Per: this is the deepest we can go. The Process Map reframe and process-level variables are the final refinement. Ready for the PRD?
+
+---
+
+## Round 13 — Merge Process Map + Roadmap → 3 Screens (2026-04-03)
+
+Per: "I like to merge Process Map with Roadmap. The Figma prototype already has a 'Show Recommendations' button on the Workflows page and it looks really good."
+
+### Why This Works
+
+The Figma prototype already designed for this — the Workflows page has:
+- Process groups (collapsible)
+- Existing workflow cards inside
+- "Show Recommendations" toggle → dashed-border recommendation cards appear inline
+- Process suggestions appear when toggle is ON
+- Deploy button on recommendation cards
+
+This is exactly what Celonis does: process view + improvement opportunities in ONE view. The user sees the gap right where it belongs in the process, not on a separate page.
+
+### What Was on Roadmap → Where It Goes
+
+| Roadmap content | New home |
+|----------------|----------|
+| Priority tiers (Act Now / Investigate / Explore) | **Badges on recommendation cards** within Process Map + optional filter |
+| "Top 3 actions" summary | **Dashboard** — attention items + top opportunities sections |
+| Deploy modal | **Process Map** — triggered from recommendation cards |
+| Evidence/methodology per recommendation | **Process Map** — expandable on recommendation cards |
+| Visibility expansions ("Connect X platform") | **Process Map** — section at bottom when recommendations shown |
+
+### 3 Screens
+
+| Screen | User Question | Content |
+|--------|--------------|---------|
+| **Dashboard** | "What needs my attention?" | Your next move, facts bar, attention items, top opportunities, process coverage overview, delta on re-sync |
+| **Process Map** | "What do I have and what's missing?" | Process cards (maturity, coverage, reliability), expand for workflows + recommendations. Toggle: show/hide recommendations. Deploy from here. Filter by tier/confidence. |
+| **Detail** | "Tell me everything about this one." | Per-workflow business narrative, business case, process position, connections, recommendations for this workflow, "how we know this" |
+
+### Demo Flow (even tighter)
+
+1. **Dashboard** (30s) — "Here's your automation landscape. 4 processes, 8 workflows, 7 recommendations. Your next move: fix the lottery notification error rate."
+2. **Process Map** (2 min) — "Here are your processes. Ticket Lottery is 40% covered. Let me show you the recommendations..." [toggle ON] "...you're missing lottery-loss notifications. Click deploy." [deploy modal] "Done — it's in your n8n instance."
+3. **Detail** (30s) — "Click any workflow for the deep dive. Here's the LotteryWin notification — 31% error rate, here's the evidence, here's what it means for revenue."
+
+Three screens. Three clicks. Complete story. Deploy happens on the Process Map, not a separate page.
+
+### The "Show Recommendations" Toggle Is the Key UX Element
+
+When toggle is OFF:
+- Process cards show: existing workflows, coverage, reliability, maturity
+- Clean situation analysis view — "here's what you have"
+
+When toggle is ON:
+- Same view PLUS: recommendation cards (dashed border, confidence badge, deploy button)
+- Process suggestions at bottom
+- Coverage bars update to show recommended workflows in the denominator
+- "Where are the gaps" becomes immediately visible
+
+This toggle replaces an entire page (Roadmap) with a single button. The priority view (what to do first) lives on the Dashboard. The contextual view (where are the gaps) lives on the Process Map with toggle ON.
+
+### What This Means for Scope
+
+**One fewer page to build.** The Process Map absorbs Roadmap content. The deploy modal is triggered from Process Map recommendation cards. The priority tiers become badges, not a page structure.
+
+**The Figma prototype's Workflows page is actually closer to our final design than we thought.** We just need to:
+1. Rename to "Process Map" (or just "Processes")
+2. Make process cards the primary level (not workflow cards)
+3. Add confidence badges and tier indicators to recommendation cards
+4. Add the deploy modal trigger
+5. Add process-level metrics (maturity, reliability, coverage, value at stake)
+
+### Updated Final Product Definition
+
+**Expliq: 3 screens.**
+
+**Dashboard** — Executive summary
+- Your next move banner
+- Facts bar
+- Attention items | Top opportunities (two sections)
+- Process coverage overview
+- Systems compact
+- Delta banner on re-sync
+
+**Process Map** — Situation analysis + recommendations
+- Process cards: name, summary, maturity, coverage bar, reliability, value at stake, recommendation count
+- Expand process: workflow cards + recommendation cards (inline)
+- Toggle: show/hide recommendations
+- Recommendation cards: title, business case (one line), confidence badge (Act Now/Investigate/Explore), deploy button
+- Process suggestions section (when recommendations shown)
+- Visibility expansions ("Connect X platform")
+- Search bar
+
+**Detail** — Deep dive per workflow
+- Header: name, status, platform, system flow, process step
+- Business narrative
+- Business case card (failure impact, time savings, revenue connection)
+- Recommendations for this workflow (from Process Map)
+- Process position
+- Connected automations
+- "How we know this" (expandable evidence)
+
+---
+
+> Per: 3 screens. Is this the final structure?
+
+---
+
+## Round 14 — Navigation & Entity Design (2026-04-03)
+
+Per asked: where does the user land when clicking a recommendation? Do existing and recommended workflows share detail pages? What about technical recommendations and recommended business processes?
+
+### Three Types of Recommendation Artifacts
+
+| Type | What it is | Where it lives | Click behavior |
+|------|-----------|----------------|----------------|
+| **New workflow recommendation** | "Build lottery-loss notification" | Process Map — inline card within a process | Expand on Process Map (slide-over panel with full business case + deploy button). No Detail page — it doesn't exist yet. |
+| **Technical fix recommendation** | "Fix 31% error rate — add retry logic" | Process Map — inline card within a process AND on the Detail page of the affected workflow | Click → Detail page of the existing workflow, scrolled to "Recommendations" section |
+| **New process suggestion** | "Payment & Billing — 4 new workflows" | Process Map — dashed-border collapsible section (when recommendations toggled ON) | Expand on Process Map → shows child recommendation cards |
+
+### Entity Model: What Has a Detail Page?
+
+| Entity | Has Detail page? | Why |
+|--------|-----------------|-----|
+| **Existing workflow** | YES | Real data: JSON, executions, nodes, business narrative, evidence |
+| **Recommended workflow** | NO — slide-over panel on Process Map | No real data yet. Business case + deploy button is all there is. After deploy + re-sync, becomes existing with Detail page. |
+| **Existing process** | NO — collapsible section on Process Map | The process is a grouping concept. Its "detail" is the expanded view showing all workflows. |
+| **Recommended process** | NO — collapsible section on Process Map | Same as above but dashed border and all children are recommendations. |
+
+**Key simplification: only existing workflows get Detail pages.** Everything else is handled by expanding/collapsing on the Process Map or slide-over panels. This means ONE Detail page component, not multiple.
+
+### Navigation Map
+
+```
+DASHBOARD
+  ├── "Your next move" click
+  │     → Process Map, scrolled to relevant process, recommendations ON
+  ├── Attention item click (existing workflow with issue)
+  │     → Detail page of that workflow
+  └── Top opportunity click (recommendation)
+        → Process Map, scrolled to that recommendation, highlighted
+
+PROCESS MAP
+  ├── Process card click/expand
+  │     → Shows workflow cards + recommendation cards (if toggle ON)
+  ├── Existing workflow card click
+  │     → Detail page
+  ├── Recommendation card "Deploy ▶"
+  │     → Deploy modal (stays on Process Map)
+  ├── Recommendation card click (expand/panel)
+  │     → Slide-over panel: full business case, evidence, assumptions, deploy button
+  ├── Technical fix card click
+  │     → Detail page of affected workflow, scrolled to recommendations section
+  └── Suggested process expand
+        → Shows child recommendation cards (same behavior as recommendations)
+
+DETAIL (per existing workflow only)
+  ├── ← Back
+  │     → Process Map (scrolled to that workflow's process)
+  ├── Recommendation for this workflow (section on page)
+  │     → In-page, no navigation needed
+  ├── Connected automation click
+  │     → Detail page of that workflow
+  └── Process position click
+        → Process Map, scrolled to that process
+```
+
+### Technical Fixes Are NOT Separate Artifacts on the Process Map
+
+Per asked: "Are technical changes independent recommendation artifacts on the Process Map?"
+
+**Recommendation:** Technical fixes live in TWO places:
+1. **On the Process Map** as a compact card within the process group: "LotteryWin: fix 31% error rate [Act Now]" — this is visible alongside new workflow recommendations so the user sees the complete picture of what needs doing in this process.
+2. **On the Detail page** of the affected workflow: the "Recommendations for this workflow" section shows the full technical detail: "Add `retryOnFail: true` on Gmail node. Current: 0 retries. Recommended: 3 retries with 5s backoff."
+
+The Process Map shows WHAT to fix (compact). The Detail page shows HOW to fix it (specific).
+
+### What a Recommendation Slide-Over Panel Contains
+
+When the user clicks a new workflow recommendation on the Process Map:
+
+```
+┌────────────────────────────────────────────────┐
+│ LOTTERY-LOSS NOTIFICATION              [Close X]│
+│                                                  │
+│ BUSINESS CASE                                    │
+│ Non-winners outnumber winners 5:1 or more.       │
+│ Silence after lottery entry erodes trust in       │
+│ the Fair Queue promise and drives support volume. │
+│                                                  │
+│ EVIDENCE                                         │
+│ ● Support classifier has lottery-related FAQ      │
+│   — users ARE asking "what happened?" [Data-driven]│
+│ ● No loss notification in any workflow [Data-driven]│
+│ ● Welcome email promises "fair chance" [Data-driven]│
+│                                                  │
+│ CONFIDENCE: Act Now                              │
+│ This gap is certain. The business impact is high.│
+│                                                  │
+│ IMPLEMENTATION                                   │
+│ Systems: Google Sheets → Gmail                   │
+│ Trigger: lottery draw complete (new rows in sheet)│
+│ Connects to: existing LotteryWin data source     │
+│                                                  │
+│ KEY ASSUMPTIONS                                  │
+│ ● Lottery results include non-winners (or can be │
+│   derived: all entries minus winners = losers)    │
+│                                                  │
+│ [         Deploy to n8n ▶         ]              │
+└────────────────────────────────────────────────┘
+```
+
+This panel is the "Roadmap detail" that used to be a whole page. Now it's a contextual overlay on the Process Map.
+
+### Summary: What Changed
+
+- **3 screens confirmed** — Dashboard, Process Map, Detail
+- **Only existing workflows get Detail pages** — recommendations get slide-over panels
+- **Technical fixes appear on both** Process Map (compact) and Detail page (specific)
+- **Recommended processes are collapsible sections** on Process Map, not separate entities
+- **Navigation is fully mapped** — every click has a clear destination
+- **The "Roadmap page" is now a slide-over panel + recommendation badges** — absorbed completely
+
+---
+
+> Per: navigation and entity model captured. More questions, or ready for PRD?
+
+---
+
+## Round 15 — Back to 4 Screens (2026-04-03)
+
+Per challenged: "Is the 3-screen approach actually right or are you just justifying it?"
+
+Honest answer: I was justifying it. The merge creates a real problem — there's no "show me ALL recommendations sorted by impact" view. The Dashboard shows top 3. The Process Map shows recommendations by process. But 13 recommendations across 8 processes with no flat priority ranking is a gap.
+
+Celonis has BOTH: a process view AND an opportunities view. Different questions, same data.
+
+### Decision: 4 screens, each with ONE clear purpose.
+
+| Screen | User question | One job |
+|--------|--------------|---------|
+| **Dashboard** | "What needs my attention?" | Summary, next move, top 3 priorities, process overview |
+| **Process Map** | "What do I have?" | Processes, workflows, coverage, maturity. Optional toggle to show WHERE gaps are (contextual). |
+| **Priorities** | "What should I do?" | ALL recommendations ranked by impact × confidence. Deploy from here. Slide-over panels for business case. This is where action happens. |
+| **Detail** | "Tell me everything about this one." | Per-workflow business narrative, business case, evidence, connections, recommendations for this workflow. |
+
+### What changed from the 3-screen attempt
+
+- Process Map stays CLEAN — primarily shows existing processes and workflows
+- The "Show Recommendations" toggle on Process Map becomes a contextual overlay ("show where gaps are"), not the primary recommendation experience
+- Priorities page is the dedicated action hub — ranked list, deploy buttons, evidence panels
+- Each page has ONE job. No page tries to be two things.
+
+### Navigation Map (updated)
+
+```
+DASHBOARD
+  ├── "Your next move" click → Priorities page (scrolled to that recommendation)
+  ├── Attention item click → Detail page of that workflow
+  └── Top opportunity click → Priorities page (scrolled to that recommendation)
+
+PROCESS MAP
+  ├── Process card expand → workflow cards (+ gap indicators if toggle ON)
+  ├── Existing workflow click → Detail page
+  ├── Gap indicator click → Priorities page (filtered to that process)
+  └── Toggle "Show gaps" → highlights where recommendations exist, links to Priorities
+
+PRIORITIES
+  ├── Recommendation card "Deploy ▶" → Deploy modal (stays on Priorities)
+  ├── Recommendation card click → Slide-over panel (full business case + evidence)
+  ├── Technical fix click → Detail page of affected workflow
+  └── Process suggestion expand → child recommendation cards
+
+DETAIL
+  ├── ← Back → Process Map
+  ├── Recommendation for this workflow → in-page section
+  ├── Connected automation click → Detail page of that workflow
+  └── Process position click → Process Map (scrolled to that process)
+```
+
+### Entity Model (unchanged from Round 14)
+
+- Only existing workflows get Detail pages
+- Recommendations get slide-over panels (on Priorities page)
+- Processes don't have detail pages (expanded card on Process Map is sufficient for V1)
+
+---
+
+> Per: 4 screens captured. What do you want to discuss about the workflow from here?
 ---
 
 ## Round 8b — Decision: Merge Automation Intelligence into Dashboard (2026-04-03)

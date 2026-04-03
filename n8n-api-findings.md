@@ -1,7 +1,11 @@
-# n8n API — Research Findings
+# n8n API — Research Findings (Historical)
 
-> Research conducted 2026-04-03. Based on n8n REST API v1 (OpenAPI 3.0, spec version 1.1.1).
-> Purpose: understand what data Expliq can extract to power the Automation Opportunity Engine.
+> **Note:** This file was the initial API research, written before the fairtix testing and consulting reframe. The technical API details are still accurate. For current references see:
+> - `n8n-api-examples/README.md` — directory index with all schemas and real data
+> - `prd-2.0-decisions.md` — Section 11 (n8n API Scope) for what Expliq actually queries
+> - `n8n-api-examples/fairtix/reference/ANALYSIS-FINAL.md` — what the data produces
+>
+> Original research conducted 2026-04-03. Based on n8n REST API v1 (OpenAPI 3.0, spec version 1.1.1).
 > Sources: Official OpenAPI spec (`n8n-io/n8n-docs/docs/api/v1/openapi.yml`), n8n community examples, n8n workflow templates.
 > Real response schemas saved in `n8n-api-examples/` directory:
 > - `GET-workflows-list.json` — full workflow object with nodes, connections, settings, tags, shared

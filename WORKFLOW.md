@@ -1,6 +1,6 @@
 # Expliq Development Workflow
 
-> Established 2026-04-02. This document describes the spec-driven development workflow for the Expliq MVP, including the Figma MCP integration for the R2 product pivot.
+> Updated 2026-04-03. Spec-driven development workflow for Expliq R2 (Automation Intelligence).
 
 ## Overview
 
@@ -8,122 +8,116 @@
 PRD 2.0 --> /spec --> Epic Specs --> /dev --> Implementation --> Commit
   ^                                    |
   |                                    v
-  |                          Figma MCP (design reference)
-  |                          ReadMcpResourceTool for component code
+  |                          Figma MCP (component mechanics only)
+  |                          Design system in prd-2.0-decisions.md §15
   |
-  PRD Brainstorming (append-only, decisions captured here first)
+  PRD Brainstorming (append-only, 15 rounds of decisions)
+  PRD Decisions (clean extraction, authoritative reference)
 ```
 
-## Step 0 — PRD Brainstorming
+## Reference Map
 
-**File:** `prd-2.0-brainstorming.md` (repo root)
+| Document | What it is | When to read |
+|----------|-----------|-------------|
+| `prd-2.0.md` | Product vision, screen overview, data architecture | Start here |
+| `prd-2.0-decisions.md` | All detailed decisions (screens, navigation, entities, schema, design system, prompts) | For spec derivation and implementation — the authoritative reference |
+| `prd-2.0-brainstorming.md` | 15 rounds of discussion with reasoning | When you need to understand WHY a decision was made |
+| `n8n-api-examples/README.md` | Directory index of all API schemas and real data | For understanding available data |
+| `n8n-api-examples/fairtix/reference/ANALYSIS-FINAL.md` | Target LLM output quality | For prompt design and output validation |
+| `CLAUDE.md` | Codebase conventions and dev commands | For implementation |
+| `tech-stack-idea.md` | Tech stack reference | For implementation |
 
-All product decisions are discussed and captured here before the PRD is written. This file is append-only. It includes:
-- Per-screen design evaluation (what to keep/change/cut from Figma prototype)
-- Data model decisions
-- LLM task scoping
-- Scope cuts and trade-offs
-- User answers to all questions
-
-When brainstorming is complete, the PRD 2.0 is derived from it.
-
-## Step 1 — PRD 2.0
-
-**File:** `prd-2.0.md`
-
-Extension PRD that captures the product pivot from governance dashboard to opportunity engine. References the Figma Make file for design context. Describes each screen, its data requirements, and what's new vs. reused from the current MVP.
-
-## Step 2 — Spec Derivation
+## Step 1 — Spec Derivation
 
 **Command:** `/spec prd-2.0.md`
 
-Brainstorms in a new file (not the original `specs/brainstorming.md`). Produces numbered epic specs continuing from the existing sequence (Epic 10+).
+The `/spec` skill reads: PRD + decisions + data reference + tech stack. Brainstorms in a new file. Produces numbered epic specs continuing from Epic 10+.
+
+For individual epics: `/spec_ind <number> <name> <description>`
+
+## Step 2 — Spec Refinement
+
+**Commands:** `/refine_all_ind` (within-epic checks) → `/refine_all` (cross-epic consistency) → `/refine <spec>` (individual discussion)
 
 ## Step 3 — Implementation
 
 **Command:** `/dev specs/{nr}-{name}.md`
 
-Same workflow as epics 01-08, with one addition: team members use the Figma MCP as a design reference during implementation.
+The `/dev` skill reads: spec + PRD + decisions (including design system §15) + all prior results + Figma MCP for component mechanics.
 
-### Figma MCP Integration
+### Figma MCP — Component Mechanics Only
 
-The Figma Make prototype at file key `3bG7mlpucVffGMdoAFPcgc` contains reference React + Tailwind implementations for all screens.
+The Figma Make prototype at file key `3bG7mlpucVffGMdoAFPcgc` contains React + Tailwind components. Use for MECHANICS (props, state, interactions). Do NOT use for styling — the design system in `prd-2.0-decisions.md` §15 is authoritative.
 
-**During `/dev`, team members should:**
+**Read component source:**
+```
+ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/components/{Name}.tsx")
+```
 
-1. Read the relevant Figma page source via `ReadMcpResourceTool`:
-   - `file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/pages/{PageName}.tsx`
-   - `file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/components/{ComponentName}.tsx`
-   - `file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/data/{data-file}.ts`
+**Read theme/styles (for reference, not to copy):**
+```
+ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/styles/theme.css")
+```
 
-2. **Adapt, don't copy.** The Figma code is a React Router SPA with hardcoded data. Adapt to:
-   - Next.js App Router (server components, server actions, async params)
-   - Real data from Prisma (not hardcoded arrays)
-   - Project conventions from `CLAUDE.md`
-   - shadcn/ui components from `src/components/ui/`
+### Figma Component Index
 
-3. **Only implement what the spec says.** The Figma prototype contains features we explicitly cut. The spec is the authority, not the prototype.
-
-### Figma MCP Resource Index
-
-| Screen | Page Source | Key Components |
-|--------|-----------|----------------|
-| Dashboard | `pages/Dashboard.tsx` | `StatusDot`, `MetricCard` |
-| Workflows | `pages/Workflows.tsx` | `workflows/WorkflowCard`, `workflows/AISummary`, `workflows/BusinessProcessGroup`, `workflows/FilterPanel`, `workflows/ProcessSuggestionsModal` |
-| Roadmap | `pages/Roadmap.tsx` | `recommendations/BusinessView`, `recommendations/RecWorkflowCard`, `recommendations/RecProcessCard`, `DeployModal` |
-| Company | `pages/Company.tsx` | (self-contained) |
-| Detail | `pages/AutomationDetail.tsx` | `AutomationDetailBusinessView`, `AutomationDetailSidebar` |
-| Layout | `components/Layout.tsx` | `ExpliqCard`, `ExpliqBadge`, `SystemFlow`, `ROIMetric`, `DependencyBadge` |
-| Data Types | `data/shared/types.ts`, `data/workflows/types.ts`, `data/recommendations-types.ts`, `data/workflow-details-types.ts` | — |
+| Component | Figma Source | Use for |
+|-----------|-------------|---------|
+| DeployModal | `components/DeployModal.tsx` | Modal mechanics (open/close, JSON preview, copy, deploy action) |
+| StatusDot | `components/StatusDot.tsx` | Status indicator component |
+| SystemFlow | `components/SystemFlow.tsx` | Source → destination display |
+| ExpliqBadge | `components/ExpliqBadge.tsx` | Badge component (adapt to confidence pattern) |
+| ProcessSuggestionsModal | `components/workflows/ProcessSuggestionsModal.tsx` | Modal for AI-suggested processes |
+| Layout | `components/Layout.tsx` | Sidebar structure |
+| Data types | `data/shared/types.ts`, `data/workflows/types.ts`, `data/recommendations-types.ts` | Type reference |
 
 ## What Stays from the Current MVP
 
-**Infrastructure (keep as-is):**
-- Auth system (`auth.ts`, `auth.config.ts`, `session.ts`, `middleware.ts`)
-- n8n connector (`n8n-client.ts`, `encryption.ts`, `actions/connector.ts`)
-- Prisma setup (`prisma.ts`, singleton, driver adapter pattern)
-- Test infrastructure (vitest config, seed scripts)
-- `(app)/layout.tsx` shell with sidebar (nav items will change)
-- `(auth)/` login/signup pages
-- Settings page
+**Keep as-is:** Auth, n8n connector foundation, Prisma setup, test infrastructure, sidebar shell, login/signup, settings page.
 
-**Extend:**
-- `prisma/schema.prisma` — new models added, existing models get new fields
-- `llm-pipeline.ts` — massively extended with new LLM tasks
-- `risk-engine.ts` — stays as governance foundation, deprioritized in UI
+**Extend:** `prisma/schema.prisma` (new models), `llm-pipeline.ts` (massively extended), `n8n-client.ts` (new API endpoints + deploy).
 
-**Replace:**
-- `(app)/page.tsx` (Workspace Snapshot) -> new Dashboard
-- `(app)/automations/` (Portfolio) -> new `/workflows` route
-- `(app)/automations/[id]/` (Detail) -> business-first rewrite
-- `snapshot-metrics.ts`, `snapshot-types.ts` -> new dashboard logic
-- `portfolio-filters.ts`, `portfolio-types.ts` -> new workflows logic
-- `automation-detail-types.ts`, `badge-colors.ts` -> new types
+**Replace:** Dashboard page, automations page → Process Map, detail page → business-first, all page-specific types/utilities.
 
-**New:**
-- `/company` page
-- `/roadmap` page
-- New Prisma models (BusinessProcess, Recommendation, CompanyProfile, TechnicalImprovement)
-- ~25 new UI components (adapted from Figma prototype)
-- Deploy modal with n8n JSON generation
+**New:** Process Map page, Priorities page, 4 new Prisma models, workspace-level LLM analysis.
 
-## Scope Cuts (Agreed 2026-04-02)
+## 4 Screens
 
-These features exist in the Figma prototype but are NOT built:
-- Governance toggle (business view only for all screens)
-- Technical improvements inline on Workflows page
-- Editable process names
-- Full filter system (search only)
-- Sort by revenue toggle
-- Node-level workflow visualization on detail page
+| Screen | Route | Purpose |
+|--------|-------|---------|
+| Dashboard | `/` | Executive summary: next move, facts, priorities, process overview |
+| Process Map | `/processes` | Processes with workflows, coverage, maturity. Toggle to show gaps. |
+| Priorities | `/priorities` | All recommendations ranked by impact. Deploy from here. |
+| Detail | `/automation/[id]` | Per-workflow business narrative, business case, evidence. |
 
-These ARE included despite being complex:
-- Business process suggestions (new process recommendations)
-- Connected automations (upstream/downstream on detail page)
-- Deploy modal with n8n JSON preview
+Plus: Settings (`/settings`) and Login/Signup (existing).
+
+## Design System
+
+Authoritative source: `prd-2.0-decisions.md` section 15.
+
+Key rules:
+- **Dark mode default** — near-black backgrounds, high-contrast white text
+- **Color = meaning only** — green (healthy), amber (attention), red (critical), accent (interactive)
+- **Tables/lists for data, NOT cards** — aligned rows for comparison
+- **Confidence visual pattern** — solid/dashed/outline decreasing with certainty
+
+## Suggested Epic Sequence
+
+| Phase | Epic | Scope |
+|-------|------|-------|
+| 0 | Research spike | Test LLM prompts against fairtix data |
+| 1 (parallel) | 10: LLM Pipeline V2 + Schema + n8n API | Extended sync, new models, LLM enrichment + workspace analysis, deploy |
+| 1 (parallel) | 11: Design System + Layout | Dark theme, sidebar, shared components |
+| 2 | 12: Dashboard | Next move, facts, attention/opportunities, process coverage |
+| 2 | 13: Process Map | Process rows, workflow rows, show-gaps toggle, search |
+| 2 | 14: Priorities | Recommendation tiers, rows, slide-over panels, deploy modal |
+| 2 | 15: Detail | Business narrative, business case, connections, evidence |
+| 3 | 16: Settings + Auth Polish | Loading states, explanations |
 
 ## Historical Context
 
-- Epics 01-08 were built from `expliq_prd.md` (3-screen mini-PRD) with screenshot references
-- Brainstorming for the product pivot lives in `archive/brainstorming-roadmap-r2.md` and `archive/_TODO.md` — these files are historical context, not active inputs
-- The Figma prototype was created via Figma Make (AI-generated) and requires critical evaluation before use as design reference
+- Epics 01-08 built from `archive/expliq_prd.md` (original 3-screen PRD) with screenshot references in `archive/designs/`
+- Product pivot brainstorming in `archive/brainstorming-roadmap-r2.md` and `archive/_TODO.md`
+- Initial API research in `archive/n8n-api-findings.md`
+- Figma prototype evaluated and partially superseded — component mechanics kept, styling/structure replaced by design system

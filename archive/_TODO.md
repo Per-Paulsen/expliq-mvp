@@ -69,7 +69,6 @@ tags:
 
 (https://github.com/backnotprop/plannotator?tab=readme-ov-file#install-for-claude-code)
 
-
 ### questions for marten
 
 - [ ] planning with claude and implementing with codex? planning then == planning mode? or what?

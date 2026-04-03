@@ -148,27 +148,19 @@ Not building: governance toggle, technical improvements as separate feature, edi
 
 ## Design Reference
 
-**Figma Make file** `3bG7mlpucVffGMdoAFPcgc` — use for component code and visual style ONLY:
-- Design system: color palette (darkened teal + darker text), typography, spacing
-- Components: WorkflowCard, DeployModal, StatusDot, SystemFlow, ExpliqBadge
-- Dark mode: single dark theme
-- Layout patterns: sidebar, cards, collapsible sections
+**Design system:** Dark advisory theme. Tables/lists for data, not cards. Color = meaning only. Confident typography.
 
-**Do NOT use Figma for:** screen structure, information architecture, number of screens, card field density. These are defined in `prd-2.0-decisions.md`.
+> **Full design system specification:** see `prd-2.0-decisions.md` section 15 — covers color palette, typography hierarchy, component patterns (tables vs cards), sidebar, loading states, confidence visual patterns, and sync UX.
+
+**Figma Make file** `3bG7mlpucVffGMdoAFPcgc` — use for component CODE as starting point (adapt to dark theme + table patterns). Do NOT use for color palette, card layouts, screen structure, or information density — all superseded.
 
 **How to access Figma via MCP:**
 
 The Figma MCP server is configured in `.mcp.json`. Use these tools:
 
-- **Read page/component source code:**
+- **Read component source code:**
   ```
-  ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/pages/{PageName}.tsx")
   ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/components/{ComponentName}.tsx")
-  ```
-
-- **Read data types and mock data:**
-  ```
-  ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/data/{filename}.ts")
   ```
 
 - **Read theme/styles:**
@@ -181,7 +173,7 @@ The Figma MCP server is configured in `.mcp.json`. Use these tools:
   mcp__figma__get_design_context(fileKey: "3bG7mlpucVffGMdoAFPcgc", nodeId: "...")
   ```
 
-> **Full Figma resource index:** see `WORKFLOW.md` for the component-to-file mapping.
+> **Figma resource index:** see `WORKFLOW.md` for the component-to-file mapping.
 
 ---
 

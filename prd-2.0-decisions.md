@@ -390,15 +390,107 @@ Full schemas in `n8n-api-examples/`.
 
 ---
 
-## 15. Design Reference
+## 15. Design System
+
+Designed for an advisory/intelligence product, not a consumer SaaS app. Visual language inspired by Celonis (process intelligence), Linear (modern product), and McKinsey (authoritative presentation). The mood: **confident, restrained, data-forward.**
+
+### Visual Theme
+
+**Dark mode by default.** Single theme, no toggle. Dark backgrounds make data pop and convey seriousness. Advisory tools are dark (Celonis, Bloomberg, Linear dark mode).
+
+| Element | Value | Rationale |
+|---------|-------|-----------|
+| **Background** | Near-black (#0a0a0a to #171717) | Data pops on dark. Conveys authority. |
+| **Surface** | Dark gray (#1c1c1c to #262626) | Cards/sections slightly lighter than background for depth |
+| **Text primary** | White (#ffffff) or near-white (#f5f5f5) | High contrast. Confident. Headlines. |
+| **Text secondary** | Light gray (#a3a3a3) | Labels, metadata, secondary info |
+| **Text tertiary** | Medium gray (#737373) | Timestamps, footnotes |
+| **Accent** | Deeper teal (#0d9488) or sky-teal (#0ea5e9) | Used SPARINGLY — only for: interactive elements, positive signals, opportunity indicators. NOT for backgrounds or large areas. |
+| **Healthy/positive** | Green (#22c55e) | Status dot, coverage bar fill, positive metrics |
+| **Attention/warning** | Amber (#f59e0b) | Status dot, investigate-tier badges |
+| **Critical/error** | Red (#ef4444) | Status dot, error rates, act-now tier accents |
+| **Inactive/neutral** | Gray (#525252) | Inactive status, disabled elements |
+
+**Color usage rule:** Color = meaning only. No decorative color. If something is teal, it means "interactive" or "opportunity." If something is red, it means "problem." Gray is the default; color is the exception.
+
+### Typography
+
+| Role | Style | Usage |
+|------|-------|-------|
+| **Page title** | 24-28px, semibold/bold | "Dashboard", "Process Map" — one per page |
+| **Section header** | 11px, uppercase, tracking-wider, semibold, secondary color | "YOUR NEXT MOVE", "ACT NOW", "PROCESS COVERAGE" |
+| **Row/item title** | 13-14px, medium weight | Process names, workflow names, recommendation titles |
+| **Body text** | 12-13px, regular | Business narratives, briefs, descriptions |
+| **Metrics/numbers** | Monospace (font-mono), semibold | All numbers, percentages, counts. Monospace aligns digits in columns. |
+| **Badges/labels** | 9-10px, monospace, uppercase | Confidence labels, status labels, tier names |
+| **Evidence/tertiary** | 10-11px, secondary color | Timestamps, methodology notes, "how we know this" |
+
+**Hierarchy rule:** Headlines are bold and white. Body is regular and light gray. Numbers are always monospace. Every level of the hierarchy is visually distinct — you can blur your eyes and still see the structure.
+
+### Component Patterns
+
+**Tables/lists for data, NOT cards.**
+
+Advisory products use aligned rows for comparable data. Cards create visual boundaries that separate items — analysis requires comparison.
+
+| Context | Pattern | Why |
+|---------|---------|-----|
+| Process list (Process Map) | **Collapsible rows** — process header expands to show workflow rows inside | Scan process metrics vertically. Compare coverage across processes. |
+| Workflow list (inside process) | **Table rows** — aligned columns (name, status, system flow, impact) | Scan any column independently. Compare workflows within a process. |
+| Recommendation list (Priorities) | **Table rows grouped by tier header** — each row: title, impact, confidence badge, scope, action button | Scan recommendations, compare impact, act on any row. |
+| Recommendation detail | **Slide-over panel** — triggered from row click | Full business case without leaving the list context. |
+| Dashboard sections | **Sections/banners** — "Your Next Move" is a banner, not a card. Facts bar is a single row. Attention/Opportunities are compact lists. | Dashboard widgets are summary, not comparison. Sections work. |
+| Detail page | **Scrollable sections** — narrative, business case (3-column section), process position, connections, evidence | One item, full depth. Sections flow naturally. No cards needed. |
+
+**When cards ARE appropriate:** Only for Dashboard summary widgets (facts bar, process coverage) where each widget shows DIFFERENT information that doesn't need cross-comparison.
+
+**Row anatomy for workflows/recommendations:**
+```
+[status dot] [name + step]          [system flow]      [impact badge] [confidence] [action]
+     ●       Winner Notification     Sheets → Gmail     Critical       Data-driven   →
+     ○       Winner Published        Sheets → Gmail     inactive       —             →
+     ┈       Lottery-Loss Notify     Sheets → Gmail     High           Data-driven   [Deploy ▶]
+```
+
+Aligned columns. Color only on the status dot and badges. Clean horizontal lines or subtle borders between rows. No card chrome.
+
+**Confidence visual pattern:**
+- **Data-driven (Act Now):** Solid left border accent color + solid badge
+- **Benchmark-based (Investigate):** Dashed left border + dashed badge outline
+- **AI-suggested (Explore):** No left border + subtle badge outline
+
+The visual weight decreases with confidence. You FEEL which recommendations are certain vs uncertain.
+
+### Sidebar
+
+Dark (#0a0a0a). Nav items:
+- Dashboard (home icon)
+- Process Map (layers/map icon)
+- Priorities (target/flag icon)
+- Settings (gear icon)
+
+Active item: accent color text + subtle accent background. Inactive: secondary gray text.
+
+Expliq logo at top. "Synced X ago" or "Not synced" at bottom.
+
+### Loading & Sync States
+
+**First visit (no data):** Empty state on Dashboard: "Connect your n8n instance in Settings to get started." Single CTA button.
+
+**During sync:** Progress steps visible: "Fetching workflows... Analyzing... Clustering processes... Generating recommendations..." Each step shows a check when complete. This is important for the demo — the audience sees the intelligence being built in real time.
+
+**During LLM analysis:** If the workspace-level LLM calls take time (10-30s), show a skeleton of the Dashboard/Process Map with a "Analyzing your automation landscape..." overlay. Not a spinner — a message that communicates what's happening.
+
+**After sync with data:** Pages populate. Delta banner shows if re-sync: "Since last analysis: ..."
+
+### Figma Reference (what to use from the prototype)
 
 **Figma Make file** `3bG7mlpucVffGMdoAFPcgc` — use for:
-- Design system: color palette (darkened teal + darker text), typography, spacing
-- Component code: WorkflowCard, DeployModal, StatusDot, SystemFlow, ExpliqBadge, ExpliqCard, MetricCard
-- Layout patterns: sidebar, card structures, collapsible sections
-- Dark mode: single dark theme (Figma's dark sidebar approach)
+- Component CODE as starting point (adapt to dark theme + table/list patterns): DeployModal, StatusDot, SystemFlow, ExpliqBadge
+- Layout patterns: sidebar structure, collapsible section mechanics
+- Spacing conventions (adapt to darker, more spacious layout)
 
-**Do NOT use Figma for:** screen structure, information architecture, number of screens, card field density, governance toggle, Company Intelligence page. These are all superseded by the brainstorming decisions.
+**Do NOT use Figma for:** color palette (superseded by dark advisory theme), card-based layouts (superseded by table/list patterns), screen structure (superseded by 4-screen architecture), information density (superseded by consulting-grade layouts).
 
 ---
 

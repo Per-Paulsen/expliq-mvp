@@ -85,7 +85,7 @@ The sync pipeline queries 9 endpoints (up from 2 in the MVP). Priority order:
 
 ### Schema Changes
 
-4 new Prisma models: **BusinessProcess**, **Recommendation**, **ProcessSuggestion**, **CompanyProfile** (includes workspace analysis cache).
+4 new Prisma models: **BusinessProcess**, **Recommendation**, **ProcessSuggestion**, **CompanyProfile** (includes workspace analysis cache + delta tracking for the re-sync banner).
 
 Extended fields on existing **Automation** model: stepName, processId, businessBrief, timeSavingsEstimate, revenueImpactEstimate, failureImpact, dataIn, dataOut, runsPerWeek, errorRate, upstreamIds, downstreamIds.
 

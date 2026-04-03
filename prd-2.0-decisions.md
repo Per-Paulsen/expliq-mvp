@@ -54,7 +54,32 @@ Layout follows the McKinsey pyramid — answer first, evidence second:
 | **Two sections** | Left: Attention items (existing workflows with issues, linked to Detail). Right: Top Opportunities (top 3 recommendations, linked to Priorities). |
 | **Process Coverage** | Table: process name, existing/recommended count, coverage bar, reliability indicator. |
 | **Systems Compact** | One line: icons or names with workflow counts. Not full narratives. |
-| **Delta Banner** | On re-sync: "Since last analysis: X improved, Y deployed, Z new workflows detected." (Nice-to-have for demo.) |
+| **Delta Banner** | On re-sync: landscape changes, health changes, recommendation movement. Shows the Expliq product loop. See below. |
+
+### Delta Banner
+
+**What it demonstrates:** The Expliq product loop — sync → analyze → act → re-sync → see what changed. This proves Expliq is a living tool, not a one-shot report.
+
+**When it appears:** Only after a re-sync (i.e., a previous analysis exists). Hidden on first sync.
+
+**Position:** Top of Dashboard, below page title, above "Your Next Move." Compact — one or two lines. Accent-left border. Dismissible (X button, session-only).
+
+**Three categories of change:**
+
+| Category | Example | Source |
+|----------|---------|--------|
+| **Landscape changes** | "+2 new workflows detected", "1 workflow removed", "3 workflows updated" | Diff automation count + `updatedAt` timestamps between syncs |
+| **Health changes** | "Lottery-Win error rate improved: 31% → 12%", "Support classifier now active" | Diff `errorRate`, `isActive`, `runsPerWeek` on automations that existed in both syncs |
+| **Recommendation movement** | "1 recommendation resolved", "2 new recommendations" | Diff recommendation count + match by name/type to detect resolved items |
+
+**Example outputs:**
+- `"Since last analysis (2 days ago): 2 new workflows detected, lottery-win error rate improved 31% → 12%, 1 recommendation resolved."`
+- `"Since last analysis (4 hours ago): 1 workflow deployed via Expliq, 3 new recommendations generated."`
+- `"Since last analysis (1 week ago): no changes detected in your automation landscape."`
+
+**How it works:** Before running a new analysis, the sync pipeline snapshots the current state into `previousSnapshot` on CompanyProfile (see section 12). After the new analysis completes, diff current vs. previous to generate a `deltaSummary` string. Computed once at sync time, not on every page load.
+
+**Demo flow:** First sync — full analysis, no banner. Presenter makes a change in n8n (activates lottery-win workflow, fixes error rate). Re-syncs. Delta banner appears: "Since last analysis: lottery-win notification now active, error rate improved." The audience sees the loop close.
 
 ---
 
@@ -196,6 +221,8 @@ DETAIL
   └── Process position click → Process Map (scrolled to process)
 ```
 
+**Deep-linking:** Links marked "scrolled to recommendation" or "scrolled to process" require URL-based deep-linking (e.g., `/priorities?highlight={recommendationId}`). The target page scrolls to and briefly highlights the referenced item. This applies to: Dashboard → Priorities links, Process Map gap → Priorities links, and Detail → Process Map links.
+
 ---
 
 ## 8. Process-Level Variables
@@ -283,6 +310,14 @@ Extend the current per-automation LLM prompt with additional fields:
 6. **One few-shot example** — from a DIFFERENT domain, showing target quality
 7. **Anti-patterns explicit** — "Do NOT lead with governance. Do NOT recommend platform-level code. Do NOT estimate without reasoning."
 
+### Scalability Guidance
+
+**Token budget:** Workspace-level calls must consume only per-automation summary fields (`businessBrief`, `stepName`, `failureImpact`, etc.) — never raw workflow JSON. Execution stats should be pre-aggregated to `runsPerWeek` + `errorRate` per automation during sync. Credentials/users/tags: pass names and types only, not full objects.
+
+**Caching:** CompanyProfile has `analyzedAt`. The sync pipeline should skip workspace-level LLM calls when the automation landscape hasn't changed. Recommended approach: hash all automation summary fields, store on CompanyProfile, compare on re-sync. Same hash → reuse existing analysis. Different hash → re-run LLM calls.
+
+**Progressive loading:** If workspace-level LLM calls take time (10-30s+), the per-automation data is already available. Dashboard and Detail pages can render with per-automation data while workspace-level analysis (processes, recommendations, "Your Next Move") loads in the background. Track analysis progress via a status field on CompanyProfile (`pending | understanding | advising | complete | failed`).
+
 ### Research Spike (Phase 0)
 
 Before coding: test prompts against real fairtix data. Iterate until one-shot output quality matches the ANALYSIS-FINAL.md standard. Document proven prompts.
@@ -306,6 +341,8 @@ Before coding: test prompts against real fairtix data. Iterate until one-shot ou
 | 7 | `GET /projects` | Team structure | If permitted |
 | 8 | `GET /variables` | Environment context | If permitted |
 | 9 | `POST /workflows` + `POST /workflows/{id}/activate` | Deploy recommended workflows | Required for deploy feature |
+
+**Execution fetch depth:** Cap at 250 executions per workflow (newest-first). Aggregate to `runsPerWeek`, `errorRate`, `lastExecutedAt`, `avgDurationMs` on the Automation model at sync time. These aggregates feed the LLM and the UI — raw execution records are not stored. For workflows with 0 executions, execution-derived metrics are null and the LLM estimates instead (labeled "AI-suggested," not "Data-driven").
 
 ### Key data extracted from workflow JSON
 
@@ -343,7 +380,21 @@ Full schemas in `n8n-api-examples/`.
 | **BusinessProcess** | Groups automations. Fields: id, workspaceId, name, summary, maturityLevel, order, createdAt |
 | **Recommendation** | Suggested new workflow or fix. Fields: id, workspaceId, processId, type (new_workflow / technical_fix / process_suggestion / platform_connection), stepName, name, brief, businessCase, evidence (Json), confidence, tier, implementationNotes, suggestedPlatform, systemSource, systemDestination, deployableJson (Json), priorityOrder, createdAt |
 | **ProcessSuggestion** | Entirely new recommended process. Fields: id, workspaceId, name, description, basedOn, businessCase, connectedSystems (String[]), createdAt. Has child Recommendations (one-to-many). |
-| **CompanyProfile** | Workspace-level analysis cache. Fields: id, workspaceId, systemLandscape (Json), nextMoveText, nextMoveReasoning, processMetrics (Json), benchmarks (Json), insights (Json), analyzedAt |
+| **CompanyProfile** | Workspace-level analysis cache + delta tracking. Fields: id, workspaceId, systemLandscape (Json), nextMoveText, nextMoveReasoning, processMetrics (Json), benchmarks (Json), insights (Json), analyzedAt, previousSnapshot (Json — see below), deltaSummary (String — human-readable banner text, null on first sync) |
+
+**CompanyProfile.previousSnapshot schema** (captured before each re-analysis):
+```json
+{
+  "analyzedAt": "DateTime",
+  "automationCount": "number",
+  "activeCount": "number",
+  "automations": [{ "id": "string", "name": "string", "errorRate": "number|null", "isActive": "boolean", "runsPerWeek": "number|null", "updatedAt": "DateTime" }],
+  "recommendationCount": "number",
+  "recommendations": [{ "id": "string", "name": "string", "type": "string", "tier": "string" }],
+  "processCount": "number"
+}
+```
+On first sync, `previousSnapshot` is null. On re-sync, the sync pipeline serializes the current state into `previousSnapshot` before overwriting with new analysis results. The `deltaSummary` is generated by diffing current vs. previous after the new analysis completes.
 
 ---
 
@@ -481,7 +532,7 @@ Expliq logo at top. "Synced X ago" or "Not synced" at bottom.
 
 **During LLM analysis:** If the workspace-level LLM calls take time (10-30s), show a skeleton of the Dashboard/Process Map with a "Analyzing your automation landscape..." overlay. Not a spinner — a message that communicates what's happening.
 
-**After sync with data:** Pages populate. Delta banner shows if re-sync: "Since last analysis: ..."
+**After sync with data:** Pages populate. If this is a re-sync, the delta banner appears at the top of the Dashboard with a summary of changes (see section 3, Delta Banner).
 
 ### Figma Reference (what to use from the prototype)
 

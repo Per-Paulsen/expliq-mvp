@@ -156,7 +156,32 @@ Not building: governance toggle, technical improvements as separate feature, edi
 
 **Do NOT use Figma for:** screen structure, information architecture, number of screens, card field density. These are defined in `prd-2.0-decisions.md`.
 
-> **Figma resource index:** see `WORKFLOW.md` for the component-to-file mapping.
+**How to access Figma via MCP:**
+
+The Figma MCP server is configured in `.mcp.json`. Use these tools:
+
+- **Read page/component source code:**
+  ```
+  ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/pages/{PageName}.tsx")
+  ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/components/{ComponentName}.tsx")
+  ```
+
+- **Read data types and mock data:**
+  ```
+  ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/data/{filename}.ts")
+  ```
+
+- **Read theme/styles:**
+  ```
+  ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/styles/theme.css")
+  ```
+
+- **Get design context with screenshot:**
+  ```
+  mcp__figma__get_design_context(fileKey: "3bG7mlpucVffGMdoAFPcgc", nodeId: "...")
+  ```
+
+> **Full Figma resource index:** see `WORKFLOW.md` for the component-to-file mapping.
 
 ---
 

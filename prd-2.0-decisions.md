@@ -492,6 +492,66 @@ Expliq logo at top. "Synced X ago" or "Not synced" at bottom.
 
 **Do NOT use Figma for:** color palette (superseded by dark advisory theme), card-based layouts (superseded by table/list patterns), screen structure (superseded by 4-screen architecture), information density (superseded by consulting-grade layouts).
 
+### How to Combine Figma Components with Design Decisions
+
+The Figma prototype has React + Tailwind component code. This section tells the dev team exactly how to adapt it.
+
+**Step 1: Read the Figma component** via MCP (`ReadMcpResourceTool`). Understand the MECHANICS — what props it takes, what state it manages, what interactions it supports (expand/collapse, click, hover).
+
+**Step 2: Ignore the Figma styling.** Strip all color classes (`bg-[#14b8a6]`, `text-[#737373]`, `border-[#e5e5e5]`), card wrappers (`rounded-md border shadow`), and light-theme assumptions (`bg-white`, `bg-[#fafafa]`).
+
+**Step 3: Apply the design system from this document (section 15).**
+- Replace light backgrounds with dark (`bg-[#0a0a0a]`, `bg-[#1c1c1c]`)
+- Replace dark text with light (`text-white`, `text-[#a3a3a3]`)
+- Replace teal with the deeper accent (`text-[#0d9488]`) and use SPARINGLY
+- Replace card wrappers with table rows / list items (subtle `border-b border-[#262626]` between rows, no card borders/shadows)
+- Apply the typography hierarchy: headlines bold + white, body regular + light gray, numbers monospace
+
+**Step 4: Restructure if needed.** Some Figma components are cards that should become table rows. The WorkflowCard component becomes a WorkflowRow. The RecommendationCard becomes a RecommendationRow. The PROPS stay similar (name, brief, impact, status) but the LAYOUT changes from stacked-in-a-box to aligned-in-columns.
+
+**Concrete example — Figma WorkflowCard → Expliq WorkflowRow:**
+
+Figma WorkflowCard (light theme, card layout):
+```tsx
+<div className="rounded-md border border-[#e5e5e5] bg-white px-3 py-2.5">
+  <div className="text-[12px] text-[#404040]">{workflow.name}</div>
+  <div className="text-[10px] text-[#a3a3a3]">{workflow.brief}</div>
+  <div className="flex gap-2 mt-1">
+    <Badge>{workflow.impact}</Badge>
+    <SystemFlow systems={...} />
+  </div>
+</div>
+```
+
+Expliq WorkflowRow (dark theme, table row):
+```tsx
+<div className="flex items-center gap-4 px-4 py-2.5 border-b border-[#262626] hover:bg-[#1c1c1c] transition">
+  <StatusDot status={workflow.governance} />
+  <span className="text-[13px] text-white w-64 truncate">{workflow.name}</span>
+  <span className="text-[11px] text-[#a3a3a3] flex-1 truncate">{workflow.brief}</span>
+  <SystemFlow systems={...} />
+  <Badge variant={workflow.impact}>{workflow.impact}</Badge>
+  <ChevronRight className="w-3.5 h-3.5 text-[#525252]" />
+</div>
+```
+
+Same data. Same props. Different layout: horizontal row with aligned columns instead of vertical card with stacked content. Dark background. High-contrast text. Color only on the status dot and impact badge.
+
+**Components to KEEP from Figma (adapt styling):**
+- `DeployModal` — modal mechanics (open/close, JSON preview, copy button, deploy action). Restyle to dark theme.
+- `StatusDot` — small, already minimal. Change colors to match design system palette.
+- `SystemFlow` — the `source → destination` display. Keep mechanics, restyle.
+- `ExpliqBadge` — badge component. Adapt to solid/dashed/outline confidence pattern.
+- Collapsible section mechanics — the expand/collapse pattern from process groups.
+
+**Components to REBUILD (Figma layout doesn't apply):**
+- `WorkflowCard` → `WorkflowRow` (card → table row)
+- `RecommendedWorkflowCard` → `RecommendationRow` (card → table row with dashed left border)
+- `ProcessGroup` header → `ProcessRow` (collapsible row with metrics in aligned columns)
+- All page layouts (Dashboard, Workflows, Roadmap → new page structures per section 2-6)
+
+**The rule for the dev team:** Read Figma for WHAT the component does. Read this document for HOW it looks.
+
 ---
 
 ## 16. Suggested Epic Sequence

@@ -57,15 +57,17 @@ Plus: **Settings** (existing — n8n connector config, sync) and **Login/Signup*
 
 The sync pipeline queries 9 endpoints (up from 2 in the MVP). Priority order:
 
-1. `GET /discover` — feature detection (call first)
-2. `GET /workflows` — all workflow definitions with nodes, connections, settings
+1. `GET /discover` — feature detection (call first — determines which other endpoints are available)
+2. `GET /workflows` — all workflow definitions with nodes, connections, settings. Supports `?tags=X` filtering for instances with mixed-purpose workflows.
 3. `GET /executions?workflowId=X` — real execution stats per workflow
-4. `GET /credentials` — verified system inventory (if permitted)
-5. `GET /users` — ownership data (if permitted)
+4. `GET /credentials` — verified system inventory (if permitted — graceful degradation: fall back to `nodes[].type` for system detection)
+5. `GET /users` — ownership data (if permitted — graceful degradation: fall back to `workflow.shared[]` or manual assignment)
 6. `GET /tags` — process clustering hints
-7. `GET /projects` — team structure (if permitted)
-8. `GET /variables` — environment context (if permitted)
+7. `GET /projects` — team structure (if permitted — graceful degradation: omit team context)
+8. `GET /variables` — environment context (if permitted — graceful degradation: omit environment detection)
 9. `POST /workflows` + `POST /workflows/{id}/activate` — deploy feature
+
+**Graceful degradation:** Endpoints 4, 5, 7, 8 may return 403 depending on API key permissions. The `GET /discover` response tells us which scopes are available. Expliq must work without these endpoints — they enrich the analysis but are not required.
 
 > **Full API schemas and examples:** see `n8n-api-examples/README.md` for the complete directory index.
 > **Real-world validation:** see `n8n-api-examples/fairtix/reference/ANALYSIS-FINAL.md` for what this data produces.
@@ -106,7 +108,10 @@ Based on McKinsey/BCG/Celonis consulting best practices.
 
 **Confidence labels:** "Data-driven" (from user's data) / "Benchmark-based" (industry knowledge) / "AI-suggested" (inference, may be wrong).
 
-**Honest framing:** Recommendations that might be handled by another system use: "We don't see this in your n8n workflows. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest."
+**Honest framing (three frames):**
+1. **Clearly n8n domain:** "This is missing from your automation layer and should be built." Confident language.
+2. **May be handled elsewhere:** "We don't see this in your n8n workflows. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest."
+3. **Connect more for visibility:** "Connect X platform for deeper insight into Y." Growth suggestion, not a fix.
 
 > **Full framework with fairtix examples:** see `prd-2.0-decisions.md` section 9 and `n8n-api-examples/fairtix/reference/ANALYSIS-FINAL.md`.
 
@@ -148,7 +153,7 @@ Not building: governance toggle, technical improvements as separate feature, edi
 
 ## Design Reference
 
-**Design system:** Dark advisory theme. Tables/lists for data, not cards. Color = meaning only. Confident typography.
+**Design system:** Dark advisory theme — confident, restrained, data-forward. The mood is a consulting deliverable, not a SaaS app. Tables/lists for data, not cards. Color = meaning only (green/amber/red for status, accent for interactive). High-contrast typography on dark backgrounds. Monospace for all numbers.
 
 > **Full design system specification:** see `prd-2.0-decisions.md` section 15 — covers color palette, typography hierarchy, component patterns (tables vs cards), sidebar, loading states, confidence visual patterns, and sync UX.
 
@@ -183,7 +188,7 @@ Next week. Industry experts, trainers, and mentors. Using the FairTix n8n instan
 
 **Demo flow:** Login → Settings (sync n8n instance live) → Dashboard (overview + next move) → Process Map (show processes, toggle gaps) → Priorities (show recommendations, deploy one) → Detail (drill into one workflow, show evidence).
 
-**Research spike (Phase 0):** Before coding, test LLM prompts against real FairTix data. Iterate until one-shot output matches `ANALYSIS-FINAL.md` quality.
+**Research spike (Phase 0):** Before coding, test the prompt architecture defined in `prd-2.0-decisions.md` section 10 against real FairTix data. Iterate on persona, output schema, confidence calibration, and anti-patterns until one-shot output matches `ANALYSIS-FINAL.md` quality. Document proven prompts as the foundation for Epic 10.
 
 ---
 
@@ -195,7 +200,7 @@ Next week. Industry experts, trainers, and mentors. Using the FairTix n8n instan
 | 1 (parallel) | 10: LLM Pipeline V2 + Schema + n8n API | Extended sync, new models, per-automation enrichment, workspace-level LLM, deploy endpoint |
 | 1 (parallel) | 11: Design System + Layout | Figma palette, dark mode, sidebar, shared components, login polish |
 | 2 | 12: Dashboard | Your next move, facts, attention/opportunities, process coverage |
-| 2 | 13: Process Map | Process cards, workflow cards, show-gaps toggle, search |
+| 2 | 13: Process Map | Process rows, workflow rows, show-gaps toggle, search |
 | 2 | 14: Priorities | Recommendation tiers, cards, slide-over panels, deploy modal |
 | 2 | 15: Detail | Business narrative, business case, connections, evidence |
 | 3 | 16: Settings + Auth Polish | Loading states, explanations |
@@ -213,15 +218,15 @@ Next week. Industry experts, trainers, and mentors. Using the FairTix n8n instan
 | `prd-2.0-brainstorming.md` | 15 rounds of discussion with reasoning | When you need to understand WHY a decision was made |
 | `n8n-api-examples/README.md` | Directory index of all API schemas and real data | For understanding available data |
 | `n8n-api-examples/fairtix/reference/ANALYSIS-FINAL.md` | Target output quality — what Expliq should produce | For LLM prompt design and output validation |
-| `n8n-api-findings.md` | Initial API research (historical, technical details still valid) | For deep API field-level reference |
+| `archive/n8n-api-findings.md` | Initial API research (historical, technical details still valid) | For deep API field-level reference |
 | `WORKFLOW.md` | Dev workflow with Figma MCP integration | For the implementation process |
-| `expliq_prd.md` | Original MVP PRD (3 screens, governance focus) | Historical context only |
+| `archive/expliq_prd.md` | Original MVP PRD (3 screens, governance focus) | Historical context only |
 
 ---
 
 ## Related
 
 - [Map of Content](_MOC.md)
-- [Original PRD](expliq_prd.md) (superseded by this document)
+- [Original PRD](archive/expliq_prd.md) (superseded by this document)
 - [Tech Stack](tech-stack-idea.md)
 - [Development Workflow](WORKFLOW.md)

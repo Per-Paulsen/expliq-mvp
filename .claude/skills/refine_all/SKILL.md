@@ -8,7 +8,8 @@ description: Cross-epic refinement pass. Reviews all specs together, flags cross
 ## Inputs
 
 - **All specs** — discover by globbing `specs/[0-9][0-9]-*.md` (exclude `*-brainstorming.md`)
-- **PRD** — read `expliq_prd.md`
+- **PRD** — read `prd-2.0.md`
+- **Detailed decisions** — read `prd-2.0-decisions.md` for screen specs, schema, and cross-epic context
 - **Tech stack** — read `tech-stack-idea.md`
 - **Results from completed epics** — glob `specs/*-results.md`. These contain actual versions installed, deviations from specs, and risks flagged for future epics.
 

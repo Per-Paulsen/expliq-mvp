@@ -10,6 +10,9 @@ argument-hint: <prd-file-path>
 
 - **PRD** — read the file at `$ARGUMENTS`
 - **Tech stack** — read `tech-stack-idea.md` if it exists
+- **Detailed decisions** — read `prd-2.0-decisions.md` for screen specs, design system, schema, LLM architecture, navigation map
+- **Data reference** — read `n8n-api-examples/README.md` for available API schemas and data structures
+- **Target output quality** — read `n8n-api-examples/fairtix/reference/ANALYSIS-FINAL.md` for what the LLM pipeline should produce
 - **Reference materials** — read any screenshots, prototypes, design files, or wireframes the user provides
 
 ## Phase 1 — Brainstorming

@@ -9,7 +9,9 @@ argument-hint: <epic-number> <short-name> <brief-description>
 ## Inputs
 
 - **Arguments** — `$ARGUMENTS` provides: epic number, short kebab-case name, and a brief description of what the epic should accomplish (e.g., `05.5 test-infrastructure Set up a persistent test account with seeded data for e2e testing`)
-- **PRD** — read `expliq_prd.md`
+- **PRD** — read `prd-2.0.md`
+- **Detailed decisions** — read `prd-2.0-decisions.md` for screen specs, design system, schema, LLM architecture
+- **Data reference** — read `n8n-api-examples/README.md` for available API schemas and data structures
 - **Tech stack** — read `tech-stack-idea.md`
 - **Existing specs** — glob `specs/[0-9][0-9]-*.md` and `specs/[0-9][0-9].[0-9]-*.md` (exclude `*-brainstorming.md`) to understand what's already defined
 - **Results from completed epics** — glob `specs/*-results.md` to understand what's actually built

@@ -10,7 +10,11 @@ argument-hint: <spec-file-path>
 
 - **Spec** — read the file at `$ARGUMENTS`
 - **Tech stack** — read `tech-stack-idea.md`
-- **PRD** — read `expliq_prd.md`
+- **PRD** — read `prd-2.0.md`
+- **Detailed decisions** — read `prd-2.0-decisions.md` for screen specs, design system (section 15), schema, LLM architecture, navigation map
+- **Data reference** — read `n8n-api-examples/README.md` for API schemas when implementing data-layer code
+- **Design system** — section 15 of `prd-2.0-decisions.md` is authoritative for all visual decisions. Dark theme, tables/lists not cards, color = meaning only.
+- **Figma MCP** — for component code reference, read via `ReadMcpResourceTool(server: "figma", uri: "file://figma/make/source/3bG7mlpucVffGMdoAFPcgc/src/app/components/{Name}.tsx")`. Use Figma for component MECHANICS, use the design system for STYLING.
 - **All epic specs** — read all `specs/[0-9]*.md` files (excluding brainstorming files). Understand the full epic sequence so implementation decisions account for what future epics will need.
 - **Prior epic results** — read all `specs/*-results.md` files. These contain decisions, deviations from spec, established patterns, and risks flagged by completed epics. Understand these before breaking down work — they document conventions and gotchas that the current spec may not account for.
 - **Existing codebase** — explore to understand current patterns and conventions

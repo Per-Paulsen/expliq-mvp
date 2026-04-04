@@ -104,7 +104,7 @@ Based on McKinsey/BCG/Celonis consulting best practices.
 - **Investigate** — high impact + Expliq can't fully verify. May exist in other systems. Honest framing.
 - **Explore** — valuable but lower urgency or requires platform expansion.
 
-**Four recommendation types:** new workflow (deployable), technical fix (on existing workflow), new process suggestion, platform connection suggestion.
+**Three recommendation types:** new workflow (deployable), technical fix (on existing workflow), platform connection suggestion. Process suggestions are a separate entity (ProcessSuggestion) that contains child recommendations.
 
 **Confidence labels:** "Data-driven" (from user's data) / "Benchmark-based" (industry knowledge) / "AI-suggested" (inference, may be wrong).
 
@@ -145,7 +145,7 @@ The primary metrics are PROCESS-LEVEL, not workflow-level. Individual workflow s
 
 ## Scope Cuts
 
-Not building: governance toggle, technical improvements as separate feature, editable process names, full filter system (search only), sort by revenue, workflow node visualization, company profile inference (industry/size/stage), mobile, separate Automation Intelligence page, version history, multi-platform connectors beyond n8n.
+Not building: governance toggle, technical improvements as separate feature, editable process names, full filter system (search only), sort by revenue, workflow node visualization, company profile inference (industry/size/stage — unless certainly derivable from the data), mobile, separate Automation Intelligence page, version history, multi-platform connectors beyond n8n.
 
 > **Full list:** see `prd-2.0-decisions.md` section 13.
 

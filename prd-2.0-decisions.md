@@ -300,6 +300,8 @@ This deductive depth must be reflected in `businessBrief`, `failureImpact`, and 
 
 The prompt anti-pattern: "Do NOT describe the workflow mechanically ('triggers on new row, sends email'). DO describe what the workflow means for the business ('when a lottery winner is selected, this workflow is the revenue conversion trigger — it notifies the winner to purchase within 24 hours')."
 
+**Per-automation calls are independent and parallel.** Each workflow is analyzed in isolation — one call per workflow, all calls can run simultaneously. This is an architectural decision, not just a performance optimization: per-automation analysis must NOT depend on other workflows' results. Cross-workflow patterns (duplication, shared dependencies, gaps) are the job of workspace-level Call 1, which sees all summaries together. Mixing these concerns would make per-automation calls order-dependent and harder to debug.
+
 ### Workspace-Level Analysis (two-call strategy)
 
 **Call 1: "Understand"**
@@ -333,6 +335,7 @@ This is the analytical step that produces Expliq's most valuable insights — th
 5. **Named confidence levels with criteria** — not numeric scores
 6. **One few-shot example** — from a DIFFERENT domain, showing target quality
 7. **Anti-patterns explicit** — "Do NOT lead with governance. Do NOT recommend platform-level code. Do NOT estimate without reasoning."
+8. **Consistent rules across the entire chain** — The confidence framework (Data-driven / Benchmark-based / AI-suggested), anti-patterns, and honest framing rules apply to ALL calls in the chain — per-automation, Call 1, and Call 2. If per-automation calls label a `timeSavingsEstimate` as "Data-driven" using different criteria than Call 2 uses for recommendation confidence, the user sees inconsistent signals. One calibration, applied everywhere.
 
 ### Scalability Guidance
 
@@ -352,19 +355,41 @@ Before coding: test prompts against real fairtix data. Iterate until one-shot ou
 
 *(From n8n-api-findings.md)*
 
-### Sync pipeline queries (in order)
+### Two-phase sync: Discover → Sync + Analyze
+
+The sync pipeline is split into two user-facing phases. This allows the user to understand what's in their n8n instance before committing to a full analysis — important for instances with mixed-purpose workflows (e.g., shared bootcamp instances, multi-team setups).
+
+**Phase 1: Discover** (triggered by "Verify Connection" on Settings page)
+
+Lightweight calls that run immediately after the user enters URL + API key:
 
 | # | Endpoint | Purpose | Priority |
 |---|----------|---------|----------|
 | 1 | `GET /discover` | Feature detection — what does this instance support? | Required (call first) |
-| 2 | `GET /workflows?tags=X` or `GET /workflows` | All workflow definitions | Required |
-| 3 | `GET /executions?workflowId=X` per workflow | Execution stats (runs, errors, timing) | Required |
-| 4 | `GET /credentials` | Verified system inventory | If permitted (may 403) |
-| 5 | `GET /users` | Ownership data | If permitted |
-| 6 | `GET /tags` | Process clustering hints | Required |
-| 7 | `GET /projects` | Team structure | If permitted |
-| 8 | `GET /variables` | Environment context | If permitted |
-| 9 | `POST /workflows` + `POST /workflows/{id}/activate` | Deploy recommended workflows | Required for deploy feature |
+| 2 | `GET /tags` | Available tags for filtering | Required |
+| 3 | `GET /workflows` | Workflow list (names, tags, active status — used for tag preview, not full analysis) | Required |
+
+After Phase 1, the Settings page shows:
+- Connection status (verified)
+- Instance overview: "68 workflows found"
+- Tag selection: checkboxes for each tag with workflow count and name preview. E.g., "Reference (9): Welcome Email, LotteryWin Notification, Support Classifier, ..." Default: all selected. Untagged workflows shown as "Untagged (X)".
+- The user selects which tags to include and clicks "Sync & Analyze"
+
+**Phase 2: Sync + Analyze** (triggered by "Sync & Analyze" button)
+
+Full sync for selected workflows only, followed by LLM analysis:
+
+| # | Endpoint | Purpose | Priority |
+|---|----------|---------|----------|
+| 1 | `GET /workflows?tags=X` | Full workflow definitions (filtered by selected tags) | Required |
+| 2 | `GET /executions?workflowId=X` per workflow | Execution stats (runs, errors, timing) | Required |
+| 3 | `GET /credentials` | Verified system inventory | If permitted (may 403) |
+| 4 | `GET /users` | Ownership data | If permitted |
+| 5 | `GET /projects` | Team structure | If permitted |
+| 6 | `GET /variables` | Environment context | If permitted |
+| 7 | `POST /workflows` + `POST /workflows/{id}/activate` | Deploy recommended workflows | Required for deploy feature |
+
+The tag selection is stored on ConnectorConfig so re-syncs use the same filter. The user can change the selection at any time on Settings and re-sync.
 
 **Execution fetch depth:** Cap at 250 executions per workflow (newest-first). Aggregate to `runsPerWeek`, `errorRate`, `lastExecutedAt`, `avgDurationMs` on the Automation model at sync time. These aggregates feed the LLM and the UI — raw execution records are not stored. For workflows with 0 executions, execution-derived metrics are null and the LLM estimates instead (labeled "AI-suggested," not "Data-driven").
 
@@ -552,7 +577,9 @@ Expliq logo at top. "Synced X ago" or "Not synced" at bottom.
 
 **First visit (no data):** Empty state on Dashboard: "Connect your n8n instance in Settings to get started." Single CTA button.
 
-**During sync:** Progress steps visible: "Fetching workflows... Analyzing... Clustering processes... Generating recommendations..." Each step shows a check when complete. This is important for the demo — the audience sees the intelligence being built in real time.
+**After connection verified (Phase 1 complete):** Settings page shows instance overview with tag selection. Dashboard still shows empty state until the user runs a full sync.
+
+**During sync (Phase 2):** Progress steps visible: "Fetching workflows... Fetching execution data... Analyzing workflows... Clustering processes... Generating recommendations..." Each step shows a check when complete. This is important for the demo — the audience sees the intelligence being built in real time.
 
 **During LLM analysis:** If the workspace-level LLM calls take time (10-30s), show a skeleton of the Dashboard/Process Map with a "Analyzing your automation landscape..." overlay. Not a spinner — a message that communicates what's happening.
 

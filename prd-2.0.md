@@ -55,19 +55,15 @@ Plus: **Settings** (existing — n8n connector config, sync) and **Login/Signup*
 
 ### n8n API — What We Query
 
-The sync pipeline queries 9 endpoints (up from 2 in the MVP). Priority order:
+The sync pipeline uses a two-phase approach: **Discover** (lightweight, on connection) → **Sync + Analyze** (full, after user configures tag filter).
 
-1. `GET /discover` — feature detection (call first — determines which other endpoints are available)
-2. `GET /workflows` — all workflow definitions with nodes, connections, settings. Supports `?tags=X` filtering for instances with mixed-purpose workflows.
-3. `GET /executions?workflowId=X` — real execution stats per workflow
-4. `GET /credentials` — verified system inventory (if permitted — graceful degradation: fall back to `nodes[].type` for system detection)
-5. `GET /users` — ownership data (if permitted — graceful degradation: fall back to `workflow.shared[]` or manual assignment)
-6. `GET /tags` — process clustering hints
-7. `GET /projects` — team structure (if permitted — graceful degradation: omit team context)
-8. `GET /variables` — environment context (if permitted — graceful degradation: omit environment detection)
-9. `POST /workflows` + `POST /workflows/{id}/activate` — deploy feature
+**Phase 1 — Discover:** `GET /discover` (feature detection), `GET /tags` (available tags), `GET /workflows` (names + tags for preview). Runs on "Verify Connection." Shows the user what's in their instance with tag-based filtering — essential for instances with mixed-purpose workflows (e.g., shared team instances).
 
-**Graceful degradation:** Endpoints 4, 5, 7, 8 may return 403 depending on API key permissions. The `GET /discover` response tells us which scopes are available. Expliq must work without these endpoints — they enrich the analysis but are not required.
+**Phase 2 — Sync + Analyze:** `GET /workflows?tags=X` (full definitions, filtered), `GET /executions?workflowId=X` (per workflow), plus optional enrichment endpoints: `GET /credentials`, `GET /users`, `GET /projects`, `GET /variables`. Then `POST /workflows` + activate for deploy.
+
+**Graceful degradation:** Credentials, users, projects, and variables endpoints may return 403 depending on API key permissions. The `GET /discover` response tells us which scopes are available. Expliq must work without these endpoints — they enrich the analysis but are not required.
+
+> **Full two-phase pipeline with tag selection UX:** see `prd-2.0-decisions.md` section 11.
 
 > **Full API schemas and examples:** see `n8n-api-examples/README.md` for the complete directory index.
 > **Real-world validation:** see `n8n-api-examples/fairtix/reference/ANALYSIS-FINAL.md` for what this data produces.

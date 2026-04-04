@@ -1,0 +1,33 @@
+{
+  "reasoning": "This workflow automates the ticket allocation notification process for FairTix's lottery-based ticketing system. When a customer wins the lottery for event tickets, they receive a professional email notification with purchase instructions and a 24-hour deadline. The workflow tracks notification status in Google Sheets for audit purposes. The business uses a fair queue lottery system to combat ticket bots and ensure genuine fans get access to tickets, with transparent pricing (no hidden fees) as a key differentiator.",
+  "name": "FairTix Lottery Winner Notification",
+  "businessNarrative": "This workflow handles the critical moment when a customer wins the ticket lottery, sending them a branded notification email with purchase instructions and updating tracking records. It's part of FairTix's anti-bot ticketing platform that uses lottery selection to ensure fair access to high-demand events. The 24-hour purchase window and transparent pricing model (no hidden fees) reflects a customer-centric approach to ticketing that differentiates from traditional platforms.",
+  "trigger": "New lottery winner entry added to Google Sheets",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "Google Sheets",
+    "Gmail"
+  ],
+  "dataFlow": "Lottery winner details (name, email, event, ticket price) flow from Google Sheets into a branded email template, then status updates return to the sheet with timestamp and email ID for tracking",
+  "impact": {
+    "reasoning": "This directly enables revenue generation by notifying winners who then have 24 hours to purchase. Failed notifications mean lost sales and poor customer experience for eager fans who won the lottery",
+    "level": "high",
+    "failureScenario": "Lottery winners don't receive notifications, miss their 24-hour purchase window, tickets go unsold, customers lose trust in the fair queue system",
+    "revenueConnection": "Direct"
+  },
+  "detectability": {
+    "reasoning": "The workflow updates status back to Google Sheets, but with no active monitoring or alerting. Failures would only be noticed if someone manually checks the sheet or customers complain",
+    "level": "partially-monitored"
+  },
+  "stepName": "Customer notification and conversion enablement",
+  "technicalEvidence": {
+    "errorHandling": "Error workflow configured (oZy3vc0yli2xdR45) but no retry logic visible. Polls every minute for new entries",
+    "keyFindings": [
+      "Workflow is inactive despite being business-critical for revenue conversion",
+      "Uses polling (every minute) rather than real-time triggers, creating potential delays",
+      "Transparent pricing messaging ('€0.00 fees') is prominently featured in the email template",
+      "24-hour purchase deadline creates urgency but requires reliable notification delivery",
+      "Status tracking includes email label IDs suggesting some level of delivery verification"
+    ]
+  }
+}

@@ -1,0 +1,267 @@
+{
+  "01-send-welcome-email": {
+    "reasoning": "This workflow sends welcome emails to new FairTix users, a ticketing platform that positions itself as an anti-bot, fair-pricing alternative to traditional ticketing systems. The manual trigger and hardcoded test data suggest this is a development/test version of what would likely be triggered automatically by user registration in production. The workflow reveals a company focused on fair access to event tickets, with anti-scalping measures and transparent pricing as key differentiators.",
+    "name": "FairTix Welcome Email",
+    "businessNarrative": "This workflow handles the critical first touchpoint with new FairTix customers, sending welcome emails that reinforce the platform's core value propositions: fair queuing, transparent pricing, human verification, and capped resale prices. The email content reveals FairTix is disrupting the event ticketing industry by preventing bot purchases and price gouging. The emphasis on verification suggests a strong anti-fraud stance that likely continues throughout the customer journey.",
+    "trigger": "New user registration (currently manual for testing)",
+    "triggerType": "manual",
+    "systemsTouched": [
+      "Gmail"
+    ],
+    "dataFlow": "User registration data (name, email) flows in, personalized welcome email with onboarding instructions flows out",
+    "impact": {
+      "reasoning": "First impressions are crucial for user activation and retention. Failed welcome emails mean users don't understand the platform's unique value or next steps, directly impacting conversion rates and revenue",
+      "level": "high",
+      "failureScenario": "New users don't receive welcome emails, miss verification requirements, can't participate in ticket queues, leading to lost customers and negative word-of-mouth",
+      "revenueConnection": "Direct"
+    },
+    "detectability": {
+      "reasoning": "No error handling configured, failures would only be noticed through manual checks or customer complaints about missing emails",
+      "level": "silent"
+    },
+    "stepName": "User onboarding initiation",
+    "technicalEvidence": {
+      "errorHandling": "None configured - no retries, error branches, or alerting",
+      "keyFindings": [
+        "Currently inactive and using hardcoded test data, suggesting pre-production status",
+        "17 versions indicate active development/refinement of messaging",
+        "Simple 3-node structure shows focus on rapid testing over production robustness",
+        "Using Gmail OAuth instead of transactional email service suggests early-stage or cost-conscious approach"
+      ]
+    }
+  },
+  "02-lotterywins": {
+    "reasoning": "This workflow handles lottery winner notifications for FairTix, a ticketing platform focused on fair distribution to real fans rather than bots. When someone wins a ticket lottery, they receive a professionally formatted email notification with purchase details and a 24-hour deadline. The workflow then updates the tracking spreadsheet with status and timestamp. The 36% error rate and inactive status suggest operational issues, possibly with email delivery or spreadsheet permissions. The 'Reference' tag and high version count (115) indicate this is a template or heavily iterated process.",
+    "name": "FairTix Lottery Winner Notification",
+    "businessNarrative": "This workflow executes when FairTix's fair queue lottery selects a winner, sending them a branded notification email about their successful ticket allocation. It's core to FairTix's value proposition of fair ticket distribution, creating urgency with a 24-hour purchase window while emphasizing their transparent, no-fee pricing model. The workflow tracks all winner communications for compliance and customer service purposes.",
+    "trigger": "New lottery winner added to tracking spreadsheet",
+    "triggerType": "polling",
+    "systemsTouched": [
+      "Google Sheets",
+      "Gmail"
+    ],
+    "dataFlow": "Lottery winner details (name, email, event, price) enter from spreadsheet, trigger personalized winner notification email, then update spreadsheet with delivery status and timestamp",
+    "impact": {
+      "reasoning": "Directly enables revenue by notifying winners who have 24 hours to purchase. Failed notifications mean lost sales and damage to brand promise of fairness",
+      "level": "high",
+      "failureScenario": "Winners don't receive notifications, miss 24-hour window, tickets go unsold, customers lose trust in 'fair queue' system",
+      "revenueConnection": "Direct"
+    },
+    "detectability": {
+      "reasoning": "36% error rate shows issues are occurring but being tracked. Spreadsheet updates provide audit trail, but no apparent alerting on failures",
+      "level": "partially-monitored"
+    },
+    "stepName": "Winner Notification & Conversion",
+    "technicalEvidence": {
+      "errorHandling": "Error workflow configured (oZy3vc0yli2xdR45) but high 36% failure rate suggests insufficient error handling or systemic issues",
+      "keyFindings": [
+        "Polls spreadsheet every minute for new winners - high frequency suggests time-sensitive business requirement",
+        "Updates same spreadsheet with email status - creates feedback loop for tracking delivery success",
+        "Professional HTML email template emphasizes zero fees and 24-hour urgency - key differentiators",
+        "Currently inactive despite recent executions - possible manual intervention or testing phase"
+      ]
+    }
+  },
+  "02b-lotterywins-error-handling": {
+    "reasoning": "This workflow is part of FairTix's lottery system for fair ticket distribution. It monitors a Google Sheet for lottery winners and automatically sends congratulatory emails with purchase instructions. The workflow implements error handling by updating the sheet with either success (200) or error (500) status codes. The email template emphasizes transparent pricing with no hidden fees, and includes a 24-hour purchase deadline. This appears to be a critical customer communication workflow that directly impacts revenue conversion from lottery winners to actual ticket purchases.",
+    "name": "FairTix Lottery Winner Notification",
+    "businessNarrative": "This workflow automatically notifies customers who won the ticket lottery for high-demand events, sending them personalized emails with purchase instructions and a 24-hour deadline. It's a critical component of FairTix's fair queue system that ensures only verified humans can purchase tickets, not bots. The workflow tracks success/failure states back to the source spreadsheet for operational visibility, enabling the business to monitor conversion rates and troubleshoot delivery issues.",
+    "trigger": "New lottery winner added to Google Sheet",
+    "triggerType": "polling",
+    "systemsTouched": [
+      "Google Sheets",
+      "Gmail"
+    ],
+    "dataFlow": "Lottery winner data (name, email, event, price) flows from Google Sheets, gets transformed into a branded HTML email, and status updates flow back to the sheet with timestamps",
+    "impact": {
+      "reasoning": "Directly enables revenue conversion from lottery winners to ticket purchases with a 24-hour window. Failed notifications mean lost sales and poor customer experience.",
+      "level": "critical",
+      "failureScenario": "Lottery winners don't receive purchase instructions, leading to lost revenue, customer complaints, and potential tickets going to bots instead",
+      "revenueConnection": "Direct"
+    },
+    "detectability": {
+      "reasoning": "Status tracking back to Google Sheets provides visibility into delivery success/failure, though polling-based triggers could have delays",
+      "level": "monitored"
+    },
+    "stepName": "Customer notification after lottery selection",
+    "technicalEvidence": {
+      "errorHandling": "Gmail node configured with 'continueErrorOutput', separate success/error paths update sheet with status codes (200/500) and error messages",
+      "keyFindings": [
+        "Currently inactive workflow despite being critical for revenue conversion",
+        "Uses polling trigger checking every minute, which could delay time-sensitive notifications",
+        "No executions recorded yet, suggesting this is either new or has implementation issues",
+        "Error tracking includes timestamp and error message for troubleshooting"
+      ]
+    }
+  },
+  "03-support-classifier": {
+    "reasoning": "This workflow automates customer support ticket classification for FairTix, a fair ticket marketplace. It polls Gmail every minute for support emails, uses AI to classify them by category and sentiment, then logs the results to Google Sheets. The sophisticated AI classification system with detailed prompts and structured output parsing indicates a mature support operation handling significant volume. The 6% error rate and 50 executions suggest it's in testing/refinement phase before full production deployment.",
+    "name": "Customer Support Email Classifier",
+    "businessNarrative": "This workflow automatically triages incoming customer support emails for FairTix's ticket marketplace, classifying them into categories like FAQ, account issues, payments, bugs, resales, and feedback while also detecting customer sentiment. The AI-powered classification enables support teams to prioritize and route tickets appropriately, improving response times and customer satisfaction. The detailed classification schema reveals FairTix deals with complex ticketing operations including fair queuing systems, resale caps, and verification processes, indicating a sophisticated marketplace with significant transaction volume.",
+    "trigger": "New support email arrives or scheduled check every minute",
+    "triggerType": "schedule",
+    "systemsTouched": [
+      "Gmail",
+      "Anthropic AI",
+      "Google Sheets"
+    ],
+    "dataFlow": "Support emails from Gmail → AI classification (category, sentiment, confidence) → Structured data logged to Google Sheets for support team access",
+    "impact": {
+      "reasoning": "Support classification directly affects customer experience and operational efficiency. Misclassification could delay critical issues like payment problems or account lockouts, potentially causing customer churn and revenue loss",
+      "level": "high",
+      "failureScenario": "Support tickets go unclassified, creating backlog and delayed responses to customer issues including payment disputes and account problems",
+      "revenueConnection": "Indirect"
+    },
+    "detectability": {
+      "reasoning": "Currently inactive with no error handling visible. Failures would only be noticed when support team sees unclassified tickets accumulating",
+      "level": "partially-monitored"
+    },
+    "stepName": "Initial triage in customer support process",
+    "technicalEvidence": {
+      "errorHandling": "No visible retry logic or error notifications configured",
+      "keyFindings": [
+        "Uses Claude Sonnet 4.6 for classification with detailed prompt engineering",
+        "Structured output parser ensures consistent JSON response format",
+        "Confidence scoring (0.0-1.0) allows for quality monitoring of classifications",
+        "Fallback option noted to use Google Sheets trigger if Gmail fails",
+        "Currently inactive despite recent executions, suggesting testing phase"
+      ]
+    }
+  },
+  "04-switch-faq-manual": {
+    "reasoning": "This workflow implements an intelligent customer support triage system that classifies incoming emails, automatically responds to FAQ questions, and escalates complex issues to human agents. The system uses AI to understand message intent, sentiment, and confidence level, then either generates automated responses from a FAQ document or notifies support staff for manual handling. This reveals a company focused on scaling customer support efficiently while maintaining quality through smart automation.",
+    "name": "FairTix Customer Support Triage",
+    "businessNarrative": "This workflow processes support emails for FairTix, a fair ticket marketplace, by classifying them into categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) and analyzing sentiment. FAQ questions receive automated AI-generated responses based on a master FAQ document, while complex issues are escalated to human agents with pre-classified context. This enables FairTix to handle high support volumes efficiently while ensuring critical issues get human attention, reducing response times and operational costs.",
+    "trigger": "New support email received in Gmail inbox",
+    "triggerType": "schedule",
+    "systemsTouched": [
+      "Gmail",
+      "Google Sheets",
+      "Google Docs",
+      "Anthropic AI"
+    ],
+    "dataFlow": "Support emails enter from Gmail, get classified by AI into categories with sentiment analysis, are logged to Google Sheets for tracking, and either receive automated responses (FAQ category) or human escalation notifications (all other categories)",
+    "impact": {
+      "reasoning": "This directly impacts customer experience and satisfaction, which is critical for a marketplace business. Poor support response times or quality could lead to lost customers, negative reviews, and reduced trust in the platform. The 43 executions with 0% error rate suggest stability.",
+      "level": "high",
+      "failureScenario": "Support emails go unanswered, FAQ questions require manual responses increasing workload, complex issues lack proper classification leading to slower resolution times",
+      "revenueConnection": "Indirect"
+    },
+    "detectability": {
+      "reasoning": "Support team would notice if they start receiving unclassified tickets or customers complain about no responses. The Google Sheets logging provides an audit trail.",
+      "level": "monitored",
+      "failureScenario": "Support team notices increase in direct emails or customers complain about lack of response"
+    },
+    "stepName": "Initial support request processing and triage",
+    "technicalEvidence": {
+      "errorHandling": "Continue on error configured for manual notification node, no retry logic visible",
+      "keyFindings": [
+        "Uses Claude AI models for both classification (Sonnet 4.6) and response generation (Haiku 4.5)",
+        "Sophisticated prompt engineering with detailed classification rules and examples",
+        "Structured output parsing ensures consistent AI responses",
+        "1-minute scheduled polling interval suggests near real-time support processing",
+        "FAQ document integration enables knowledge base management without code changes"
+      ]
+    }
+  },
+  "04-switch-faq-manual-sheet": {
+    "reasoning": "This workflow automates customer support ticket classification and response for FairTix (a fair ticket marketplace). It monitors a Google Sheet for new support messages, uses AI to classify them into categories (FAQ, Account/Verification, Payment/Billing, etc.) with sentiment analysis, then either auto-responds to FAQ questions using a knowledge base or escalates complex issues to human agents. The 12% error rate and 362 versions suggest significant iteration to refine the classification accuracy and response quality.",
+    "name": "Customer Support Ticket Classification & Auto-Response System",
+    "businessNarrative": "This system intelligently triages incoming customer support messages, automatically answering common questions while routing complex issues to human agents. It reduces response time for FAQ inquiries from hours to minutes and ensures high-priority issues (payment problems, angry customers) get immediate human attention. The sophisticated classification logic with confidence scoring reveals FairTix prioritizes customer experience and operational efficiency, likely handling hundreds of support tickets daily with minimal human intervention.",
+    "trigger": "New customer support message added to tracking spreadsheet",
+    "triggerType": "polling",
+    "systemsTouched": [
+      "Google Sheets",
+      "Google Docs",
+      "Gmail",
+      "Anthropic Claude AI"
+    ],
+    "dataFlow": "Support message (sender info, subject, body) enters from Google Sheets → AI classifies into category/sentiment → FAQ questions get automated responses from knowledge base → Complex issues trigger email alerts to support team → All classifications and responses logged back to sheet",
+    "impact": {
+      "reasoning": "Customer support directly affects satisfaction, retention, and brand reputation. Quick FAQ responses prevent frustration while proper escalation of payment/account issues prevents revenue loss and chargebacks",
+      "level": "high",
+      "failureScenario": "Support tickets go unclassified and unanswered, leading to customer frustration, potential chargebacks, negative reviews, and increased manual workload for support team",
+      "revenueConnection": "Indirect"
+    },
+    "detectability": {
+      "reasoning": "Workflow failures would be quickly noticed as support tickets pile up unanswered in the Google Sheet, and customers would complain about lack of response",
+      "level": "monitored"
+    },
+    "stepName": "Customer Support Triage & Response",
+    "technicalEvidence": {
+      "errorHandling": "No explicit error handling or retry logic configured",
+      "keyFindings": [
+        "Uses Claude Sonnet for classification and Haiku for response generation (cost optimization)",
+        "Confidence scoring (0.0-1.0) allows human review of ambiguous cases",
+        "Detailed classification prompt includes business context and edge cases",
+        "Every-minute polling suggests high support volume requiring near real-time response",
+        "362 versions indicates extensive refinement of classification logic and prompts"
+      ]
+    }
+  },
+  "05-lotterywins-published": {
+    "reasoning": "This workflow automates the ticket allocation notification process for FairTix's lottery-based ticketing system. When a customer wins the lottery for event tickets, they receive a professional email notification with purchase instructions and a 24-hour deadline. The workflow tracks notification status in Google Sheets for audit purposes. The business uses a fair queue lottery system to combat ticket bots and ensure genuine fans get access to tickets, with transparent pricing (no hidden fees) as a key differentiator.",
+    "name": "FairTix Lottery Winner Notification",
+    "businessNarrative": "This workflow handles the critical moment when a customer wins the ticket lottery, sending them a branded notification email with purchase instructions and updating tracking records. It's part of FairTix's anti-bot ticketing platform that uses lottery selection to ensure fair access to high-demand events. The 24-hour purchase window and transparent pricing model (no hidden fees) reflects a customer-centric approach to ticketing that differentiates from traditional platforms.",
+    "trigger": "New lottery winner entry added to Google Sheets",
+    "triggerType": "polling",
+    "systemsTouched": [
+      "Google Sheets",
+      "Gmail"
+    ],
+    "dataFlow": "Lottery winner details (name, email, event, ticket price) flow from Google Sheets into a branded email template, then status updates return to the sheet with timestamp and email ID for tracking",
+    "impact": {
+      "reasoning": "This directly enables revenue generation by notifying winners who then have 24 hours to purchase. Failed notifications mean lost sales and poor customer experience for eager fans who won the lottery",
+      "level": "high",
+      "failureScenario": "Lottery winners don't receive notifications, miss their 24-hour purchase window, tickets go unsold, customers lose trust in the fair queue system",
+      "revenueConnection": "Direct"
+    },
+    "detectability": {
+      "reasoning": "The workflow updates status back to Google Sheets, but with no active monitoring or alerting. Failures would only be noticed if someone manually checks the sheet or customers complain",
+      "level": "partially-monitored"
+    },
+    "stepName": "Customer notification and conversion enablement",
+    "technicalEvidence": {
+      "errorHandling": "Error workflow configured (oZy3vc0yli2xdR45) but no retry logic visible. Polls every minute for new entries",
+      "keyFindings": [
+        "Workflow is inactive despite being business-critical for revenue conversion",
+        "Uses polling (every minute) rather than real-time triggers, creating potential delays",
+        "Transparent pricing messaging ('€0.00 fees') is prominently featured in the email template",
+        "24-hour purchase deadline creates urgency but requires reliable notification delivery",
+        "Status tracking includes email label IDs suggesting some level of delivery verification"
+      ]
+    }
+  },
+  "05-generic-error-workflow": {
+    "reasoning": "This is a centralized error handling workflow that monitors all other workflows in the FairTix automation system. It triggers whenever any workflow encounters an error and sends email notifications to the automation team. The 15% error rate across 40 executions suggests this is actively catching and reporting failures from other workflows. This is a critical operational monitoring capability that ensures the automation team is immediately aware of any issues in their ticket processing, customer communications, or other automated processes.",
+    "name": "Centralized Error Monitoring System",
+    "businessNarrative": "This workflow serves as the central nervous system for FairTix's automation infrastructure, catching and reporting any failures across all automated processes. When any workflow fails - whether it's processing ticket purchases, sending customer communications, or syncing data between systems - this immediately notifies the technical team with detailed error information. This proactive monitoring ensures rapid response to issues that could impact ticket sales, customer experience, or operational efficiency.",
+    "trigger": "Any error occurring in any other workflow",
+    "triggerType": "event",
+    "systemsTouched": [
+      "Gmail",
+      "n8n Platform"
+    ],
+    "dataFlow": "Error metadata (workflow name, error message, stack trace, execution URL) flows in from failed workflows and gets formatted into email notifications sent to the automation team",
+    "impact": {
+      "reasoning": "This is the safety net for all automation failures - without it, critical processes could fail silently",
+      "level": "critical",
+      "failureScenario": "Automation failures would go unnoticed, potentially causing revenue loss from failed ticket processing, poor customer experience from missed communications, or compliance issues",
+      "revenueConnection": "Indirect"
+    },
+    "detectability": {
+      "reasoning": "Failures of this workflow itself would be silent - if error notifications stop arriving, the team might not realize the monitor itself has failed",
+      "level": "silent"
+    },
+    "stepName": "Error Detection & Alerting",
+    "technicalEvidence": {
+      "errorHandling": "No retry logic configured - errors are sent once to avoid notification spam",
+      "keyFindings": [
+        "40 executions with 15% error rate suggests either the error handler itself has issues or it's successfully processing a high volume of errors from other workflows",
+        "Uses a dedicated automation email account (dlschoolautomations@gmail.com) for sending notifications",
+        "Provides comprehensive error context including execution URL for quick debugging",
+        "Tagged as 'Reference' indicating this is a standard pattern used across the organization"
+      ]
+    }
+  }
+}

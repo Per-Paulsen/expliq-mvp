@@ -1,0 +1,40 @@
+{
+  "reasoning": "This is a generic error handling workflow that serves as infrastructure for the entire automation system. The 'Error Trigger' node catches failures from any workflow in the system, then sends detailed error notifications via Gmail to 'dlschoolautomations@gmail.com'. The email template includes workflow name, execution URL, error message, stack trace, and last executed node - providing comprehensive debugging information. The 15% error rate across 40 executions suggests this is actively catching failures from other workflows. The 38 version iterations indicate ongoing refinement of error handling. The project context 'FairTix Automations' suggests this supports a ticketing platform's automation infrastructure.",
+  "name": "System-Wide Error Notification Handler",
+  "businessNarrative": "This workflow serves as the central nervous system for FairTix's automation infrastructure, automatically detecting and reporting failures across all automated processes. When any workflow in their system fails, this immediately sends detailed error reports to the operations team, enabling rapid response to issues that could affect ticket sales, customer communications, or event management. The comprehensive error details (stack traces, execution URLs, failed nodes) suggest a mature DevOps approach to automation reliability. With 40 executions and 15% error rate, this reveals the company is actively managing automation failures rather than letting them go unnoticed.",
+  "trigger": "Any workflow in the FairTix automation system encounters an unhandled error or exception",
+  "triggerType": "event",
+  "systemsTouched": [
+    "gmail"
+  ],
+  "dataFlow": "Receives error context data (workflow name, execution details, error messages, stack traces) from failed workflows and sends formatted email notifications to operations team",
+  "stepName": "Error Detection and Alerting",
+  "impact": {
+    "reasoning": "Critical infrastructure - without this, automation failures could go undetected for hours or days, potentially causing cascading business issues like missed customer communications, failed ticket processing, or broken event workflows. For a ticketing platform, undetected automation failures could directly impact revenue and customer experience.",
+    "level": "critical",
+    "failureScenario": "If this error handler fails, the operations team loses visibility into automation system health. Failed workflows could continue breaking silently, leading to missed customer notifications, broken ticket processing, failed payment workflows, or corrupted event data - all potentially going unnoticed until customers complain or revenue is visibly impacted.",
+    "revenueConnection": "Indirect - Enables rapid response to automation failures that could directly impact ticket sales, payment processing, and customer communications"
+  },
+  "detectability": {
+    "reasoning": "Ironically, this error handler itself has no error handling. If the Gmail node fails, the system loses its primary error visibility mechanism with no backup notification method.",
+    "level": "silent",
+    "evidence": "No error handling or retry logic configured on the Gmail node - if email sending fails, there's no fallback notification mechanism"
+  },
+  "timeSavingsEstimate": "N/A - Infrastructure workflow that enables other automations rather than replacing manual work directly. However, enables rapid error response that could save 2-4 hours per incident in debugging time.",
+  "revenueImpactEstimate": "N/A - Infrastructure workflow, but enables prevention of revenue loss by ensuring rapid response to automation failures that could affect ticketing operations. Each prevented outage could save thousands in lost ticket sales.",
+  "technicalEvidence": {
+    "errorHandling": "No error handling configured - the Gmail node has no retry settings or fallback mechanisms. If email sending fails, the error notification is lost with no backup.",
+    "credentials": [
+      "gmailOAuth2: DL-School-Automations Gmail"
+    ],
+    "complexity": "Simple 2-node workflow, but serves critical infrastructure role",
+    "keyFindings": [
+      "Error Trigger captures comprehensive debugging data including execution URL and stack traces",
+      "Gmail node sends to 'dlschoolautomations@gmail.com' with sender name 'Automation Errors'",
+      "No error handling on the Gmail node itself - creates single point of failure",
+      "38 versions suggest ongoing refinement of error reporting",
+      "15% error rate across 40 executions indicates active error processing",
+      "Email template includes workflow name, execution URL, error message, stack trace, and last executed node"
+    ]
+  }
+}

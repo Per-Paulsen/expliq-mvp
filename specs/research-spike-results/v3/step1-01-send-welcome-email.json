@@ -1,0 +1,37 @@
+{
+  "reasoning": "This is a manually-triggered welcome email template for FairTix, a ticketing platform that positions itself as anti-bot with fair pricing. The workflow is a simple 3-node chain: manual trigger → hardcoded user data → personalized email. The email content reveals FairTix's core value propositions: fair queuing, transparent pricing, human verification, and resale caps. The hardcoded recipient (Andreas Stephan at mail@andreasstephan.com) and 17 version iterations suggest this is a development/testing workflow being refined. The 'Reference' tag and inactive status confirm this is a template rather than production automation. The email template shows sophisticated messaging around bot prevention and fair ticketing practices, indicating this company operates in the competitive event ticketing space where bot mitigation is critical for business model viability.",
+  "name": "FairTix Welcome Email Template",
+  "businessNarrative": "This is a development template for FairTix's user onboarding email that communicates their anti-bot, fair-pricing value proposition to new users. The workflow serves as a reference implementation for welcome messaging that positions FairTix against traditional ticketing platforms plagued by bots and scalpers. The sophisticated messaging around fair queues, transparent pricing, and resale caps reveals a company building a ticketing platform specifically designed to combat the industry's bot problem. This template would likely be integrated into their actual user registration flow once finalized.",
+  "trigger": "Manual execution for testing and development purposes",
+  "triggerType": "manual",
+  "systemsTouched": [
+    "gmail"
+  ],
+  "dataFlow": "Hardcoded test user data (Andreas Stephan) flows into a personalized welcome email template that gets sent via Gmail, establishing initial communication with new FairTix users about platform features and next steps.",
+  "impact": {
+    "reasoning": "This is a development template with hardcoded test data, not a production workflow. While the eventual production version would be critical for user onboarding, this specific workflow is a development artifact with no direct business impact.",
+    "level": "low",
+    "failureScenario": "Development work might be slowed if template testing fails, but no customer or business operations are affected since this is not connected to live systems.",
+    "revenueConnection": "N/A — development template with no production impact. Confidence: data-driven."
+  },
+  "detectability": {
+    "reasoning": "No error handling, monitoring, or retry logic configured. Being a development template, failures would only be noticed during manual testing sessions.",
+    "level": "silent",
+    "evidence": "No error workflow, retryOnFail disabled, no monitoring configuration."
+  },
+  "stepName": "Development Template for User Onboarding",
+  "timeSavingsEstimate": "N/A — this is a development template, not an operational automation",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic configured (retryOnFail: false), no error workflow linked, no fallback mechanisms",
+    "credentials": [
+      "DL-School-Automations Gmail - gmailOAuth2"
+    ],
+    "complexity": "Simple linear workflow (3 nodes, no branching) designed for template development and testing",
+    "keyFindings": [
+      "Hardcoded recipient suggests development/testing purpose",
+      "17 version iterations indicate active template refinement",
+      "Sophisticated anti-bot messaging reveals competitive positioning in ticketing industry",
+      "Inactive status with 'Reference' tag confirms template nature"
+    ]
+  }
+}

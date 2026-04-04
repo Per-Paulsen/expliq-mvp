@@ -1,0 +1,35 @@
+{
+  "reasoning": "This workflow automates customer support ticket classification and response for FairTix (a fair ticket marketplace). It monitors a Google Sheet for new support messages, uses AI to classify them into categories (FAQ, Account/Verification, Payment/Billing, etc.) with sentiment analysis, then either auto-responds to FAQ questions using a knowledge base or escalates complex issues to human agents. The 12% error rate and 362 versions suggest significant iteration to refine the classification accuracy and response quality.",
+  "name": "Customer Support Ticket Classification & Auto-Response System",
+  "businessNarrative": "This system intelligently triages incoming customer support messages, automatically answering common questions while routing complex issues to human agents. It reduces response time for FAQ inquiries from hours to minutes and ensures high-priority issues (payment problems, angry customers) get immediate human attention. The sophisticated classification logic with confidence scoring reveals FairTix prioritizes customer experience and operational efficiency, likely handling hundreds of support tickets daily with minimal human intervention.",
+  "trigger": "New customer support message added to tracking spreadsheet",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "Google Sheets",
+    "Google Docs",
+    "Gmail",
+    "Anthropic Claude AI"
+  ],
+  "dataFlow": "Support message (sender info, subject, body) enters from Google Sheets → AI classifies into category/sentiment → FAQ questions get automated responses from knowledge base → Complex issues trigger email alerts to support team → All classifications and responses logged back to sheet",
+  "impact": {
+    "reasoning": "Customer support directly affects satisfaction, retention, and brand reputation. Quick FAQ responses prevent frustration while proper escalation of payment/account issues prevents revenue loss and chargebacks",
+    "level": "high",
+    "failureScenario": "Support tickets go unclassified and unanswered, leading to customer frustration, potential chargebacks, negative reviews, and increased manual workload for support team",
+    "revenueConnection": "Indirect"
+  },
+  "detectability": {
+    "reasoning": "Workflow failures would be quickly noticed as support tickets pile up unanswered in the Google Sheet, and customers would complain about lack of response",
+    "level": "monitored"
+  },
+  "stepName": "Customer Support Triage & Response",
+  "technicalEvidence": {
+    "errorHandling": "No explicit error handling or retry logic configured",
+    "keyFindings": [
+      "Uses Claude Sonnet for classification and Haiku for response generation (cost optimization)",
+      "Confidence scoring (0.0-1.0) allows human review of ambiguous cases",
+      "Detailed classification prompt includes business context and edge cases",
+      "Every-minute polling suggests high support volume requiring near real-time response",
+      "362 versions indicates extensive refinement of classification logic and prompts"
+    ]
+  }
+}

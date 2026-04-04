@@ -1,0 +1,41 @@
+{
+  "reasoning": "This is an AI-powered customer support triage system for FairTix, a ticket marketplace. The workflow monitors Gmail every minute for emails with 'Support Request' in the subject line, uses Anthropic's Claude to classify each message into categories (FAQ, Account/Verification, Payment/Billing, etc.) and sentiment levels, then logs the structured data to Google Sheets. The detailed prompt reveals FairTix's business model: fair queue system, price transparency, resale caps, verification processes. This is critical infrastructure for scaling customer support - without it, human agents would manually read and categorize every incoming support request. The 94% success rate with 50 executions shows it's been thoroughly tested but is currently inactive, suggesting it's ready for production deployment.",
+  "name": "FairTix Support Message Auto-Classification",
+  "businessNarrative": "This workflow automates the initial triage of customer support requests for FairTix's ticket marketplace, using AI to categorize messages by issue type and emotional urgency. It enables the support team to prioritize responses - angry customers with payment issues get immediate attention while neutral FAQ requests can be handled by junior staff or automated responses. The sophisticated classification logic reveals FairTix's complex business model with fair queues, price caps, and verification requirements. This automation is essential for scaling customer support without proportionally increasing headcount, directly impacting customer satisfaction metrics and operational efficiency.",
+  "trigger": "Every minute, checking Gmail for new support requests",
+  "triggerType": "schedule",
+  "systemsTouched": [
+    "gmail",
+    "google sheets",
+    "anthropic claude"
+  ],
+  "dataFlow": "Gmail support messages → Claude AI classification (category, sentiment, confidence) → Google Sheets logging with sender details and AI rationale",
+  "impact": {
+    "reasoning": "Customer-facing workflow that determines how quickly and appropriately support requests are handled. Poor classification could lead to angry customers being deprioritized or payment issues being misrouted. Critical for customer experience at scale, but has manual fallback of human review.",
+    "level": "high",
+    "failureScenario": "Support requests pile up unclassified, agents waste time manually categorizing instead of solving problems, angry customers with urgent issues don't get prioritized, SLA breaches increase.",
+    "revenueConnection": "Indirect - poor support experience drives customer churn and negative reviews, while efficient triage improves retention. Data-driven."
+  },
+  "detectability": {
+    "reasoning": "No error workflow configured and no retry logic on any nodes. The 6% failure rate (3/50 executions) suggests issues do occur but would only be visible through manual monitoring or customer complaints about unprocessed requests.",
+    "level": "silent",
+    "evidence": "No error workflow linked, hasErrorTrigger: false, retryEnabledNodes: []"
+  },
+  "stepName": "Initial Support Request Triage",
+  "timeSavingsEstimate": "30-60 seconds per support request (data-driven: manual classification requires reading, categorizing, and logging vs 5-second AI processing)",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic on any nodes, no error workflow configured, silent failures",
+    "credentials": [
+      "Anthropic API for Claude access",
+      "Gmail OAuth for DL-School-Automations account",
+      "Google Sheets OAuth for two separate automation accounts"
+    ],
+    "complexity": "8 nodes with AI chain, dual trigger paths (Gmail + Sheet fallback), structured output parsing",
+    "keyFindings": [
+      "Sophisticated 6-category classification system with confidence scoring",
+      "Detailed business logic reveals FairTix's fair queue and price cap model",
+      "Dual input sources suggest reliability concerns with Gmail API",
+      "Currently inactive despite 94% success rate indicates production readiness"
+    ]
+  }
+}

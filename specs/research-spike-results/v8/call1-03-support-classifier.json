@@ -1,0 +1,44 @@
+{
+  "reasoning": "This is an AI-powered customer support message classification system for FairTix, a fair ticket marketplace. The workflow polls Gmail for messages with 'Support Request' in the subject line every minute, uses Claude AI to classify them into 6 categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) with sentiment analysis, then logs results to Google Sheets. The detailed classification prompt reveals sophisticated understanding of FairTix's business model including fair queues, price caps, verification processes, and resale rules. This enables intelligent routing and prioritization of customer support requests.",
+  "name": "FairTix Support Message Classifier",
+  "businessNarrative": "This workflow automates the initial triage of customer support messages for FairTix's fair ticket marketplace platform. It uses AI to categorize incoming support requests into specific business areas (account issues, payments, technical problems, etc.) and assess customer sentiment, enabling support teams to prioritize and route tickets appropriately. The detailed classification schema reveals FairTix operates a sophisticated fair queue system with transparent pricing, verification requirements, and regulated resale caps. This automation replaces manual ticket categorization and provides data for support analytics and response prioritization.",
+  "trigger": "New email arrives in Gmail with 'Support Request' in subject line",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "gmail",
+    "anthropic claude",
+    "google sheets"
+  ],
+  "dataFlow": "Gmail support emails → Claude AI classification (category + sentiment + confidence) → structured data mapping → Google Sheets logging for analysis and routing",
+  "stepName": "Support Ticket Initial Triage",
+  "impact": {
+    "reasoning": "Critical for customer experience - delays in support classification lead to slower response times, misrouted tickets, and frustrated customers. In a competitive ticketing market, poor support directly impacts customer retention and brand reputation.",
+    "level": "high",
+    "failureScenario": "Support messages pile up unclassified, leading to delayed responses, incorrect routing to wrong support teams, inability to prioritize urgent payment/account issues, and customer frustration escalation. Analytics on support trends and volumes become unavailable.",
+    "revenueConnection": "Indirect - poor support experience leads to customer churn and negative reviews, directly impacting ticket sales and marketplace trust"
+  },
+  "detectability": {
+    "reasoning": "Gmail polling would show no new classifications in Google Sheets, but no explicit monitoring configured. Support team would notice delayed ticket processing.",
+    "level": "partially-monitored",
+    "evidence": "Google Sheets provides visibility into classification results, but no error alerts or SLA monitoring configured"
+  },
+  "timeSavingsEstimate": "2-3 minutes per support ticket for manual classification and routing, ~100-200 tickets/month estimated = 3-10 hours/month saved (ai-suggested based on typical support volumes)",
+  "revenueImpactEstimate": "N/A - infrastructure workflow that enables better support but doesn't directly generate revenue",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic configured. No error workflows. Claude AI node has default settings with no timeout handling. 6% error rate suggests reliability issues not being addressed.",
+    "credentials": [
+      "gmailOAuth2 (DL-School-Automations Gmail)",
+      "anthropicApi (Anthropic account)",
+      "googleSheetsOAuth2Api (Google Sheets Account DL Automations)"
+    ],
+    "complexity": "10 nodes with AI integration, structured output parsing, and dual trigger paths",
+    "keyFindings": [
+      "Sophisticated 6-category classification system reveals deep FairTix business model understanding",
+      "Sentiment analysis (positive/neutral/frustrated/angry) enables priority routing",
+      "Confidence scoring (0.0-1.0) allows quality control on AI classifications",
+      "Gmail filter 'subject: Support Request' suggests structured support email workflow",
+      "Fallback Google Sheets trigger indicates redundant data entry paths",
+      "198 versions suggest heavy development iteration on classification logic"
+    ]
+  }
+}

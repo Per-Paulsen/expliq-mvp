@@ -1,0 +1,44 @@
+{
+  "reasoning": "This workflow implements intelligent support ticket triage for FairTix, a fair ticket marketplace. Starting with a schedule trigger, it monitors Gmail for support requests, uses Anthropic Claude AI to classify incoming messages into categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) with sentiment analysis (positive, neutral, frustrated, angry). For FAQ-classified messages, it fetches answers from a Google Docs knowledge base and generates automated responses using AI. For non-FAQ messages, it routes to human support with detailed context. All interactions are logged to Google Sheets for analytics. The 6-category taxonomy and detailed prompts reveal a sophisticated understanding of ticketing industry pain points. The workflow is currently inactive (0 executions in trigger mode) but shows extensive manual testing (43 successful executions, 135 version iterations).",
+  "name": "FairTix Intelligent Support Ticket Triage and Response",
+  "businessNarrative": "This workflow automates FairTix's customer support operations by intelligently routing and responding to support emails. It distinguishes between questions that can be answered from their FAQ knowledge base versus issues requiring human intervention like account problems or billing disputes. For FAQ-type inquiries, customers receive immediate AI-generated responses, dramatically reducing response times and support workload. The system captures detailed analytics on customer sentiment and issue categories, enabling data-driven support optimization. This reveals FairTix as a customer-centric organization investing heavily in support automation to scale their ticketing platform while maintaining service quality.",
+  "trigger": "Email monitoring check runs every minute to scan Gmail for new support requests with 'Support Request' in subject line",
+  "triggerType": "schedule",
+  "systemsTouched": [
+    "gmail",
+    "anthropic claude",
+    "google docs",
+    "google sheets"
+  ],
+  "dataFlow": "Support emails enter via Gmail monitoring, get classified by Claude AI with sentiment analysis, FAQ responses are generated using Google Docs knowledge base, all data flows to Google Sheets for tracking, and automated responses or human escalation emails are sent via Gmail.",
+  "impact": {
+    "reasoning": "Customer-facing support automation that directly affects user experience. When working, it provides immediate responses to FAQ inquiries. When failing, customers experience delayed responses and support team loses visibility into ticket volume and sentiment trends. No fallback automation exists - failures would be silent until customers complain about lack of response.",
+    "level": "high",
+    "failureScenario": "Support emails go unprocessed, FAQ inquiries receive no automated responses, support team misses escalation notifications, and customer sentiment/category analytics stop flowing. This creates customer service delays and eliminates data-driven support insights.",
+    "revenueConnection": "Indirect - poor support experience can damage customer retention and brand reputation in the competitive ticketing market. Data-driven."
+  },
+  "detectability": {
+    "reasoning": "No error workflow, no retry logic on any nodes, and all nodes have hasRetryOnFail: false. Failures would be silent - the team would only discover issues when customers complain about not receiving responses or when they notice missing data in their Google Sheets.",
+    "level": "silent",
+    "evidence": "No error workflow linked, no retry settings enabled, no alerting configuration visible"
+  },
+  "stepName": "Primary customer support intake and triage automation",
+  "timeSavingsEstimate": "4-8 hours per day - assuming 50-100 FAQ-type inquiries that would require 5-10 minutes each for human response. High confidence data-driven estimate based on support volume patterns and AI response speed.",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic (hasRetryOnFail: false on all nodes), no error workflow, one node has onError: continueErrorOutput but no downstream handling",
+    "credentials": [
+      "Anthropic account (anthropicApi)",
+      "Google Docs account (googleDocsOAuth2Api)",
+      "Google Sheets Account DL Automations (googleSheetsOAuth2Api)",
+      "DL-School-Automations Gmail (gmailOAuth2)"
+    ],
+    "complexity": "15 nodes with sophisticated AI chains, structured output parsing with 6-category taxonomy, conditional branching logic, and multi-system data orchestration",
+    "keyFindings": [
+      "Detailed support taxonomy suggests deep domain expertise",
+      "FAQ document ID hardcoded (1JXtpHvta3-rsZZSrK2yqIIWrrHkpDoTOsKsy-xiI43A)",
+      "Workflow inactive despite extensive development (135 versions)",
+      "One-minute polling frequency indicates high support volume expectations",
+      "Comprehensive sentiment analysis (positive/neutral/frustrated/angry) for business intelligence"
+    ]
+  }
+}

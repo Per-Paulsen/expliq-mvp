@@ -1,0 +1,43 @@
+{
+  "reasoning": "This workflow implements an automated customer support triage system for FairTix, a ticket marketplace. It continuously monitors Gmail for support requests, uses Claude AI to classify them into 6 categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) and 4 sentiment levels (positive, neutral, frustrated, angry), then logs results to Google Sheets. The detailed AI prompt reveals sophisticated business understanding of support categories tied to resolution pathways. The company name 'FairTix' and categories like 'fair queue', 'resale rules', 'verification process' indicate a fair ticketing platform addressing scalping issues. The workflow runs every minute, processing up to 25 messages per execution, suggesting meaningful support volume. With 198 versions, this is a mature, actively refined system.",
+  "name": "FairTix Support Message Classification and Triage",
+  "businessNarrative": "FairTix operates a fair ticket marketplace that addresses scalping through features like fair queues, price caps, and verification processes. This workflow automates their customer support triage by using AI to classify incoming Gmail messages into actionable categories and sentiment levels, then storing structured data in Google Sheets for routing and analysis. The sophisticated categorization system reveals a company managing complex support scenarios around account verification, payment disputes, technical issues, and resale policies. This automation enables faster response routing and provides data for support operations optimization.",
+  "trigger": "Every minute, checking for new Gmail messages with subject containing 'Support Request'",
+  "triggerType": "schedule",
+  "systemsTouched": [
+    "Gmail",
+    "Anthropic Claude",
+    "Google Sheets"
+  ],
+  "dataFlow": "Gmail support messages → Claude AI classification (category + sentiment + confidence) → Google Sheets logging with sender details, message content, and classification results",
+  "impact": {
+    "reasoning": "Customer support directly affects user experience and retention. Poor support response times or misrouting can lead to frustrated customers, negative reviews, and churn. In a competitive ticketing market, support quality is a differentiator. However, this is classification/triage, not response generation, so there are manual fallbacks.",
+    "level": "high",
+    "failureScenario": "Messages accumulate without classification, leading to slower response times, missed urgent issues, poor resource allocation, and degraded customer experience",
+    "revenueConnection": "Indirect - poor support experience reduces customer retention and platform trust, affecting transaction volume. Data-driven confidence based on e-commerce support impact studies."
+  },
+  "detectability": {
+    "reasoning": "No error workflow configured, no retry mechanisms enabled. The 6% error rate with 50 executions shows failures are occurring but going unnoticed. Failures would only be visible through manual workflow monitoring or delayed customer complaints.",
+    "level": "silent",
+    "evidence": "hasErrorTrigger: false, errorWorkflowId: null, all nodes have hasRetryOnFail: false"
+  },
+  "stepName": "Support Request Initial Triage and Classification",
+  "timeSavingsEstimate": "40-80 hours/week (assuming 200-400 support messages requiring 10-15 minutes manual classification each, data-driven based on support volume indicators)",
+  "technicalEvidence": {
+    "errorHandling": "No error workflows, no retry mechanisms on any nodes including API-dependent Anthropic and Google services",
+    "credentials": [
+      "Anthropic account (anthropicApi)",
+      "Google Sheets Account DL Automations (googleSheetsOAuth2Api)",
+      "DL-School-Automations Gmail (gmailOAuth2)",
+      "DL School Automations Google Sheets Account (googleSheetsTriggerOAuth2Api)"
+    ],
+    "complexity": "8 nodes with AI chain, structured output parsing, data transformation, and dual trigger paths (Gmail polling + Google Sheets trigger as fallback)",
+    "keyFindings": [
+      "Currently inactive despite 198 versions showing heavy development",
+      "Every-minute polling suggests high support volume",
+      "Sophisticated 6-category classification system indicates mature support operations",
+      "Dual trigger design shows reliability concerns",
+      "No error handling despite 6% failure rate"
+    ]
+  }
+}

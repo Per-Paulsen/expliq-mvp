@@ -1,0 +1,59 @@
+{
+  "name": "Support Ticket Classifier",
+  "description": "AI-powered classification system for FairTix customer support messages. Routes incoming tickets into six categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) and assesses sentiment to prioritize response urgency.",
+  "trigger": "Manual execution for processing existing Gmail support messages with 'Support Request' subject line",
+  "triggerType": "manual",
+  "coreLogic": "Retrieves Gmail messages marked as support requests → feeds message content to Claude AI with detailed classification prompt → categorizes by support type and sentiment → writes classification results to Google Sheets for team routing and tracking.",
+  "systemsTouched": [
+    "gmail",
+    "google sheets",
+    "anthropic claude"
+  ],
+  "dataTypes": [
+    "support tickets",
+    "customer messages",
+    "classification metadata",
+    "sentiment analysis"
+  ],
+  "businessContext": "FairTix operates a fair ticket marketplace requiring structured support routing. The six categories reveal their business model: FAQ (general marketplace education), Account/Verification (user onboarding friction), Payment/Billing (transaction issues), Technical/Bug (platform stability), Resale/Transfer (their core value proposition), and Feedback (product development input). The sentiment analysis indicates they prioritize response urgency based on customer emotional state, suggesting a customer experience focus.",
+  "sideEffects": [
+    "Updates Google Sheets with ticket classifications",
+    "Creates structured support pipeline data",
+    "Enables category-based team routing"
+  ],
+  "impactProposal": {
+    "level": "high",
+    "reasoning": "Support ticket routing is critical for customer satisfaction and operational efficiency. This workflow transforms unstructured support chaos into organized queues, enabling specialized team responses. For a marketplace, support quality directly impacts user trust and transaction volume."
+  },
+  "stepName": "Support Ticket Triage",
+  "businessBrief": "Transforms incoming support chaos into organized category queues — the intelligence layer that routes customer issues to the right specialist team for faster resolution.",
+  "timeSavingsEstimate": "~2-3 minutes per ticket at scale — replaces manual reading, categorization, and routing decisions. With 25+ tickets per batch, saves 50-75 minutes of manual triage work. Confidence: benchmark-based.",
+  "revenueImpactEstimate": "Indirect but significant — faster support resolution reduces churn and enables transaction recovery. Each misrouted payment issue could delay refunds; each missed technical bug affects platform trust. Confidence: benchmark-based.",
+  "failureImpact": "Support tickets flow into an undifferentiated queue. Specialists receive random ticket types outside their expertise. Response times increase as agents read entire messages to understand issues. Customer frustration builds from generic responses to specialized problems. Payment disputes escalate when billing issues aren't fast-tracked.",
+  "dataIn": "Gmail support messages containing customer name, email, subject, and message body describing their issue or question.",
+  "dataOut": "Structured classification data: category, sentiment, confidence score, rationale, plus original message metadata for team routing and response tracking.",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic (retryOnFail defaults to false). No error workflow linked. Gmail and Google Sheets nodes will fail silently on API errors with no recovery mechanism.",
+    "credentials": [
+      "gmailOAuth2 (DL-School-Automations Gmail)",
+      "googleSheetsOAuth2Api (Google Sheets Account DL Automations)",
+      "anthropicApi (Anthropic account)"
+    ],
+    "nodeCount": 10,
+    "hasDisabledNodes": false,
+    "triggerInterval": "Manual execution only - schedule trigger exists but workflow is inactive",
+    "versionCount": "198",
+    "errorWorkflowId": null,
+    "callerIds": null,
+    "timeSavedPerExecution": null,
+    "keyFindings": [
+      "Extremely high iteration count (198) indicates active development and refinement",
+      "Workflow is inactive despite having schedule trigger - manual-only operation",
+      "Sophisticated AI prompt with 6 business-specific categories and 4 sentiment levels",
+      "Gmail filter targets 'Support Request' subject - indicates structured intake process",
+      "Fallback Google Sheets trigger exists but unused - backup data source available",
+      "Classification writes to 'Andreas Stephan-Support-Messages' sheet - personal testing environment",
+      "SenderName extraction uses substr(19) indicating email prefix removal logic"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "reasoning": "This workflow is a template/reference for sending welcome emails to new FairTix users. The manual trigger, hardcoded test email address (mail@andreasstephan.com), inactive status, and 'Reference' tag indicate this is a development template rather than an operational workflow. The email content reveals FairTix's business model as an anti-bot ticketing platform with fair queuing, transparent pricing, and resale caps. Despite being a template, it demonstrates the company's user onboarding communication strategy and value proposition messaging.",
+  "name": "FairTix Welcome Email Template",
+  "businessNarrative": "This is a development template for FairTix's new user welcome email communication. FairTix operates as an anti-bot ticketing platform that emphasizes fair access through queuing systems, transparent pricing without hidden fees, and capped resale prices. The email template establishes the company's value proposition and guides new users toward account verification. While currently inactive, this represents the foundation for automated customer onboarding communications that would be critical for user activation and retention in a competitive ticketing market.",
+  "trigger": "Manual execution for testing/development purposes",
+  "triggerType": "manual",
+  "systemsTouched": [
+    "gmail"
+  ],
+  "dataFlow": "Hardcoded test user data (name: Andreas Stephan, email: mail@andreasstephan.com) flows into welcome email template sent via Gmail",
+  "impact": {
+    "reasoning": "Template workflow with hardcoded test data, currently inactive, tagged as 'Reference'. No operational impact as it's for development/testing purposes only.",
+    "level": "low",
+    "failureScenario": "No operational impact since it's inactive; would only affect development/testing activities",
+    "revenueConnection": "N/A - This is a development template with no direct revenue impact, though the operational version would be critical for user onboarding"
+  },
+  "detectability": {
+    "reasoning": "No error handling, monitoring, or retry mechanisms. Being a manual development template, failures would only be visible during manual testing sessions.",
+    "level": "silent",
+    "evidence": "No error workflow configured, no retry settings enabled, manual trigger only"
+  },
+  "stepName": "Welcome Email Template Development",
+  "timeSavingsEstimate": "N/A - Development template provides no operational time savings currently",
+  "technicalEvidence": {
+    "errorHandling": "No retry settings, no error workflow configured",
+    "credentials": [
+      "DL-School-Automations Gmail (gmailOAuth2)"
+    ],
+    "complexity": "Simple linear flow: 3 nodes, no branching, basic email template",
+    "keyFindings": [
+      "Hardcoded test email address indicates development/template status",
+      "Inactive workflow tagged as 'Reference'",
+      "Email content reveals FairTix's anti-bot ticketing business model",
+      "17 versions suggest active template development/refinement"
+    ]
+  }
+}

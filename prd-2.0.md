@@ -192,7 +192,7 @@ Next week. Industry experts, trainers, and mentors. Using the FairTix n8n instan
 
 | Phase | Epic | Scope |
 |-------|------|-------|
-| 0 | Research spike | Test LLM prompts against fairtix. Not a formal epic. |
+| 0 | Research spike — **COMPLETE** | Results: [`specs/research-spike.md`](specs/research-spike.md). Decisions: `prd-2.0-decisions.md` Amendments N–S. |
 | 1 (parallel) | 10: LLM Pipeline V2 + Schema + n8n API | Extended sync, new models, per-automation enrichment, workspace-level LLM, deploy endpoint |
 | 1 (parallel) | 11: Design System + Layout | Figma palette, dark mode, sidebar, shared components, login polish |
 | 2 | 12: Dashboard | Your next move, facts, attention/opportunities, process coverage |

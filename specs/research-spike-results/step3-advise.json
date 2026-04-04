@@ -1,0 +1,381 @@
+{
+  "reasoning": "FairTix has a sophisticated automation infrastructure that's stuck in development limbo. The evidence is clear: 7/8 workflows are inactive despite 362+ version iterations and business-critical functions. Three workflows do identical lottery winner notifications (massive duplication), support gets classified into 6 categories but no resolution workflows exist, and 36.1% of winner notifications fail silently. The company has built the intelligence layer but not the execution layer. Most critically, they notify winners but ignore non-winners (the larger population), creating a poor experience for the majority. The error monitoring system (only active workflow) shows 40 executions with 15% failure rate, proving automation failures are happening but being caught. This is a company that's automation-ready but deployment-stuck.",
+  "recommendations": [
+    {
+      "id": "r1",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Consolidate Duplicate Winner Notification Workflows",
+      "businessCase": "Stop maintaining 3 identical workflows that do the same job",
+      "fullBusinessCase": "Three separate workflows ('Lottery Winner Notification', 'FairTix Lottery Winner Notification', 'Lottery Winner Notification System') perform identical winner notification functions with minimal variation. This creates maintenance overhead, deployment confusion, and technical debt. One workflow shows 36.1% failure rate while others have zero executions, suggesting unclear ownership. Consolidating to one canonical workflow reduces complexity and enables focused reliability improvements.",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Workflow inventory shows 3 workflows with nearly identical names and functions",
+        "All 3 trigger on Google Sheets, send Gmail notifications, update status tracking",
+        "Only 'Lottery Winner Notification' has execution data (36 runs, 13 failures)",
+        "362 total versions across duplicates indicating wasted development effort"
+      ],
+      "honestFraming": null,
+      "keyAssumptions": [
+        "One workflow can handle all winner notification requirements",
+        "Team can agree on canonical version"
+      ],
+      "affectedScope": "Fair Queue Lottery System process",
+      "systemSource": null,
+      "systemDestination": null,
+      "implementationNotes": "Keep 'Lottery Winner Notification' as canonical version, archive duplicates, improve error handling to address 36.1% failure rate"
+    },
+    {
+      "id": "r2",
+      "type": "new_workflow",
+      "tier": "act_now",
+      "name": "Lottery Non-Winner Notification",
+      "businessCase": "Communicate with the majority of lottery participants who don't win tickets",
+      "fullBusinessCase": "FairTix has 3 workflows to notify winners but zero workflows for non-winners, who represent the majority of participants. In a fair queue system, most people lose the lottery but receive no communication about their status, next steps, or alternative options. This creates a poor experience for the larger population and missed opportunities for waitlist signup, alternative event promotion, or future lottery alerts. Non-communication is still communication — silence tells users they were forgotten.",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "3 winner notification workflows exist in workflow inventory",
+        "No corresponding non-winner workflows found in any business process",
+        "Lottery system implies majority of participants don't win",
+        "Winner workflows show lottery results stored in spreadsheet with full participant list"
+      ],
+      "honestFraming": null,
+      "keyAssumptions": [
+        "Participant list includes both winners and non-winners",
+        "Business wants to maintain engagement with non-winners"
+      ],
+      "affectedScope": "Fair Queue Lottery System process",
+      "systemSource": "Google Sheets",
+      "systemDestination": "Gmail",
+      "implementationNotes": "Trigger on same lottery results sheet, filter for non-winners, send consolation email with waitlist signup and alternative event suggestions"
+    },
+    {
+      "id": "r3",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Fix Winner Notification Reliability",
+      "businessCase": "Eliminate the 36.1% failure rate causing direct revenue loss",
+      "fullBusinessCase": "The 'Lottery Winner Notification' workflow fails 36.1% of the time (13 failures out of 36 executions), meaning 1 in 3 winners never receive their notification. With 24-hour purchase deadlines, failed notifications directly cause lost sales at €[ticket price] per failure. Each silent failure breaks the lottery-to-purchase conversion funnel. The workflow has error monitoring linked but Gmail node has no retry logic (retryOnFail: false), causing single API failures to permanently break notifications.",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Execution stats show 36 total runs with 13 failures = 36.1% failure rate",
+        "Gmail node configuration shows retryOnFail: false (no retry logic)",
+        "Email template shows 24-hour purchase deadline creating time sensitivity",
+        "Error workflow linked (oZy3vc0yli2xdR45) but not preventing notification loss"
+      ],
+      "honestFraming": null,
+      "keyAssumptions": [
+        "Failures are primarily transient API issues",
+        "Retry logic will improve success rate"
+      ],
+      "affectedScope": "Fair Queue Lottery System process",
+      "systemSource": null,
+      "systemDestination": null,
+      "implementationNotes": "Add retryOnFail: true with 3 attempts and exponential backoff on Gmail node. Consider backup notification channel (SMS) for critical failures."
+    },
+    {
+      "id": "r4",
+      "type": "new_workflow",
+      "tier": "investigate",
+      "name": "Account Verification Status Workflow",
+      "businessCase": "Automate verification approvals/rejections that enable queue participation",
+      "fullBusinessCase": "Support classification shows 'Account/Verification' as a major category and onboarding workflow emphasizes verification requirements as core to the business model. Users must be verified to participate in fair queues, making this a critical conversion bottleneck. We don't see verification processing in your automation layer. If handled by your platform, consider connecting it for visibility. If manual, here's what we'd suggest: automated document processing, approval notifications, rejection handling with resubmission guidance.",
+      "confidence": "ai-suggested",
+      "evidenceChain": [
+        "Support ticket classification includes 'Account/Verification' category",
+        "Onboarding email emphasizes 'human verification' as requirement",
+        "No verification workflows found in current automation layer",
+        "Business model depends on verified humans vs bots"
+      ],
+      "honestFraming": "We don't see verification processing in your n8n workflows. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest.",
+      "keyAssumptions": [
+        "Verification is currently manual",
+        "Document upload/review process exists",
+        "Verification status affects queue eligibility"
+      ],
+      "affectedScope": "Account Verification Management process",
+      "systemSource": "FairTix Platform",
+      "systemDestination": "Gmail",
+      "implementationNotes": "Trigger on verification status change, send approval/rejection emails with next steps, update user status in platform"
+    },
+    {
+      "id": "r5",
+      "type": "new_workflow",
+      "tier": "investigate",
+      "name": "Payment Failure Recovery Workflow",
+      "businessCase": "Recover failed checkout attempts during 24-hour winner purchase windows",
+      "fullBusinessCase": "Support classification shows 'Payment/Billing' as a major category and winner workflows provide checkout links with 24-hour deadlines. Payment failures during this critical window mean lost sales and inventory released to the next person. We don't see payment processing workflows in your automation layer. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest: failed payment detection, retry notifications, alternative payment methods, deadline extensions for payment issues.",
+      "confidence": "ai-suggested",
+      "evidenceChain": [
+        "Support classification includes 'Payment/Billing' category",
+        "Winner notification emails contain checkout links with 24-hour deadlines",
+        "No payment processing workflows found in current automation layer",
+        "Business model depends on converting winners to purchasers quickly"
+      ],
+      "honestFraming": "We don't see payment processing in your n8n workflows. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest.",
+      "keyAssumptions": [
+        "Payment failures occur during checkout",
+        "Platform can detect failed payment attempts",
+        "Winners want to retry failed payments"
+      ],
+      "affectedScope": "Payment & Billing Operations process",
+      "systemSource": "FairTix Platform",
+      "systemDestination": "Gmail",
+      "implementationNotes": "Trigger on payment failure events, send recovery emails with alternative payment options, extend deadline for technical payment issues"
+    },
+    {
+      "id": "r6",
+      "type": "new_workflow",
+      "tier": "investigate",
+      "name": "Resale Price Validation Workflow",
+      "businessCase": "Enforce the 20% resale cap that's core to FairTix's anti-scalping value proposition",
+      "fullBusinessCase": "Support classification includes 'Resale/Transfer' category and onboarding mentions 'face value + 20% max' resale caps as a core business rule. This price cap enforcement is central to FairTix's anti-scalping value proposition. We don't see resale management in your automation layer. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest: resale listing validation, price cap enforcement, seller notifications for violations, buyer protection.",
+      "confidence": "ai-suggested",
+      "evidenceChain": [
+        "Support classification includes 'Resale/Transfer' category",
+        "Onboarding email specifically mentions 'face value + 20% max' resale rule",
+        "No resale management workflows found in current automation layer",
+        "Anti-scalping business model requires price cap enforcement"
+      ],
+      "honestFraming": "We don't see resale management in your n8n workflows. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest.",
+      "keyAssumptions": [
+        "Users can resell tickets through platform",
+        "Price validation happens at listing time",
+        "Violations need enforcement"
+      ],
+      "affectedScope": "Resale & Transfer Management process",
+      "systemSource": "FairTix Platform",
+      "systemDestination": "Gmail",
+      "implementationNotes": "Trigger on resale listing, validate price against face value + 20%, reject/approve listings, notify sellers of violations"
+    },
+    {
+      "id": "r7",
+      "type": "new_workflow",
+      "tier": "act_now",
+      "name": "Support Resolution Workflows by Category",
+      "businessCase": "Complete the support automation by adding resolution workflows for the 6 classified categories",
+      "fullBusinessCase": "FairTix has sophisticated AI classification that sorts support tickets into 6 categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) with 88% success rate across 50 executions. However, no resolution workflows exist for non-FAQ categories. Tickets get perfectly classified then sit in manual queues. This is like building a sorting machine without output bins — the intelligence layer is complete but the execution layer is missing.",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "3 workflows perform support classification with 6-category system",
+        "'Support Message Classification & FAQ Response' shows 88% success rate across 50 executions",
+        "No resolution workflows found for Account, Payment, Technical, Resale, or Feedback categories",
+        "Classification prompt shows detailed category definitions proving business need"
+      ],
+      "honestFraming": null,
+      "keyAssumptions": [
+        "Non-FAQ tickets require different resolution approaches",
+        "Templates can be created for common resolutions",
+        "Team wants to automate beyond classification"
+      ],
+      "affectedScope": "Customer Support Operations process",
+      "systemSource": "Google Sheets",
+      "systemDestination": "Gmail",
+      "implementationNotes": "Build category-specific workflows: Account (verification status checks), Payment (transaction lookups), Technical (bug report routing), Resale (policy enforcement), Feedback (product team alerts)"
+    },
+    {
+      "id": "r8",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Activate Production-Ready Workflows",
+      "businessCase": "Deploy the 7 inactive workflows that are blocking business automation value",
+      "fullBusinessCase": "7 out of 8 workflows are inactive despite having 362+ version iterations and sophisticated business logic. These represent massive development investment with zero production value. The workflows handle critical business functions (onboarding, winner notifications, support classification) but remain in manual-only or inactive states. This suggests deployment blockers rather than functional issues. The error monitoring workflow (only active one) proves the infrastructure works.",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Workflow inventory shows 7 inactive workflows vs 1 active",
+        "High version counts (362, 198, 135, 115) indicate completed development",
+        "Error monitoring workflow runs successfully with 40 executions",
+        "Manual executions prove workflows function correctly when triggered"
+      ],
+      "honestFraming": null,
+      "keyAssumptions": [
+        "Workflows are functionally complete",
+        "Deployment blockers are configuration/credential issues",
+        "Business is ready for automated execution"
+      ],
+      "affectedScope": "All business processes",
+      "systemSource": null,
+      "systemDestination": null,
+      "implementationNotes": "Review inactive workflows for deployment blockers (credentials, triggers, permissions). Start with lowest-risk workflow (onboarding) then enable lottery and support automations."
+    },
+    {
+      "id": "r9",
+      "type": "new_workflow",
+      "tier": "investigate",
+      "name": "Event Lifecycle Management",
+      "businessCase": "Automate event announcements, reminders, and post-event communications",
+      "fullBusinessCase": "Lottery workflows reference events and ticket pricing, proving FairTix hosts multiple events requiring customer communication. We don't see event lifecycle management in your automation layer. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest: event announcements, lottery opening notifications, deadline reminders, post-event follow-ups, feedback collection.",
+      "confidence": "ai-suggested",
+      "evidenceChain": [
+        "Winner notification emails reference 'EventName' and 'TicketPrice' variables",
+        "Onboarding mentions participating in 'queues' (plural events)",
+        "No event management workflows found in current automation layer",
+        "Marketplace model implies multiple events"
+      ],
+      "honestFraming": "We don't see event lifecycle management in your n8n workflows. If handled by your platform, consider connecting it for visibility. If not, here's what we'd suggest.",
+      "keyAssumptions": [
+        "FairTix hosts multiple events",
+        "Events require customer communication",
+        "Event data is accessible for automation"
+      ],
+      "affectedScope": "Event Lifecycle Management process",
+      "systemSource": "FairTix Platform",
+      "systemDestination": "Gmail",
+      "implementationNotes": "Trigger on event status changes, send announcements and reminders, collect post-event feedback, promote related events"
+    },
+    {
+      "id": "r10",
+      "type": "new_workflow",
+      "tier": "explore",
+      "name": "Purchase Completion Follow-up",
+      "businessCase": "Confirm successful purchases and provide post-purchase instructions",
+      "fullBusinessCase": "Winner notifications provide checkout links with 24-hour deadlines, but no workflows handle purchase completion confirmation. Customers who complete checkout within the deadline need confirmation emails, ticket delivery instructions, event reminders, and transfer/resale guidance. This completes the lottery-to-delivery customer journey and reduces support inquiries about purchase status and ticket access.",
+      "confidence": "ai-suggested",
+      "evidenceChain": [
+        "Winner workflows show checkout links with purchase deadlines",
+        "Support classification includes categories suggesting post-purchase issues",
+        "No purchase confirmation workflows found in automation layer",
+        "Customer journey has gap between checkout and event attendance"
+      ],
+      "honestFraming": null,
+      "keyAssumptions": [
+        "Platform tracks completed purchases",
+        "Customers need post-purchase guidance",
+        "Ticket delivery is digital/mobile"
+      ],
+      "affectedScope": "Fair Queue Lottery System process",
+      "systemSource": "FairTix Platform",
+      "systemDestination": "Gmail",
+      "implementationNotes": "Trigger on successful payment, send confirmation email with ticket access instructions, event reminders, resale policy guidance"
+    },
+    {
+      "id": "r11",
+      "type": "technical_fix",
+      "tier": "explore",
+      "name": "Credential Redundancy and Backup",
+      "businessCase": "Reduce single points of failure from shared Gmail and Google Sheets credentials",
+      "fullBusinessCase": "Gmail and Google Sheets credentials are shared across 7 workflows, creating single points of failure. If these credentials expire or are revoked, most business processes would simultaneously fail. The 'DL-School-Automations Gmail' account is used by onboarding, lottery notifications, and support workflows. Adding backup credentials and credential rotation would improve reliability.",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Credential analysis shows 'DL-School-Automations Gmail' used in 7 workflows",
+        "Google Sheets 'DL School Automations' account used in 6 workflows",
+        "System landscape shows Gmail and Google Sheets as critical dependencies",
+        "No backup communication channels configured"
+      ],
+      "honestFraming": null,
+      "keyAssumptions": [
+        "Additional email accounts can be provisioned",
+        "Workflow credentials can be distributed",
+        "Backup notification channels are viable"
+      ],
+      "affectedScope": "Operations & Monitoring process",
+      "systemSource": null,
+      "systemDestination": null,
+      "implementationNotes": "Set up backup Gmail accounts, distribute critical workflows across multiple credentials, add SMS backup for critical notifications"
+    },
+    {
+      "id": "r12",
+      "type": "new_workflow",
+      "tier": "explore",
+      "name": "Customer Satisfaction and Feedback Loop",
+      "businessCase": "Collect and act on customer feedback to improve the fair queue experience",
+      "fullBusinessCase": "Support classification includes 'Feedback' category but no workflows handle feedback collection or analysis. For a marketplace disrupting traditional ticketing, customer feedback is crucial for product development and competitive positioning. Post-event surveys, queue experience feedback, and feature requests could drive product improvements and customer retention.",
+      "confidence": "ai-suggested",
+      "evidenceChain": [
+        "Support classification includes 'Feedback' as distinct category",
+        "Business model depends on customer trust and satisfaction",
+        "No feedback collection workflows found in automation layer",
+        "Anti-scalping value proposition requires continuous validation"
+      ],
+      "honestFraming": null,
+      "keyAssumptions": [
+        "Customers willing to provide feedback",
+        "Feedback data can drive product decisions",
+        "Post-event timing is optimal for surveys"
+      ],
+      "affectedScope": "Customer feedback and product development",
+      "systemSource": "Gmail",
+      "systemDestination": "Google Sheets",
+      "implementationNotes": "Send post-event surveys, collect queue experience feedback, route feature requests to product team, analyze satisfaction trends"
+    }
+  ],
+  "processSuggestions": [
+    {
+      "name": "Account Verification Management",
+      "description": "Automates the human verification process that enables fair queue participation",
+      "businessCase": "Support classification shows 'Account/Verification' as a major category, proving verification bottlenecks exist. Onboarding workflow emphasizes verification as a requirement to participate in queues. Automating verification status communication reduces support burden and improves user experience.",
+      "basedOn": "Support Ticket Classifier workflow shows 'Account/Verification' category handling 1/6 of support volume. User Welcome Onboarding workflow emphasizes verification requirements.",
+      "connectedSystems": [
+        "FairTix Platform",
+        "Gmail",
+        "document storage"
+      ],
+      "childRecommendationIds": [
+        "r4"
+      ]
+    },
+    {
+      "name": "Payment & Billing Operations",
+      "description": "Handles payment processing, billing disputes, and transaction management",
+      "businessCase": "Support classification includes 'Payment/Billing' category and winner workflows provide checkout links, proving payment processing exists but lacks automation around failure recovery and dispute resolution.",
+      "basedOn": "Support Message Classification workflow handles Payment/Billing category. Lottery Winner Notification workflows show checkout links with 24-hour payment deadlines.",
+      "connectedSystems": [
+        "payment gateway",
+        "FairTix Platform",
+        "Gmail"
+      ],
+      "childRecommendationIds": [
+        "r5"
+      ]
+    },
+    {
+      "name": "Resale & Transfer Management",
+      "description": "Manages ticket resale within the 20% price cap and transfer between users",
+      "businessCase": "Support classification includes 'Resale/Transfer' category and onboarding mentions 'face value + 20% max' resale caps as core business rule. Price cap enforcement is essential to anti-scalping value proposition.",
+      "basedOn": "User Welcome Onboarding workflow mentions resale caps. Support classification handles Resale/Transfer category.",
+      "connectedSystems": [
+        "FairTix Platform",
+        "Gmail",
+        "Google Sheets"
+      ],
+      "childRecommendationIds": [
+        "r6"
+      ]
+    },
+    {
+      "name": "Event Lifecycle Management",
+      "description": "Automates event announcements, lottery scheduling, and post-event communications",
+      "businessCase": "Winner notification templates reference events and pricing variables, proving multiple events exist. No event lifecycle automation found despite this being core to marketplace operations.",
+      "basedOn": "Lottery Winner Notification workflows reference EventName and TicketPrice variables indicating multiple events. Business model requires ongoing event promotion.",
+      "connectedSystems": [
+        "FairTix Platform",
+        "Gmail",
+        "Google Sheets"
+      ],
+      "childRecommendationIds": [
+        "r9"
+      ]
+    }
+  ],
+  "nextMove": {
+    "text": "Fix the 'Lottery Winner Notification' workflow first — its 36.1% failure rate (13 failures out of 36 executions) is causing direct revenue loss with each undelivered winner notification. Add retry logic to the Gmail node and consolidate the 3 duplicate winner workflows into one reliable system. Then activate the 7 inactive workflows that represent massive development investment with zero production value — 362 version iterations on support classification workflows alone prove they're functionally complete but deployment-blocked. This immediately unlocks customer onboarding automation, AI-powered support triage, and lottery communications. Finally, build the 'Lottery Non-Winner Notification' workflow to communicate with the majority of participants who currently receive silence instead of guidance about waitlists or alternative events.",
+    "reasoning": "This sequence prioritizes revenue protection (fix critical failure rate), then unlocks existing investment (activate completed workflows), then fills the biggest customer experience gap (communicate with non-winners). Each step builds on the previous: reliable winner notifications enable scaling lottery volume, activated workflows provide the foundation for comprehensive automation, and non-winner communication completes the customer journey that active workflows begin."
+  },
+  "visibilityExpansions": [
+    {
+      "platform": "FairTix Platform",
+      "reasoning": "Core business application that handles verification, payments, resale, and event management — all processes that currently have support categories but no visible automation",
+      "whatItUnlocks": "Visibility into verification status changes, payment failures, resale listings, and event lifecycle triggers that could automate the 4 missing process areas identified in support classification"
+    },
+    {
+      "platform": "Payment Gateway",
+      "reasoning": "Winner workflows show checkout links and support classification includes Payment/Billing category, proving payment processing exists but isn't visible to automation layer",
+      "whatItUnlocks": "Failed payment recovery workflows, transaction confirmation automation, billing dispute detection, and revenue analytics for lottery performance"
+    },
+    {
+      "platform": "SMS Provider",
+      "reasoning": "24-hour winner deadlines and critical notification failures create need for backup communication channel beyond Gmail dependency",
+      "whatItUnlocks": "Backup notifications for failed email delivery, time-sensitive deadline reminders, and reduced single point of failure risk"
+    }
+  ]
+}

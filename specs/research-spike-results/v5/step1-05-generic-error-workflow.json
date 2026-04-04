@@ -1,0 +1,32 @@
+{
+  "reasoning": "This is a centralized error handling workflow that monitors all other workflows in the FairTix automation system. It triggers whenever any workflow encounters an error and sends email notifications to the automation team. The 15% error rate across 40 executions suggests this is actively catching and reporting failures from other workflows. This is a critical operational monitoring capability that ensures the automation team is immediately aware of any issues in their ticket processing, customer communications, or other automated processes.",
+  "name": "Centralized Error Monitoring System",
+  "businessNarrative": "This workflow serves as the central nervous system for FairTix's automation infrastructure, catching and reporting any failures across all automated processes. When any workflow fails - whether it's processing ticket purchases, sending customer communications, or syncing data between systems - this immediately notifies the technical team with detailed error information. This proactive monitoring ensures rapid response to issues that could impact ticket sales, customer experience, or operational efficiency.",
+  "trigger": "Any error occurring in any other workflow",
+  "triggerType": "event",
+  "systemsTouched": [
+    "Gmail",
+    "n8n Platform"
+  ],
+  "dataFlow": "Error metadata (workflow name, error message, stack trace, execution URL) flows in from failed workflows and gets formatted into email notifications sent to the automation team",
+  "impact": {
+    "reasoning": "This is the safety net for all automation failures - without it, critical processes could fail silently",
+    "level": "critical",
+    "failureScenario": "Automation failures would go unnoticed, potentially causing revenue loss from failed ticket processing, poor customer experience from missed communications, or compliance issues",
+    "revenueConnection": "Indirect"
+  },
+  "detectability": {
+    "reasoning": "Failures of this workflow itself would be silent - if error notifications stop arriving, the team might not realize the monitor itself has failed",
+    "level": "silent"
+  },
+  "stepName": "Error Detection & Alerting",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic configured - errors are sent once to avoid notification spam",
+    "keyFindings": [
+      "40 executions with 15% error rate suggests either the error handler itself has issues or it's successfully processing a high volume of errors from other workflows",
+      "Uses a dedicated automation email account (dlschoolautomations@gmail.com) for sending notifications",
+      "Provides comprehensive error context including execution URL for quick debugging",
+      "Tagged as 'Reference' indicating this is a standard pattern used across the organization"
+    ]
+  }
+}

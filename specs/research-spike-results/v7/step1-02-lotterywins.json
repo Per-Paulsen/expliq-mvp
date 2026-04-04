@@ -1,0 +1,50 @@
+{
+  "reasoning": "This workflow monitors a Google Sheet for new lottery winners in a ticketing system called FairTix. When a new winner is added, it sends them a professionally formatted email notification about their ticket reservation success, then updates the sheet with a status code and timestamp. The 36.1% error rate suggests reliability issues, likely with email sending or sheet updates. The email template reveals this is an anti-scalping ticketing platform that uses a 'Fair Queue' lottery system to distribute tickets to verified humans rather than bots, with transparent pricing (no hidden fees) and a 24-hour purchase window.",
+  "name": "FairTix Lottery Winner Notification",
+  "businessNarrative": "This workflow automates winner notifications for FairTix's anti-bot ticketing lottery system. When customers win the right to purchase tickets through the Fair Queue lottery, they receive an immediate email notification with purchase instructions and a 24-hour deadline. This reveals FairTix positions itself as a consumer-friendly ticketing platform fighting against scalpers and hidden fees, using lottery mechanics to ensure fair access to high-demand events.",
+  "trigger": "New row added to lottery winners spreadsheet",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "google sheets",
+    "gmail"
+  ],
+  "dataFlow": "Customer data (name, email, event, ticket price) enters from Google Sheets lottery results. System sends branded winner notification email and updates the source sheet with delivery status (200) and timestamp for tracking.",
+  "impact": {
+    "reasoning": "Critical for revenue - winners have only 24 hours to purchase, so notification delays directly impact conversion rates and revenue. Failed notifications mean lost sales and poor customer experience for eager fans who won lottery spots.",
+    "level": "critical",
+    "failureScenario": "Lottery winners don't receive notifications, miss their 24-hour purchase window, tickets go unsold, customer trust erodes, potential revenue lost, and company reputation as 'fair' ticketing platform damaged",
+    "revenueConnection": "Direct - each failed notification potentially loses ticket sale revenue within 24-hour window"
+  },
+  "detectability": {
+    "reasoning": "Sheet updates provide some visibility, but no apparent monitoring of email delivery success. High error rate (36.1%) suggests issues go undetected.",
+    "level": "partially-monitored",
+    "evidence": "Status updates to sheet provide basic tracking, but no email delivery confirmation or bounce handling visible"
+  },
+  "stepName": "Winner Notification & Tracking",
+  "timeSavingsEstimate": "5-10 minutes per winner (manual email composition and tracking), potentially 50-200 winners per event",
+  "technicalEvidence": {
+    "errorHandling": "Error workflow configured (oZy3vc0yli2xdR45) but no retry logic visible. No email bounce handling.",
+    "credentials": [
+      [
+        "gmailOAuth2",
+        "Gmail OAuth2"
+      ],
+      [
+        "googleSheetsTriggerOAuth2Api",
+        "Google Sheets Trigger"
+      ],
+      [
+        "googleSheetsOAuth2Api",
+        "Google Sheets API"
+      ]
+    ],
+    "complexity": "4 nodes, linear flow, polls every minute for new winners",
+    "keyFindings": [
+      "36.1% error rate indicates serious reliability issues affecting revenue",
+      "Polls every minute suggesting time-sensitive nature of notifications",
+      "Professional email template with strong anti-scalping messaging",
+      "No visible email delivery verification or retry mechanism",
+      "Currently inactive despite being business-critical functionality"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "reasoning": "This workflow is a sophisticated customer support automation for FairTix, a fair ticket marketplace. It monitors support emails with 'Support Request' in the subject, uses AI to classify them into 6 categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback), and automatically responds to FAQ questions while escalating others to human agents. The workflow shows FairTix's commitment to transparent ticket sales and customer experience through automated triage and FAQ responses. The extensive classification prompt reveals deep knowledge of their business model - fair queues, resale caps, verification requirements, and transparent pricing. With 135 versions and 43 executions, this is a heavily iterated, production system handling real customer inquiries.",
+  "name": "FairTix Customer Support Triage & Auto-Response",
+  "businessNarrative": "This workflow automates FairTix's customer support by intelligently triaging incoming emails and automatically responding to FAQ inquiries. FairTix operates a 'fair queue' ticket marketplace that eliminates bot purchases through random selection and caps resales at face value + 20%. The system classifies support requests into six categories using Claude AI, automatically answers FAQ questions by referencing a Google Doc knowledge base, and escalates complex issues to human agents. This reveals FairTix as a customer-centric company that has systematized their support knowledge and invested in AI automation to maintain service quality while scaling operations.",
+  "trigger": "Schedule trigger every minute checking for new Gmail messages with 'Support Request' in subject",
+  "triggerType": "schedule",
+  "systemsTouched": [
+    "gmail",
+    "google docs",
+    "google sheets",
+    "anthropic"
+  ],
+  "dataFlow": "Support emails → AI classification → FAQ content retrieval → Automated response generation → Response logging → Email reply (for FAQ) or human escalation notification (for other categories). Customer data and responses are tracked in Google Sheets for analysis.",
+  "stepName": "First-line support triage and FAQ automation",
+  "impact": {
+    "reasoning": "This directly affects customer experience and support team efficiency. With detailed classification logic and FAQ automation, failures would cause support tickets to pile up unprocessed, degrading customer satisfaction and increasing manual workload. The 6-category classification system shows this handles significant volume.",
+    "level": "high",
+    "failureScenario": "Support requests accumulate unprocessed, FAQ questions require manual responses, customer wait times increase dramatically, support team becomes overwhelmed with routine inquiries they thought were automated, leading to delayed responses and frustrated customers during high-volume periods like ticket releases.",
+    "revenueConnection": "Indirect - poor support experience during ticket sales periods could drive customers to competitors, and unresolved payment/billing issues could result in chargebacks or lost transactions"
+  },
+  "detectability": {
+    "reasoning": "Gmail polling happens every minute with clear success/failure patterns. The Google Sheets logging provides audit trail. However, no explicit error monitoring or alerting is configured.",
+    "level": "partially-monitored",
+    "evidence": "Schedule trigger provides regular execution cadence, Google Sheets logging creates audit trail, but no error handling or alerting mechanisms visible"
+  },
+  "timeSavingsEstimate": "10-15 minutes per FAQ response, estimated 30-50 FAQ inquiries per day = 5-12.5 hours daily saved. Monthly: 100-250 hours. Confidence: benchmark-based on typical support volumes for ticketing platforms.",
+  "revenueImpactEstimate": "Each delayed payment/billing resolution could lose €15-200 per ticket transaction. Faster FAQ responses improve customer satisfaction during queue periods, potentially reducing abandonment by 2-5% = €1000-5000 per event. Confidence: ai-suggested based on ticketing industry metrics.",
+  "technicalEvidence": {
+    "errorHandling": "Minimal error handling. Only 'Notify Support Team to reply manually' node has onError: continueErrorOutput. No retry logic, no error workflows, no failure notifications for the main automation path.",
+    "credentials": [
+      "anthropicApi (Anthropic account)",
+      "googleDocsOAuth2Api (Google Docs account)",
+      "googleSheetsOAuth2Api (Google Sheets Account DL Automations)",
+      "gmailOAuth2 (DL-School-Automations Gmail)"
+    ],
+    "complexity": "22 nodes with sophisticated AI classification chain, conditional branching on FAQ category, multiple data transformations, and parallel processing paths",
+    "keyFindings": [
+      "Extensive 6-category classification system with detailed prompts reveals deep business knowledge",
+      "FAQ document ID '1JXtpHvta3-rsZZSrK2yqIIWrrHkpDoTOsKsy-xiI43A' shows centralized knowledge management",
+      "Claude Sonnet 4.6 for classification, Claude Haiku 4.5 for response generation shows cost optimization",
+      "Structured output parser enforces consistent AI classification format",
+      "Workflow inactive (active: false) but heavily versioned (135 versions) suggests active development/testing",
+      "Pinned test data shows 21 realistic customer scenarios covering all business cases"
+    ]
+  }
+}

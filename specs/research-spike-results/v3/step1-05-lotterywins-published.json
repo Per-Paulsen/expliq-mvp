@@ -1,0 +1,41 @@
+{
+  "reasoning": "This workflow monitors a Google Sheet called 'LotteryWins Spreadsheet' for new entries, then sends branded winner notification emails via Gmail and updates the sheet with delivery status. The email template reveals FairTix is an anti-scalping ticketing platform that uses fair queues instead of first-come-first-served sales. The elaborate HTML email with pricing transparency messaging, 24-hour purchase windows, and 'verified humans only' branding indicates this is customer-facing communication for a live ticketing business. The workflow polls every minute and tracks delivery status, suggesting real-time winner notifications are critical to the business model.",
+  "name": "FairTix Lottery Winner Notification System",
+  "businessNarrative": "This workflow powers FairTix's fair lottery system by automatically notifying winners when they're selected from the queue for high-demand event tickets. The system sends professionally branded emails with purchase links and transparent pricing, then tracks delivery status back to the source spreadsheet. This reveals FairTix operates as an anti-scalping ticketing platform that uses lottery selection instead of traditional first-come-first-served sales, positioning transparency and fairness as key differentiators against competitors like Ticketmaster.",
+  "trigger": "New lottery winner entry added to the LotteryWins spreadsheet",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "gmail",
+    "google sheets"
+  ],
+  "dataFlow": "Winner data (Name, Email, EventName, TicketPrice, ID) flows from Google Sheets trigger, through Gmail for notification delivery, then back to Google Sheets to record delivery status and timestamp.",
+  "impact": {
+    "reasoning": "This is customer-facing communication that directly affects ticket purchase conversion. Failed notifications mean lottery winners don't know they won, losing their 24-hour purchase window and damaging customer experience. In a ticketing business, this could represent thousands in lost revenue per event and harm the brand's fairness promise.",
+    "level": "high",
+    "failureScenario": "Winners never receive their notifications, miss their 24-hour purchase windows, tickets go unsold, customers lose trust in the 'fair' process, revenue loss and reputation damage.",
+    "revenueConnection": "Direct — failed notifications prevent ticket sales completion. data-driven"
+  },
+  "detectability": {
+    "reasoning": "Error workflow is linked (oZy3vc0yli2xdR45) but no retry logic exists on any nodes, making failures partially detectable but not self-healing.",
+    "level": "partially-monitored",
+    "evidence": "Error workflow ID oZy3vc0yli2xdR45 linked but no retry logic on nodes, delivery status tracking in sheets provides some visibility."
+  },
+  "stepName": "Winner notification and purchase invitation",
+  "timeSavingsEstimate": "5-10 minutes per winner (manual email composition, sending, status tracking) — data-driven from 1 minute fixed estimate and typical email workflow time.",
+  "technicalEvidence": {
+    "errorHandling": "Error workflow oZy3vc0yli2xdR45 linked but no retryOnFail on any nodes, status updates provide delivery tracking",
+    "credentials": [
+      "DL-School-Automations Gmail (gmailOAuth2)",
+      "DL School Automations Google Sheets Account (googleSheetsTriggerOAuth2Api)",
+      "Google Sheets Account DL Automations (googleSheetsOAuth2Api)"
+    ],
+    "complexity": "Simple linear flow with 3 operational nodes, every-minute polling, sophisticated HTML email template",
+    "keyFindings": [
+      "Professional branded email template reveals customer-facing ticketing platform",
+      "24-hour purchase window suggests time-sensitive business model",
+      "Transparent pricing messaging indicates competitive differentiation strategy",
+      "Status tracking with timestamps shows delivery accountability",
+      "Inactive status despite recent updates suggests development/staging phase"
+    ]
+  }
+}

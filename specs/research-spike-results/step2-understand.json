@@ -1,0 +1,334 @@
+{
+  "reasoning": "This is FairTix, an anti-bot ticket marketplace with a sophisticated automation infrastructure that's currently in development/testing phase. The company operates a 'fair queue' lottery system to combat scalpers, emphasizing transparent pricing and human verification. \n\nKey patterns emerge: 1) MASSIVE DUPLICATION - There are THREE separate lottery winner notification workflows doing identical functions, suggesting uncontrolled workflow proliferation during development. 2) DEVELOPMENT PHASE - All workflows except error monitoring are inactive despite high iteration counts (362, 198, 135 versions), indicating heavy development but no production deployment. 3) INCOMPLETE PROCESS CHAINS - Winners get notified but there's no workflow for losers (the larger population). Support tickets get classified but no workflows handle the actual resolution. 4) SINGLE POINTS OF FAILURE - Gmail and Google Sheets are touched by nearly every workflow; if credentials fail, the entire operation breaks. 5) EVIDENCE-BASED GAPS - The support classification reveals 6 business domains (Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer) but no corresponding resolution workflows exist.\n\nThis reveals a lottery-based ticket marketplace with sophisticated customer support needs, transparent pricing as a competitive advantage, and anti-scalping technology as their core differentiator. The automation landscape shows a company preparing for scale but not yet deployed to production.",
+  "processes": [
+    {
+      "name": "Customer Onboarding",
+      "summary": "Guides new users from registration through account verification to enable fair queue participation",
+      "workflows": [
+        "User Welcome Onboarding"
+      ],
+      "steps": [
+        {
+          "name": "Welcome Message & Verification Guidance",
+          "workflowName": "User Welcome Onboarding",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Account Verification Process",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Verification Completion Confirmation",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "1 of 3 steps automated (33%)",
+      "reliability": "100% success rate across 5 executions",
+      "maturityLevel": "Prototype",
+      "maturityReasoning": "Manual-only trigger with hardcoded test data. 17 versions indicate active development but not production-ready. No error handling."
+    },
+    {
+      "name": "Fair Queue Lottery System",
+      "summary": "Manages the lottery-based ticket allocation system and notifies winners with purchase deadlines",
+      "workflows": [
+        "Lottery Winner Notification",
+        "FairTix Lottery Winner Notification",
+        "Lottery Winner Notification System"
+      ],
+      "steps": [
+        {
+          "name": "Lottery Execution",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Winner Notification",
+          "workflowName": "Lottery Winner Notification",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Loser Notification",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Purchase Completion",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Timeout Handling",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "1 of 5 steps automated (20%)",
+      "reliability": "63.9% success rate across 36 executions (one workflow)",
+      "maturityLevel": "Developing",
+      "maturityReasoning": "Core functionality exists but massive duplication (3 identical workflows). High failure rate (36.1%) and inactive status indicate development challenges."
+    },
+    {
+      "name": "Customer Support Operations",
+      "summary": "Handles incoming customer inquiries through AI-powered classification and response automation",
+      "workflows": [
+        "Support Ticket Classifier",
+        "FairTix Smart Support Triage",
+        "Support Message Classification & FAQ Response"
+      ],
+      "steps": [
+        {
+          "name": "Support Ticket Intake",
+          "workflowName": "Support Ticket Classifier",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "AI Classification & FAQ Response",
+          "workflowName": "Support Message Classification & FAQ Response",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Account/Verification Issue Resolution",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Payment/Billing Issue Resolution",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Technical/Bug Issue Resolution",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Resale/Transfer Issue Resolution",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "2 of 6 steps automated (33%)",
+      "reliability": "91.2% success rate across 143 executions",
+      "maturityLevel": "Developing",
+      "maturityReasoning": "Sophisticated AI classification with high iteration counts (362, 198 versions) but all workflows inactive. Classification exists but resolution workflows missing."
+    },
+    {
+      "name": "Operations & Monitoring",
+      "summary": "Provides centralized error monitoring and operational oversight across all business automations",
+      "workflows": [
+        "Central Error Monitoring & Alerting"
+      ],
+      "steps": [
+        {
+          "name": "Error Detection & Alerting",
+          "workflowName": "Central Error Monitoring & Alerting",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Performance Monitoring",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Incident Response",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "1 of 3 steps automated (33%)",
+      "reliability": "85% success rate across 40 executions",
+      "maturityLevel": "Production",
+      "maturityReasoning": "Only active workflow with consistent execution history. Provides critical operational safety net but lacks comprehensive monitoring features."
+    }
+  ],
+  "suggestedProcesses": [
+    {
+      "name": "Account Verification Management",
+      "summary": "Automates the human verification process that enables fair queue participation",
+      "basedOn": "Support classification shows 'Account/Verification' as a major category, and onboarding workflow mentions verification requirements as core to business model",
+      "suggestedSteps": [
+        "Identity document upload",
+        "Verification review",
+        "Approval notification",
+        "Rejection handling"
+      ],
+      "connectedSystems": [
+        "fairtix platform",
+        "document storage",
+        "gmail"
+      ]
+    },
+    {
+      "name": "Payment & Billing Operations",
+      "summary": "Handles payment processing, billing disputes, and transaction management",
+      "basedOn": "Support classification includes 'Payment/Billing' category and lottery winners receive checkout links, proving payment processing exists",
+      "suggestedSteps": [
+        "Payment processing",
+        "Transaction confirmation",
+        "Billing dispute resolution",
+        "Refund processing"
+      ],
+      "connectedSystems": [
+        "payment gateway",
+        "fairtix platform",
+        "gmail",
+        "google sheets"
+      ]
+    },
+    {
+      "name": "Resale & Transfer Management",
+      "summary": "Manages ticket resale within the 20% price cap and transfer between users",
+      "basedOn": "Support classification includes 'Resale/Transfer' category and onboarding mentions 'face value + 20% max' resale caps as core business rule",
+      "suggestedSteps": [
+        "Resale listing",
+        "Price validation",
+        "Transfer requests",
+        "Ownership updates"
+      ],
+      "connectedSystems": [
+        "fairtix platform",
+        "gmail",
+        "google sheets"
+      ]
+    },
+    {
+      "name": "Non-Winner Communication",
+      "summary": "Notifies lottery participants who didn't win and offers alternatives or waitlist options",
+      "basedOn": "Lottery winner workflows exist, but the larger population of non-winners has no communication workflow despite being the majority of participants",
+      "suggestedSteps": [
+        "Non-winner notification",
+        "Waitlist signup",
+        "Alternative event suggestions",
+        "Future lottery alerts"
+      ],
+      "connectedSystems": [
+        "fairtix platform",
+        "gmail",
+        "google sheets"
+      ]
+    }
+  ],
+  "systemLandscape": [
+    {
+      "name": "Gmail",
+      "role": "Primary customer communication channel",
+      "workflowCount": 7,
+      "narrative": "Gmail serves as FairTix's customer-facing communication hub, handling everything from onboarding to support to transaction notifications. The heavy reliance reveals a business that prioritizes direct email communication over in-app notifications, suggesting customers interact primarily via email rather than a mobile app or web portal.",
+      "insight": "Single point of failure - if Gmail credentials fail, all customer communication stops across onboarding, support, and sales processes"
+    },
+    {
+      "name": "Google Sheets",
+      "role": "Operational data backbone and workflow coordination system",
+      "workflowCount": 6,
+      "narrative": "Google Sheets functions as FairTix's central nervous system, storing lottery results, support tickets, and workflow status data. This reveals a company that prioritizes rapid iteration and transparency over enterprise databases, enabling non-technical team members to directly view and modify operational data.",
+      "insight": "All lottery and support operations depend on Google Sheets availability - outages would halt winner notifications and support ticket processing"
+    },
+    {
+      "name": "Anthropic Claude",
+      "role": "AI decision engine for customer support automation",
+      "workflowCount": 3,
+      "narrative": "Claude AI powers FairTix's sophisticated support classification and response system, handling complex customer inquiries across 6 business domains. This investment in AI reveals a company committed to scaling customer support without proportional headcount growth.",
+      "insight": "Support quality directly depends on Claude API reliability - failures would force all tickets into manual processing queues"
+    },
+    {
+      "name": "FairTix Platform",
+      "role": "Core business application and customer portal",
+      "workflowCount": 4,
+      "narrative": "The FairTix platform hosts the fair queue lottery system, checkout process, and user verification. The limited workflow integration suggests the platform handles core business logic internally while automations handle external communications and data coordination.",
+      "insight": "Demo environment URLs in workflows suggest production deployment is still pending, indicating the platform is in development phase"
+    },
+    {
+      "name": "Google Docs",
+      "role": "Knowledge base and content management system",
+      "workflowCount": 2,
+      "narrative": "Google Docs stores FAQ knowledge base content for AI-powered support responses. This choice over a traditional CMS reveals a preference for collaborative content editing and rapid updates to support documentation.",
+      "insight": "Support response quality depends on Google Docs availability and content accuracy - outdated FAQ content would generate poor customer responses"
+    }
+  ],
+  "connectedAutomations": [
+    {
+      "fromWorkflow": "Lottery Winner Notification",
+      "toWorkflow": "Central Error Monitoring & Alerting",
+      "connectionType": "errorWorkflow",
+      "description": "Error monitoring provides operational safety net for the critical winner notification process"
+    }
+  ],
+  "crossWorkflowPatterns": [
+    {
+      "pattern": "Massive Duplication",
+      "description": "Three separate workflows perform identical lottery winner notification functions with minimal variation",
+      "affectedWorkflows": [
+        "Lottery Winner Notification",
+        "FairTix Lottery Winner Notification",
+        "Lottery Winner Notification System"
+      ],
+      "businessImplication": "Development inefficiency and maintenance burden - unclear which workflow is canonical, creating confusion and technical debt"
+    },
+    {
+      "pattern": "Support Classification Without Resolution",
+      "description": "Multiple workflows classify support tickets into 6 categories but no workflows handle actual resolution of non-FAQ issues",
+      "affectedWorkflows": [
+        "Support Ticket Classifier",
+        "FairTix Smart Support Triage",
+        "Support Message Classification & FAQ Response"
+      ],
+      "businessImplication": "Tickets get triaged but complex issues still require manual resolution, limiting automation ROI"
+    },
+    {
+      "pattern": "Development Phase Paralysis",
+      "description": "All business workflows are inactive despite high version counts, suggesting development without deployment",
+      "affectedWorkflows": [
+        "User Welcome Onboarding",
+        "Lottery Winner Notification",
+        "FairTix Lottery Winner Notification",
+        "Support Ticket Classifier",
+        "FairTix Smart Support Triage",
+        "Support Message Classification & FAQ Response",
+        "Lottery Winner Notification System"
+      ],
+      "businessImplication": "Heavy development investment with no production value - business processes remain manual despite automation infrastructure"
+    },
+    {
+      "pattern": "Winner-Focused Communication Gap",
+      "description": "Multiple workflows notify lottery winners but zero workflows communicate with non-winners (the larger population)",
+      "affectedWorkflows": [
+        "Lottery Winner Notification",
+        "FairTix Lottery Winner Notification",
+        "Lottery Winner Notification System"
+      ],
+      "businessImplication": "Poor customer experience for the majority of lottery participants who receive no communication about their status or next steps"
+    },
+    {
+      "pattern": "Single Credential Dependencies",
+      "description": "Gmail and Google Sheets credentials are shared across nearly all workflows, creating single points of failure",
+      "affectedWorkflows": [
+        "User Welcome Onboarding",
+        "Lottery Winner Notification",
+        "Support Ticket Classifier",
+        "FairTix Smart Support Triage",
+        "Support Message Classification & FAQ Response",
+        "Central Error Monitoring & Alerting"
+      ],
+      "businessImplication": "If shared credentials expire or are revoked, most business processes would simultaneously fail"
+    }
+  ]
+}

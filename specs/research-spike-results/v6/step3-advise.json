@@ -1,0 +1,208 @@
+{
+  "reasoning": "FairTix has sophisticated AI infrastructure but 7/8 workflows are inactive despite being production-ready. This creates massive deployment gaps while the error monitoring shows active automation needs (40 executions). Key revenue-critical processes like lottery notifications and support automation are built but not operational, suggesting deployment/activation issues rather than capability gaps.",
+  "recommendations": [
+    {
+      "id": "r1",
+      "reasoning": "7 production-ready workflows are inactive despite sophisticated features and development investment. Support triage alone saves 40-80 hours/week but isn't running.",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Activate Inactive Production Workflows",
+      "businessCase": "Enable $50k+ annual savings in support costs plus revenue recovery from lottery notifications",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "7 of 8 workflows inactive",
+        "Support triage saves 40-80 hours/week",
+        "198 versions on support system shows maturity",
+        "36% error rate on lottery system needs fixing but workflow exists"
+      ],
+      "honestFraming": null,
+      "affectedScope": "All customer-facing processes: support, onboarding, lottery conversions",
+      "implementationNotes": "Review deployment blockers, fix error rates, establish activation sequence"
+    },
+    {
+      "id": "r2",
+      "reasoning": "AI classifies 6 support categories but only FAQ has automation. Account/Verification and Payment/Billing are top categories with zero automation.",
+      "type": "new_workflow",
+      "tier": "act_now",
+      "name": "Support Category Response Automation",
+      "businessCase": "Automate 5 of 6 support categories to complete triage system ROI",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "AI identifies Account/Verification, Payment/Billing as distinct categories",
+        "Only FAQ category has automated responses",
+        "Infrastructure exists for all categories"
+      ],
+      "honestFraming": null,
+      "affectedScope": "Customer Support Management process workflows 1-3",
+      "implementationNotes": "Use existing AI classification, build response templates for each category"
+    },
+    {
+      "id": "r3",
+      "reasoning": "Error monitoring shows 15% error rate with no self-monitoring. All workflows lack retry logic despite 6-36% error rates across business-critical functions.",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Error Handling and Retry Logic",
+      "businessCase": "Prevent silent failures in revenue-critical lottery and support workflows",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "36% error rate on lottery notifications",
+        "15% error rate on error monitoring itself",
+        "No retry logic on any workflows",
+        "Silent failure detectability across 6 workflows"
+      ],
+      "honestFraming": null,
+      "affectedScope": "All workflows, especially lottery notifications and support triage",
+      "implementationNotes": "Add retry logic, fix centralized monitoring, create monitoring redundancy"
+    },
+    {
+      "id": "r4",
+      "reasoning": "Three duplicate lottery notification workflows exist. Welcome email template shows onboarding intention but no follow-up automation for verification prompts.",
+      "type": "technical_fix",
+      "tier": "investigate",
+      "name": "Consolidate Duplicate Workflows and Complete Onboarding",
+      "businessCase": "Eliminate development confusion and complete customer activation journey",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Three identical lottery notification workflows",
+        "Welcome email template exists but no verification follow-up",
+        "Account/Verification is top support category"
+      ],
+      "honestFraming": null,
+      "affectedScope": "Lottery Winner Management and Customer Onboarding processes",
+      "implementationNotes": "Choose primary lottery workflow, deprecate duplicates, build verification reminder sequence"
+    },
+    {
+      "id": "r5",
+      "reasoning": "Google Sheets dependency for all data with 'heavy reliance on spreadsheet-based data management may not scale'. No dedicated database or CRM integration visible.",
+      "type": "platform_connection",
+      "tier": "investigate",
+      "name": "Database and CRM Integration",
+      "businessCase": "Scale data architecture beyond spreadsheets for growing ticket marketplace",
+      "confidence": "benchmark-based",
+      "evidenceChain": [
+        "All 6 workflows depend on Google Sheets",
+        "Analysis notes scaling concerns",
+        "No database systems visible"
+      ],
+      "honestFraming": "We don't see dedicated database or CRM systems in your workflows. If you have these systems, connecting them would provide better data integrity and analytics.",
+      "affectedScope": "All processes currently using Google Sheets",
+      "implementationNotes": "Evaluate HubSpot, Salesforce, or database integrations for customer data"
+    },
+    {
+      "id": "r6",
+      "reasoning": "Payment processor integration missing despite Payment/Billing being a major support category. No automated payment failure handling visible.",
+      "type": "platform_connection",
+      "tier": "investigate",
+      "name": "Payment System Integration",
+      "businessCase": "Automate payment failures and billing inquiries to reduce support burden",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Payment/Billing is classified support category",
+        "No payment processor in system landscape",
+        "Transparent pricing is core value prop"
+      ],
+      "honestFraming": "We don't see payment processor integrations in your automation landscape. If handled separately, connecting could enable automated payment retry and billing support.",
+      "affectedScope": "Payment/Billing support category, Customer Support Management",
+      "implementationNotes": "Connect Stripe, Square, or existing payment processor for automated handling"
+    },
+    {
+      "id": "r7",
+      "reasoning": "Manual knowledge base in Google Docs may become bottleneck. No feedback loop from support interactions to knowledge base updates.",
+      "type": "new_workflow",
+      "tier": "explore",
+      "name": "Dynamic Knowledge Base Updates",
+      "businessCase": "Self-improving support system that learns from ticket patterns",
+      "confidence": "ai-suggested",
+      "evidenceChain": [
+        "Google Docs stores FAQ responses",
+        "No feedback loop visible",
+        "AI generates responses but no learning mechanism"
+      ],
+      "honestFraming": null,
+      "affectedScope": "Customer Support Management process",
+      "implementationNotes": "Build feedback loop from support outcomes to knowledge base content updates"
+    },
+    {
+      "id": "r8",
+      "reasoning": "Resale/Transfer is support category but no automation for resale cap enforcement mentioned in company description.",
+      "type": "new_workflow",
+      "tier": "explore",
+      "name": "Automated Resale Monitoring",
+      "businessCase": "Enforce fair resale caps without manual oversight",
+      "confidence": "benchmark-based",
+      "evidenceChain": [
+        "Resale caps mentioned as core feature",
+        "Resale/Transfer support category exists",
+        "No resale automation visible"
+      ],
+      "honestFraming": "We see resale/transfer as a support category but no automated resale monitoring. If this is handled by your ticket platform, connecting it could reduce manual oversight.",
+      "affectedScope": "New process for resale compliance",
+      "implementationNotes": "Monitor ticket resale prices against caps, automated enforcement"
+    }
+  ],
+  "processSuggestions": [
+    {
+      "name": "Complete Support Automation",
+      "description": "Automate responses for all 6 support categories identified by AI",
+      "businessCase": "Complete the triage system ROI by handling 100% of categorized tickets automatically",
+      "basedOn": "AI classification system already identifies 6 categories but only FAQ has automation",
+      "connectedSystems": [
+        "Gmail",
+        "Google Docs",
+        "Anthropic Claude",
+        "Google Sheets"
+      ],
+      "childRecommendationIds": [
+        "r2"
+      ]
+    },
+    {
+      "name": "Revenue-Critical Reliability",
+      "description": "Fix error rates and add retry logic to all customer-facing workflows",
+      "businessCase": "Prevent revenue loss from failed lottery notifications and support gaps",
+      "basedOn": "36% error rate on lottery notifications, 15% on error monitoring, no retries anywhere",
+      "connectedSystems": [
+        "All existing systems"
+      ],
+      "childRecommendationIds": [
+        "r1",
+        "r3"
+      ]
+    },
+    {
+      "name": "Customer Lifecycle Automation",
+      "description": "Complete onboarding sequence from welcome through verification and first purchase",
+      "businessCase": "Reduce Account/Verification support burden and improve activation rates",
+      "basedOn": "Welcome email template exists, Account/Verification is top support category",
+      "connectedSystems": [
+        "Gmail",
+        "Google Sheets",
+        "Document verification system"
+      ],
+      "childRecommendationIds": [
+        "r4"
+      ]
+    }
+  ],
+  "nextMove": {
+    "text": "First, activate your support triage system (FairTix AI Customer Support Triage System) since it's production-ready and saves 40-80 hours weekly. Second, fix the 36% error rate in lottery notifications by adding retry logic since failed winner notifications directly lose revenue. Third, build automated responses for Account/Verification and Payment/Billing categories since your AI already identifies these but you're still handling them manually.",
+    "reasoning": "Support automation has highest time-savings with existing infrastructure. Lottery notifications have direct revenue impact with simple fixes needed. Category response completion maximizes existing AI investment."
+  },
+  "visibilityExpansions": [
+    {
+      "platform": "Payment Processor Integration",
+      "reasoning": "Payment/Billing is a major support category but no payment system visible in workflows",
+      "whatItUnlocks": "Automated payment retry, billing inquiry responses, and payment failure notifications"
+    },
+    {
+      "platform": "Customer Database/CRM",
+      "reasoning": "Heavy Google Sheets dependency limits scalability and customer insights",
+      "whatItUnlocks": "Customer lifecycle tracking, advanced segmentation, and integrated communication history"
+    },
+    {
+      "platform": "Ticket Platform API",
+      "reasoning": "Core ticket management system not visible in automation landscape",
+      "whatItUnlocks": "Automated resale monitoring, queue management, and inventory-based triggers"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "reasoning": "This workflow processes support emails every minute, classifies them using AI (categories: FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback), and either responds automatically to FAQ questions or escalates to human support. The AI prompt reveals FairTix operates a 'fair queue' lottery system for ticket sales with transparent pricing, 20% resale caps, and one ticket per person limits. The workflow writes all classifications to a Google Sheet for tracking, and FAQ responses are generated from a Google Doc knowledge base. With 43 successful executions and no errors, this appears to be a well-tested prototype that's currently inactive.",
+  "name": "Customer Support Email Classifier & Auto-Responder",
+  "businessNarrative": "This workflow enables FairTix to scale customer support by automatically triaging incoming emails and responding to common FAQ questions without human intervention. It reveals FairTix operates a lottery-based ticket allocation system designed to combat scalping, with strict verification requirements and resale price caps. The classification data collected helps identify support patterns and optimize the FAQ content. The system's ability to handle FAQ queries automatically frees support staff to focus on complex issues requiring account access or technical investigation.",
+  "trigger": "Every minute, checking for new support emails with subject containing 'Support Request'",
+  "triggerType": "schedule",
+  "systemsTouched": [
+    "gmail",
+    "google sheets",
+    "google docs",
+    "anthropic"
+  ],
+  "dataFlow": "Support emails from Gmail are classified by AI into 6 categories with sentiment analysis. Classifications are logged to Google Sheets with timestamps. FAQ category emails receive automated responses generated from a Google Doc knowledge base, while non-FAQ emails trigger escalation notifications to the support team.",
+  "impact": {
+    "reasoning": "Direct customer-facing automation handling support inquiries. Poor classification or failed responses would immediately impact customer experience and could lead to ticket purchase issues during time-sensitive queue windows. The business model depends on trust in the 'fair queue' system.",
+    "level": "high",
+    "failureScenario": "FAQ customers receive no response, creating support backlog. Misclassified urgent issues (payment, verification) go unaddressed, potentially blocking customers from participating in ticket queues. Support team loses visibility into inquiry patterns.",
+    "revenueConnection": "Indirect - Support quality affects customer trust and participation in ticket queues, directly impacting transaction volume"
+  },
+  "detectability": {
+    "reasoning": "No error handling configured, no monitoring alerts, and sends to personal Gmail rather than proper support system. Failures would only be noticed when customers complain about no response.",
+    "level": "partially-monitored",
+    "evidence": "Manual trigger only, no error workflow configured, notifications go to personal dlschoolautomations@gmail.com address, no retry settings on critical nodes"
+  },
+  "stepName": "Customer inquiry handling",
+  "timeSavingsEstimate": "10-20 minutes per FAQ inquiry, assuming 30-50% of support volume is FAQ-answerable",
+  "technicalEvidence": {
+    "errorHandling": "No retry configurations, no error workflow defined, only one node has continueErrorOutput setting. Schedule trigger has no error recovery.",
+    "credentials": [
+      "gmailOAuth2: Gmail",
+      "googleSheetsOAuth2Api: Google Sheets",
+      "googleDocsOAuth2Api: Google Docs",
+      "anthropicApi: Anthropic AI"
+    ],
+    "complexity": "18 nodes with conditional branching, multiple AI model calls (Claude Sonnet for classification, Claude Haiku for responses), structured output parsing for consistent JSON responses",
+    "keyFindings": [
+      "Uses premium Claude Sonnet 4.6 for classification accuracy but cheaper Haiku 4.5 for response generation - cost optimization",
+      "Matches records by SenderName only - could create data conflicts with common names",
+      "FAQ document ID hardcoded - changes would require workflow updates",
+      "Currently inactive despite 0% error rate - suggests this is a tested prototype awaiting production deployment"
+    ]
+  }
+}

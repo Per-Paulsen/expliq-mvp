@@ -1,0 +1,50 @@
+{
+  "reasoning": "This workflow implements an automated lottery winner notification system for FairTix, a ticket platform that uses 'Fair Queue' selection instead of first-come-first-served. When a new entry appears in the 'LotteryWins' Google Sheet (likely populated by their Fair Queue algorithm), it sends a branded winner notification email with ticket purchase details and updates the sheet with delivery status. The polished email template with FairTix branding, transparent pricing messaging, and 24-hour purchase window reveals this is a customer-facing system for a production ticket platform. The error handling updates both success (200) and failure (500) status codes back to the sheet, suggesting operational tracking needs. However, the workflow is inactive with 0 executions, indicating it's either in development/testing or temporarily disabled.",
+  "name": "FairTix Lottery Winner Email Notifications",
+  "businessNarrative": "This workflow automates the critical moment when FairTix customers learn they've won lottery-selected tickets through the Fair Queue system. It sends professionally branded winner emails with purchase links and transparent pricing details, then tracks delivery status back to operational sheets. The system represents FairTix's core value proposition of fair ticket distribution versus bot-dominated traditional sales. The 24-hour purchase window and transparent pricing messaging suggest this is part of a larger customer experience designed to build trust in their anti-scalping platform.",
+  "trigger": "New entry added to the LotteryWins Google Sheet, indicating Fair Queue algorithm has selected a winner",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "google sheets",
+    "gmail"
+  ],
+  "dataFlow": "Winner data (ID, Name, Email, EventName, TicketPrice) flows from Google Sheets to Gmail for notification, then status updates flow back to sheets for operational tracking.",
+  "impact": {
+    "reasoning": "This is customer-facing communication for ticket purchases with direct revenue implications. Failed notifications mean lost sales as customers don't know they won and the 24-hour window expires. No error workflow or retry logic means silent failures until customers complain or sales metrics drop.",
+    "level": "high",
+    "failureScenario": "Winners never receive notification emails, miss their 24-hour purchase window, tickets go back to pool, direct revenue loss and customer frustration with Fair Queue system credibility.",
+    "revenueConnection": "Direct — failed notifications directly prevent ticket sales completion. Data-driven."
+  },
+  "detectability": {
+    "reasoning": "Error handling updates sheet with 500 status codes, but no error workflow, alerting, or retry logic. Team would discover failures through manual sheet review or customer complaints.",
+    "level": "partially-monitored",
+    "evidence": "Error update node logs failures to sheet but no automated alerting or error workflow configured."
+  },
+  "stepName": "Winner notification delivery in Fair Queue lottery process",
+  "timeSavingsEstimate": "3-5 minutes per winner notification (manual email composition and sending) — benchmark-based estimate for personalized customer communication.",
+  "technicalEvidence": {
+    "errorHandling": "continueErrorOutput on Gmail node with error update to sheet, but no retryOnFail enabled on any nodes and no error workflow",
+    "credentials": [
+      [
+        "DL-School-Automations Gmail",
+        "gmailOAuth2"
+      ],
+      [
+        "DL School Automations Google Sheets Account",
+        "googleSheetsTriggerOAuth2Api"
+      ],
+      [
+        "Google Sheets Account DL Automations",
+        "googleSheetsOAuth2Api"
+      ]
+    ],
+    "complexity": "Simple linear flow with branching error handling, 4 nodes, polling trigger every minute",
+    "keyFindings": [
+      "Workflow inactive with 0 executions despite being customer-facing",
+      "Professional email template with FairTix branding suggests production system",
+      "Transparent pricing messaging ('€0.00 hidden fees') indicates anti-scalping business model",
+      "24-hour purchase window creates urgency and inventory management",
+      "Status tracking (200/500 codes) shows operational monitoring needs"
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "reasoning": "This workflow automatically classifies customer support messages for FairTix, a fair ticket marketplace. The AI prompt reveals a sophisticated business: they have a fair queue system, pricing transparency, resale rules, verification processes, and specific pain points like double charges and resale cap enforcement. The workflow pulls from Gmail (subject: 'Support Request'), uses Anthropic Claude to classify messages into 6 categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) plus sentiment analysis, then logs results to Google Sheets. This creates a structured data pipeline for support triage and analytics. The classification taxonomy reveals their main support burdens: verification issues, payment problems, and resale disputes. The workflow is currently inactive despite 198 iterations, suggesting it's either being refined or replaced.",
+  "name": "FairTix Support Message Classification",
+  "businessNarrative": "FairTix operates a fair ticket marketplace with complex business rules around queue systems, pricing transparency, and resale caps that generate predictable support categories. This workflow automatically triages incoming support messages, using AI to classify them into six business-relevant categories and assess customer sentiment. The classification enables data-driven support operations, helping the team understand support volume patterns, identify process pain points, and route tickets appropriately. The detailed AI prompt reveals a mature ticketing platform dealing with verification failures, payment disputes, and resale policy enforcement as primary customer friction points.",
+  "trigger": "Every minute, check for new Gmail messages with subject containing 'Support Request'",
+  "triggerType": "schedule",
+  "systemsTouched": [
+    "gmail",
+    "google sheets",
+    "anthropic claude"
+  ],
+  "dataFlow": "Gmail messages with 'Support Request' subject → AI classification into business categories and sentiment analysis → structured data written to Google Sheets for support analytics and routing",
+  "impact": {
+    "reasoning": "Support classification directly affects customer experience by enabling faster triage and routing. Poor classification leads to delayed responses, misrouted tickets, and frustrated customers. For a marketplace, support response time impacts both buyer and seller satisfaction, affecting platform reputation and transaction volume.",
+    "level": "high",
+    "failureScenario": "Support messages accumulate unclassified, leading to slower response times, misrouted tickets, inability to identify trending issues, and degraded customer experience that impacts marketplace trust and transaction volume.",
+    "revenueConnection": "Indirect — better support classification improves response times and customer satisfaction, reducing churn and supporting marketplace growth. Confidence: benchmark-based."
+  },
+  "detectability": {
+    "reasoning": "No error workflow configured and no retry logic enabled. Failures would only surface through missing classifications in the Google Sheet or manual observation of workflow status.",
+    "level": "silent",
+    "evidence": "No error workflow linked (errorWorkflowId: null), no retry logic on any nodes, no monitoring configuration visible."
+  },
+  "stepName": "Support Triage and Analytics Pipeline",
+  "timeSavingsEstimate": "10-15 minutes per message classification, handling 25 messages per run. Range: 4-6 hours per execution. Confidence: ai-suggested based on manual classification time estimates.",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic enabled on any nodes, no error workflow configured. Silent failure mode.",
+    "credentials": [
+      "Anthropic API (anthropicApi)",
+      "Google Sheets OAuth (googleSheetsOAuth2Api)",
+      "Gmail OAuth (gmailOAuth2)",
+      "Google Sheets Trigger OAuth (googleSheetsTriggerOAuth2Api)"
+    ],
+    "complexity": "8 nodes with AI chain, structured output parsing, data mapping, and multi-system integration",
+    "keyFindings": [
+      "Sophisticated AI prompt with 6 business-specific support categories reveals mature ticketing platform",
+      "Classification includes sentiment analysis (positive/neutral/frustrated/angry) for customer experience insights",
+      "Currently inactive despite 198 iterations suggests active development or replacement",
+      "Google Sheets trigger appears unused (fallback path noted in sticky notes)",
+      "No deduplication logic - may reclassify same messages on repeated runs"
+    ]
+  }
+}

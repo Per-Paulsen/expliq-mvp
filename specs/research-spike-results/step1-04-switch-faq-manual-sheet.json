@@ -1,0 +1,63 @@
+{
+  "name": "Support Message Classification & FAQ Response",
+  "description": "Automatically classifies incoming customer support messages by category and sentiment, generates AI responses for FAQ queries, and routes complex issues to human agents.",
+  "trigger": "New row added to Support Requests spreadsheet containing customer message details",
+  "triggerType": "polling",
+  "coreLogic": "Receives customer support message from spreadsheet. Classifies the message into one of six categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) with sentiment analysis. For FAQ messages, retrieves knowledge base content and generates personalized response email. For complex issues, notifies support team with classification context. Updates spreadsheet with classification results and generated responses.",
+  "systemsTouched": [
+    "google sheets",
+    "google docs",
+    "anthropic claude",
+    "gmail"
+  ],
+  "dataTypes": [
+    "support ticket",
+    "customer message",
+    "classification metadata",
+    "faq knowledge base",
+    "email response",
+    "sentiment analysis"
+  ],
+  "businessContext": "FairTix operates a fair ticket marketplace with complex business rules around queue systems, pricing transparency, resale caps, and verification. The classification categories reveal key operational pain points: account verification issues, payment disputes, technical bugs, and resale policy questions. This automation is the first line of defense for customer support, determining which issues can be resolved instantly vs. requiring human intervention.",
+  "sideEffects": [
+    "Updates Support Requests spreadsheet with classification and response data",
+    "Sends notification emails to support team for complex issues",
+    "Generates draft responses for FAQ queries"
+  ],
+  "impactProposal": {
+    "level": "high",
+    "reasoning": "This is the primary customer support intake automation. Failures mean customers wait longer for responses and support team loses classification context. With 6 categories covering account, payment, and technical issues, this touches every customer touchpoint. The 88% success rate with 362 version iterations shows this is actively developed and business-critical."
+  },
+  "stepName": "Support Intake Classification",
+  "businessBrief": "First line of customer support defense — automatically triages incoming tickets and provides instant FAQ responses, determining which issues require human intervention.",
+  "timeSavingsEstimate": "~8-12 min/ticket at scale — replaces manual reading, categorization, and FAQ lookup. For 50 executions, that's 7-10 hours saved. Confidence: benchmark-based.",
+  "revenueImpactEstimate": "Indirect but significant — faster FAQ responses improve customer satisfaction, while proper classification ensures payment/billing issues get priority attention. Each misclassified payment dispute could delay resolution and impact customer trust. Confidence: benchmark-based.",
+  "failureImpact": "Customers receive no automated FAQ responses. Support team loses classification context and sentiment analysis, making prioritization harder. Payment/billing issues aren't flagged urgently. Manual ticket reading increases support team workload 8x. Customer satisfaction drops due to slower response times.",
+  "dataIn": "Customer support messages with sender details, subject, and message body from Support Requests spreadsheet",
+  "dataOut": "Message classification (category, sentiment, confidence), AI-generated FAQ responses, and support team notifications for complex issues",
+  "technicalEvidence": {
+    "errorHandling": "No explicit retryOnFail settings (defaults to false). No error workflow linked. Silent failures on classification or response generation.",
+    "credentials": [
+      "googleSheetsOAuth2Api: s4gBWNRmilbUZssp",
+      "anthropicApi: MCwj9jMzCKpt3nyj",
+      "googleSheetsOAuth2Api: s4gBWNRmilbUZssp",
+      "googleDocsOAuth2Api: jHJX7J9R6GiFVQVA",
+      "gmailOAuth2: kFZTnYxPOgUwDjqS"
+    ],
+    "nodeCount": 13,
+    "hasDisabledNodes": false,
+    "triggerInterval": "Every minute polling on Google Sheets",
+    "versionCount": "362",
+    "errorWorkflowId": null,
+    "callerIds": null,
+    "timeSavedPerExecution": null,
+    "keyFindings": [
+      "Workflow is inactive despite 362 versions - suggests active development but not production deployment",
+      "All 50 executions were manual - never activated for automatic polling",
+      "Complex AI prompt with 6 specific business categories reveals FairTix's core support challenges",
+      "Switch logic routes only FAQ and Payment/Billing categories differently - other categories get same manual routing",
+      "FAQ knowledge base stored in separate Google Doc (1JXtpHvta3-rsZZSrK2yqIIWrrHkpDoTOsKsy-xiI43A)",
+      "No retry logic on any node including customer-facing response generation"
+    ]
+  }
+}

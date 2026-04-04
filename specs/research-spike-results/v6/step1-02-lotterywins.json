@@ -1,0 +1,40 @@
+{
+  "reasoning": "This is a ticket lottery notification system for FairTix, a ticketing platform that positions itself as 'fair' and 'bot-free'. The workflow triggers when someone wins a lottery for high-demand event tickets, sends a branded congratulatory email with purchase details, and tracks the notification status. The elaborate email template with 'all-in pricing' messaging and 'Fair Queue' branding suggests a customer-facing business trying to differentiate from traditional ticketing platforms like Ticketmaster. The 36% error rate with no retries is concerning for customer communications.",
+  "name": "FairTix Lottery Winner Notification System",
+  "businessNarrative": "This workflow automates the critical moment when FairTix notifies customers they've won the lottery for coveted event tickets. It sends professionally branded emails emphasizing their 'no hidden fees' value proposition and creates urgency with a 24-hour purchase window. The system tracks notification delivery status back to the lottery spreadsheet, enabling follow-up processes. This is a key customer touchpoint that directly impacts conversion from lottery winner to paying customer, making it revenue-critical despite its simplicity.",
+  "trigger": "New lottery winner entry added to Google Sheets",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "Google Sheets",
+    "Gmail"
+  ],
+  "dataFlow": "Lottery winner data (Name, Email, EventName, TicketPrice) from Google Sheets triggers personalized congratulatory email via Gmail, then updates spreadsheet with delivery status and timestamp",
+  "impact": {
+    "reasoning": "This is customer-facing communication at a revenue-critical moment - converting lottery winners to purchasers. The 36% error rate means potential customers aren't being notified of their wins, directly causing revenue loss. No manual fallback exists at scale.",
+    "level": "critical",
+    "failureScenario": "Lottery winners never receive notification emails, lose their 24-hour purchase window, tickets go unsold or to next in line, direct revenue loss and customer dissatisfaction",
+    "revenueConnection": "Direct - failed notifications immediately translate to lost ticket sales and disappointed customers who believe they won but never heard back"
+  },
+  "detectability": {
+    "reasoning": "Has error workflow configured (oZy3vc0yli2xdR45) but with 36% error rate continuing, suggests either inactive monitoring or ineffective response",
+    "level": "partially-monitored",
+    "evidence": "Error workflow ID oZy3vc0yli2xdR45 exists but 36% error rate persists, indicating monitoring may be inactive or responses inadequate"
+  },
+  "stepName": "Lottery Winner Notification and Conversion",
+  "timeSavingsEstimate": "50-100 hours/month - elimates manual email composition and sending for lottery notifications (confidence: data-driven based on 1 minute/execution estimate and execution volume)",
+  "technicalEvidence": {
+    "errorHandling": "No retries configured on any nodes (retryOnFail absent), has error workflow oZy3vc0yli2xdR45 but 36% error rate suggests issues persist",
+    "credentials": [
+      "DL-School-Automations Gmail (gmailOAuth2)",
+      "DL School Automations Google Sheets Account (googleSheetsTriggerOAuth2Api)",
+      "Google Sheets Account DL Automations (googleSheetsOAuth2Api)"
+    ],
+    "complexity": "Simple 3-node linear workflow with sophisticated email template suggesting customer-facing business use",
+    "keyFindings": [
+      "Workflow currently inactive despite being revenue-critical",
+      "High error rate (36%) with no retry mechanisms",
+      "Sophisticated branding suggests established business operation",
+      "Updates status back to sheet enabling downstream processes"
+    ]
+  }
+}

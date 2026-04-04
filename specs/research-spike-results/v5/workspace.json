@@ -1,0 +1,279 @@
+{
+  "reasoning": "FairTix operates an anti-bot ticketing platform with lottery-based fair queue systems, transparent pricing, and human verification. They have partially automated customer onboarding, lottery winner notifications, and support ticket handling. However, critical gaps exist: no payment processing automation, no ticket fulfillment workflows, no fraud detection systems, no analytics pipelines, and no integrations with payment providers or event management systems. The high error rates (36% for lottery notifications) and inactive status of revenue-critical workflows suggest operational issues. The company has built isolated automation islands without connecting the full customer journey from registration through ticket delivery.",
+  "processes": [
+    {
+      "name": "Customer Acquisition & Onboarding",
+      "summary": "Getting new users registered, verified, and ready to participate in ticket lotteries",
+      "workflows": [
+        "FairTix Welcome Email"
+      ],
+      "steps": [
+        {
+          "name": "User Registration",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Welcome Email",
+          "workflowName": "FairTix Welcome Email",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Human Verification",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Profile Setup",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "1 of 4 (25%)",
+      "maturityLevel": "Prototype"
+    },
+    {
+      "name": "Ticket Lottery & Distribution",
+      "summary": "Running fair queue lotteries and converting winners to paying customers",
+      "workflows": [
+        "FairTix Lottery Winner Notification"
+      ],
+      "steps": [
+        {
+          "name": "Lottery Entry Collection",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Winner Selection",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Winner Notification",
+          "workflowName": "FairTix Lottery Winner Notification",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Payment Processing",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Ticket Delivery",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "1 of 5 (20%)",
+      "maturityLevel": "Emerging"
+    },
+    {
+      "name": "Customer Support Operations",
+      "summary": "Handling support tickets with AI classification and automated FAQ responses",
+      "workflows": [
+        "Customer Support Email Classifier",
+        "FairTix Customer Support Triage",
+        "Customer Support Ticket Classification & Auto-Response System"
+      ],
+      "steps": [
+        {
+          "name": "Ticket Intake",
+          "workflowName": "Customer Support Email Classifier",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Classification & Triage",
+          "workflowName": "FairTix Customer Support Triage",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "FAQ Auto-Response",
+          "workflowName": "Customer Support Ticket Classification & Auto-Response System",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Complex Issue Resolution",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Ticket Closure & Feedback",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "3 of 5 (60%)",
+      "maturityLevel": "Developing"
+    },
+    {
+      "name": "Platform Monitoring & Operations",
+      "summary": "Monitoring automation health and handling errors",
+      "workflows": [
+        "Centralized Error Monitoring System"
+      ],
+      "steps": [
+        {
+          "name": "Error Detection",
+          "workflowName": "Centralized Error Monitoring System",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Performance Monitoring",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Business Analytics",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "1 of 3 (33%)",
+      "maturityLevel": "Emerging"
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "o1",
+      "reasoning": "36% failure rate on lottery winner notifications means over 1/3 of winners aren't getting purchase instructions within the 24-hour window. This directly costs revenue. The workflow shows email delivery issues but no retry logic or alternative notification channels.",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Fix Lottery Winner Notification Failures",
+      "businessCase": "Recover ~36% of lost lottery conversions by ensuring all winners receive purchase instructions",
+      "confidence": "data-driven",
+      "evidence": [
+        "36.1% error rate on FairTix Lottery Winner Notification workflow",
+        "No retry logic configured",
+        "Critical for revenue conversion with 24-hour purchase window"
+      ],
+      "honestFraming": null
+    },
+    {
+      "id": "o2",
+      "reasoning": "No payment processing automation exists despite being a ticketing marketplace. Winners receive notifications but payment collection, fraud checks, and order confirmation are missing. This creates friction in the critical conversion moment.",
+      "type": "new_workflow",
+      "tier": "act_now",
+      "name": "Automated Payment Processing Pipeline",
+      "businessCase": "Reduce cart abandonment and accelerate revenue collection with seamless payment automation",
+      "confidence": "benchmark-based",
+      "evidence": [
+        "No payment-related workflows found",
+        "Lottery notifications mention pricing but no payment collection",
+        "Industry standard requires payment automation for marketplaces"
+      ],
+      "honestFraming": "Payment processing might be handled by a separate platform. If so, consider API integration for unified operations visibility."
+    },
+    {
+      "id": "o3",
+      "reasoning": "After payments, there's no ticket delivery automation. Winners pay but then what? No workflows for generating tickets, QR codes, or delivery confirmations exist.",
+      "type": "new_workflow",
+      "tier": "act_now",
+      "name": "Digital Ticket Fulfillment System",
+      "businessCase": "Instant ticket delivery improves customer satisfaction and reduces support burden",
+      "confidence": "ai-suggested",
+      "evidence": [
+        "No ticket generation or delivery workflows",
+        "Support categories include 'Technical/Bug' suggesting delivery issues",
+        "Email classifier handles ticket-related queries"
+      ],
+      "honestFraming": "Ticket delivery might use a third-party service. If so, automating the handoff and confirmation would still add value."
+    },
+    {
+      "id": "o4",
+      "reasoning": "Human verification is core to FairTix's anti-bot promise but has no automation. The welcome email mentions verification but no workflows handle identity checks, bot detection, or verification status updates.",
+      "type": "new_workflow",
+      "tier": "investigate",
+      "name": "Automated Human Verification Pipeline",
+      "businessCase": "Scale anti-bot verification without manual review bottlenecks",
+      "confidence": "ai-suggested",
+      "evidence": [
+        "Welcome email emphasizes 'human verification'",
+        "No verification workflows found",
+        "Core to anti-bot value proposition"
+      ],
+      "honestFraming": "Verification might use specialized third-party services. Understanding current manual process would inform automation opportunities."
+    },
+    {
+      "id": "o5",
+      "reasoning": "All workflows use Gmail for transactional emails instead of dedicated email service providers. This limits deliverability tracking, scales poorly, and may hit sending limits during high-demand events.",
+      "type": "platform_connection",
+      "tier": "investigate",
+      "name": "Transactional Email Service Integration",
+      "businessCase": "Improve email deliverability and gain visibility into open/click rates for critical notifications",
+      "confidence": "benchmark-based",
+      "evidence": [
+        "All email workflows use Gmail OAuth",
+        "36% failure rate on lottery notifications",
+        "No deliverability tracking beyond basic status"
+      ],
+      "honestFraming": null
+    },
+    {
+      "id": "o6",
+      "reasoning": "No analytics workflows exist despite rich data: lottery participation, conversion rates, support ticket trends, revenue per event. The business operates blind to key metrics.",
+      "type": "new_workflow",
+      "tier": "investigate",
+      "name": "Business Intelligence Data Pipeline",
+      "businessCase": "Make data-driven decisions on pricing, inventory, and customer experience improvements",
+      "confidence": "ai-suggested",
+      "evidence": [
+        "No analytics or reporting workflows",
+        "Data scattered across Google Sheets",
+        "No aggregation or trend analysis"
+      ],
+      "honestFraming": "Analytics might exist in other tools. Connecting them to operational data would provide unified insights."
+    },
+    {
+      "id": "o7",
+      "reasoning": "Support workflows reveal resale/transfer requests but no automation for FairTix's capped resale feature. Manual handling of transfers limits scalability and creates fraud risk.",
+      "type": "new_workflow",
+      "tier": "explore",
+      "name": "Automated Ticket Transfer & Resale System",
+      "businessCase": "Enable secure, policy-compliant ticket transfers while preventing scalping",
+      "confidence": "data-driven",
+      "evidence": [
+        "Support classifier includes 'Resale/Transfer Requests' category",
+        "Welcome email mentions 'capped resale prices'",
+        "No transfer automation found"
+      ],
+      "honestFraming": null
+    },
+    {
+      "id": "o8",
+      "reasoning": "Error monitoring exists but no proactive performance monitoring. The system only reacts to failures rather than preventing them through capacity planning or anomaly detection.",
+      "type": "new_workflow",
+      "tier": "explore",
+      "name": "Proactive Performance Monitoring",
+      "businessCase": "Prevent outages during high-demand ticket releases through predictive monitoring",
+      "confidence": "ai-suggested",
+      "evidence": [
+        "Only reactive error monitoring exists",
+        "No performance or capacity workflows",
+        "Critical for flash sale/lottery events"
+      ],
+      "honestFraming": "Infrastructure monitoring might exist at platform level. Application-specific metrics would still add value."
+    }
+  ],
+  "nextMove": {
+    "text": "First, fix the lottery winner notification workflow's 36% failure rate by adding retry logic and switching to a transactional email service - this directly blocks revenue. Then build the payment processing automation since you can't capture revenue from notified winners without it. Finally, add ticket delivery automation to complete the core purchase flow. Only after this revenue pipeline works end-to-end should you enhance verification, analytics, and resale features.",
+    "reasoning": "Following the money: fix what's broken in the revenue path first (notifications), then fill the biggest gap (payments), then complete the customer journey (fulfillment). Everything else is optimization."
+  }
+}

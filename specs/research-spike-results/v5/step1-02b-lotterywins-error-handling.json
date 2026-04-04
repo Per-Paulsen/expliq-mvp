@@ -1,0 +1,32 @@
+{
+  "reasoning": "This workflow is part of FairTix's lottery system for fair ticket distribution. It monitors a Google Sheet for lottery winners and automatically sends congratulatory emails with purchase instructions. The workflow implements error handling by updating the sheet with either success (200) or error (500) status codes. The email template emphasizes transparent pricing with no hidden fees, and includes a 24-hour purchase deadline. This appears to be a critical customer communication workflow that directly impacts revenue conversion from lottery winners to actual ticket purchases.",
+  "name": "FairTix Lottery Winner Notification",
+  "businessNarrative": "This workflow automatically notifies customers who won the ticket lottery for high-demand events, sending them personalized emails with purchase instructions and a 24-hour deadline. It's a critical component of FairTix's fair queue system that ensures only verified humans can purchase tickets, not bots. The workflow tracks success/failure states back to the source spreadsheet for operational visibility, enabling the business to monitor conversion rates and troubleshoot delivery issues.",
+  "trigger": "New lottery winner added to Google Sheet",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "Google Sheets",
+    "Gmail"
+  ],
+  "dataFlow": "Lottery winner data (name, email, event, price) flows from Google Sheets, gets transformed into a branded HTML email, and status updates flow back to the sheet with timestamps",
+  "impact": {
+    "reasoning": "Directly enables revenue conversion from lottery winners to ticket purchases with a 24-hour window. Failed notifications mean lost sales and poor customer experience.",
+    "level": "critical",
+    "failureScenario": "Lottery winners don't receive purchase instructions, leading to lost revenue, customer complaints, and potential tickets going to bots instead",
+    "revenueConnection": "Direct"
+  },
+  "detectability": {
+    "reasoning": "Status tracking back to Google Sheets provides visibility into delivery success/failure, though polling-based triggers could have delays",
+    "level": "monitored"
+  },
+  "stepName": "Customer notification after lottery selection",
+  "technicalEvidence": {
+    "errorHandling": "Gmail node configured with 'continueErrorOutput', separate success/error paths update sheet with status codes (200/500) and error messages",
+    "keyFindings": [
+      "Currently inactive workflow despite being critical for revenue conversion",
+      "Uses polling trigger checking every minute, which could delay time-sensitive notifications",
+      "No executions recorded yet, suggesting this is either new or has implementation issues",
+      "Error tracking includes timestamp and error message for troubleshooting"
+    ]
+  }
+}

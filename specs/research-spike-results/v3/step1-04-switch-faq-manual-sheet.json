@@ -1,0 +1,56 @@
+{
+  "reasoning": "This is an AI-powered customer support triage system for FairTix, a ticket marketplace platform. The workflow monitors a Google Sheets database for new support requests, automatically classifies them into 6 categories (FAQ, Account/Verification, Payment/Billing, Technical/Bug, Resale/Transfer, Feedback) using Claude AI, and routes them appropriately. FAQ and Payment/Billing requests get automated AI responses generated from a FAQ document stored in Google Docs, while other categories trigger human support team notifications via email. The system writes both the AI classification and any generated responses back to the spreadsheet for tracking. The sophisticated classification prompt with detailed examples and sentiment analysis indicates this handles significant support volume. The business logic reveals FairTix operates a 'fair queue' system for ticket sales with price caps on resales, suggesting they compete on fairness against traditional ticketing monopolies.",
+  "name": "AI-Powered Customer Support Triage and Auto-Response",
+  "businessNarrative": "This workflow automates FairTix's customer support operations by intelligently classifying incoming support requests and providing immediate responses to common questions. The system reveals FairTix operates a fair ticketing marketplace with a queue-based allocation system and resale price caps, competing against traditional ticketing platforms on transparency and fairness. By automating FAQ responses while escalating complex issues to humans, the workflow enables the support team to focus on high-value customer problems while maintaining response speed for routine inquiries. The detailed classification logic and sentiment analysis suggest this handles substantial support volume for a growing platform.",
+  "trigger": "New support request added to the Google Sheets database",
+  "triggerType": "polling",
+  "systemsTouched": [
+    "google sheets",
+    "anthropic claude",
+    "google docs",
+    "gmail"
+  ],
+  "dataFlow": "Support requests enter via Google Sheets → AI classification with sentiment analysis → FAQ requests get AI-generated responses from Google Docs knowledge base → Complex requests trigger human team notifications → All classifications and responses written back to sheets for tracking.",
+  "impact": {
+    "reasoning": "This is customer-facing support automation that directly affects customer experience and satisfaction. While it has fallback paths (human escalation), failure would mean customers receive no responses to their inquiries, creating frustrated customers and overwhelming the human support team. The 88% success rate with 12% failures indicates reliability issues that could compound customer problems.",
+    "level": "high",
+    "failureScenario": "Customers receive no responses to support requests, leading to escalating frustration, negative reviews, and support team overwhelm. FAQ responses stop generating, forcing manual handling of routine questions and dramatically increasing response times.",
+    "revenueConnection": "Indirect — Poor support experience drives customer churn and negative reviews in a competitive marketplace. Data-driven: 12% failure rate creates customer service gaps."
+  },
+  "detectability": {
+    "reasoning": "No error workflow configured and no retry logic on any nodes. The 12% failure rate indicates problems are occurring but the team likely only discovers them when customers complain about missing responses or when checking the sheets manually.",
+    "level": "silent",
+    "evidence": "No error workflow linked, retryOnFail=false on all nodes, no monitoring configuration visible."
+  },
+  "stepName": "First-Line Support Automation",
+  "timeSavingsEstimate": "40-80 hours per week — eliminates manual classification of all support requests plus auto-generates responses for FAQ categories (likely 40-60% of volume based on the routing logic). Benchmark-based: typical support classification takes 2-3 minutes per ticket.",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic (retryOnFail=false), no error workflow, no monitoring. Failures are silent.",
+    "credentials": [
+      [
+        "Google Sheets Account DL Automations",
+        "googleSheetsOAuth2Api"
+      ],
+      [
+        "Anthropic account",
+        "anthropicApi"
+      ],
+      [
+        "Google Docs account",
+        "googleDocsOAuth2Api"
+      ],
+      [
+        "DL-School-Automations Gmail",
+        "gmailOAuth2"
+      ]
+    ],
+    "complexity": "13 nodes with AI chain, branching logic, data merging, and multi-system integration",
+    "keyFindings": [
+      "Sophisticated AI classification with 6 business categories and 4 sentiment levels",
+      "FAQ document integration suggests substantial knowledge base maintenance",
+      "Switch node routes FAQ/Payment to auto-response, others to human escalation",
+      "Every-minute polling indicates high support volume expectations",
+      "Detailed classification rationale suggests need for audit trail and quality control"
+    ]
+  }
+}

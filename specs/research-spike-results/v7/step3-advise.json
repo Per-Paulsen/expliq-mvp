@@ -1,0 +1,280 @@
+{
+  "reasoning": "FairTix operates a lottery-based ticket marketplace but has critical gaps in their automation infrastructure. With only 3 processes automated and 36.1% failure rate on revenue-critical lottery notifications, they're losing money daily. The workflows reveal they handle verification issues (Polish +48 numbers failing), payment problems (double charges, missing tickets), and support inquiries about lottery mechanics - but none of these core business functions are automated. They're using Google Sheets as a database and have no retry logic on failed notifications. The 'dlschoolautomations@gmail.com' suggests this might be training material, but the business model is clear: fair ticket distribution through verified-human lottery system with 20% resale caps.",
+  "recommendations": [
+    {
+      "id": "r1",
+      "reasoning": "36.1% of lottery winner notifications fail with no retry mechanism, directly losing revenue from eager buyers with 24-hour purchase windows",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Fix Critical Lottery Notification Failures",
+      "businessCase": "Recover 36% of potentially lost ticket sales by ensuring winners receive notifications",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Workflow '2 - FairTix - LotteryWin' has 36.1% error rate (13 of 36 executions failed)",
+        "No retry configuration on 'Send a message' Gmail node despite revenue impact",
+        "24-hour purchase window means failed notifications = lost sales"
+      ],
+      "honestFraming": null,
+      "affectedScope": "Lottery winner notification process",
+      "implementationNotes": "On 'Send a message' Gmail node in workflows 2, 2b, and 5: Add retryOnFail: true, maxTries: 3, waitBetweenTries: 60000 (exponential backoff). Add email delivery verification by checking Gmail API response for bounce indicators. Create fallback SMS notification path for critical lottery wins."
+    },
+    {
+      "id": "r2",
+      "reasoning": "Lottery winners are notified but the actual lottery selection process is completely manual, creating bottlenecks and potential bias",
+      "type": "new_workflow",
+      "tier": "act_now",
+      "name": "Automated Fair Queue Lottery Selection",
+      "businessCase": "Scale lottery operations from manual to automated, ensuring true randomness and handling 1000x volume",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Email templates mention 'Fair Queue selected you' and 'random selection'",
+        "No workflow exists for actual lottery drawing despite this being core business",
+        "Google Sheets shows lottery winner data enters system somehow (manual process)"
+      ],
+      "honestFraming": null,
+      "affectedScope": "Core lottery selection mechanism",
+      "implementationNotes": "Build workflow triggered by queue close time: 1) Query verified users who entered queue, 2) Use cryptographic randomness for selection, 3) Write winners to sheet, 4) Trigger existing notification workflow, 5) Send consolation emails to non-winners with next queue dates"
+    },
+    {
+      "id": "r3",
+      "reasoning": "Polish phone numbers (+48) fail verification, blocking international customers from participating in lotteries",
+      "type": "new_workflow",
+      "tier": "act_now",
+      "name": "International Phone Verification Handler",
+      "businessCase": "Unlock European market by fixing verification for non-US phone numbers",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Support message: 'My phone number is Polish (+48) — could that be the issue?'",
+        "Welcome email promises 'Verified Humans Only' but verification is broken",
+        "Account/Verification category in support classifier shows this is common issue"
+      ],
+      "honestFraming": null,
+      "affectedScope": "User verification and onboarding",
+      "implementationNotes": "Create verification workflow with: 1) International phone number validation, 2) Multiple SMS gateway fallbacks (Twilio primary, MessageBird for EU), 3) Retry logic with different gateways, 4) Manual review queue for persistent failures"
+    },
+    {
+      "id": "r4",
+      "reasoning": "Payment processing, order creation, and ticket delivery are completely manual despite being core revenue operations",
+      "type": "new_workflow",
+      "tier": "act_now",
+      "name": "End-to-End Payment & Fulfillment Pipeline",
+      "businessCase": "Automate the entire revenue chain from lottery win to ticket delivery",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Support: 'charged €65... but no ticket in account' (Order FT-20260412-8834)",
+        "Support: 'TWO charges of €55.00... only bought one ticket'",
+        "No payment, order, or ticket delivery workflows exist"
+      ],
+      "honestFraming": "We see payment issues in support but no payment workflows. If handled by external system, connect for visibility.",
+      "affectedScope": "Revenue operations from payment to fulfillment",
+      "implementationNotes": "Workflow chain: 1) Payment authorization on lottery win confirmation, 2) Order creation with unique ID, 3) Payment capture with idempotency keys to prevent double charges, 4) Ticket generation with QR codes, 5) Email delivery with PDF attachment, 6) Update user account with ticket visibility"
+    },
+    {
+      "id": "r5",
+      "reasoning": "Every workflow polls Google Sheets every minute, consuming resources and creating delays",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Replace Polling with Webhook Triggers",
+      "businessCase": "Reduce infrastructure costs by 90% and improve response time from minutes to seconds",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "All workflows poll Google Sheets 'every minute'",
+        "1440 API calls/day per workflow for simple row monitoring",
+        "Time-sensitive lottery notifications delayed up to 60 seconds"
+      ],
+      "honestFraming": null,
+      "affectedScope": "All Google Sheets triggered workflows",
+      "implementationNotes": "Use Google Sheets API webhook notifications or Apps Script to POST to n8n webhook endpoints on row changes. Replace polling triggers in workflows 2, 2b, 3, 4, and 5. This eliminates 7,200+ unnecessary API calls daily."
+    },
+    {
+      "id": "r6",
+      "reasoning": "Support emails show order IDs and transaction details but no monitoring dashboard exists",
+      "type": "platform_connection",
+      "tier": "investigate",
+      "name": "Connect Payment Platform for Transaction Monitoring",
+      "businessCase": "Prevent double charges and missing tickets by connecting payment system to automation platform",
+      "confidence": "benchmark-based",
+      "evidenceChain": [
+        "Order format 'FT-20260412-8834' suggests external order system",
+        "Payment/Billing support category exists but no payment workflows",
+        "Double charge complaints indicate payment system integration gaps"
+      ],
+      "honestFraming": "Order IDs suggest external payment system. If using Stripe/PayPal, webhook integration would prevent these issues.",
+      "affectedScope": "Payment processing and reconciliation",
+      "implementationNotes": "Connect payment provider (likely Stripe based on order format) via webhooks: payment.succeeded, payment.failed, charge.dispute.created. Create reconciliation workflow to match payments to orders and flag anomalies."
+    },
+    {
+      "id": "r7",
+      "reasoning": "Error handler has 15% failure rate, meaning errors in error handling go unnoticed",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Add Secondary Error Monitoring",
+      "businessCase": "Ensure 100% error visibility by adding fallback monitoring when primary error handler fails",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Workflow '5 - Generic Error Workflow' shows 15% error rate",
+        "No error handler configured for the error handler itself",
+        "Single point of failure for entire monitoring infrastructure"
+      ],
+      "honestFraming": null,
+      "affectedScope": "Infrastructure monitoring and alerting",
+      "implementationNotes": "Add webhook to external monitoring service (PagerDuty/Datadog) as fallback. Configure the 'Send a message' node with retryOnFail: true. Add health check endpoint that verifies error workflow is active and responsive."
+    },
+    {
+      "id": "r8",
+      "reasoning": "Lottery expiration mentioned but no automation to handle expired purchase windows or re-release tickets",
+      "type": "new_workflow",
+      "tier": "investigate",
+      "name": "24-Hour Purchase Window Manager",
+      "businessCase": "Automatically reclaim and re-release tickets when winners don't complete purchase within 24 hours",
+      "confidence": "benchmark-based",
+      "evidenceChain": [
+        "Email states 'You have 24 hours to complete your purchase'",
+        "Support asks 'what happens if I don't complete in time?'",
+        "No workflow monitors or acts on expired windows"
+      ],
+      "honestFraming": "Purchase window expiration is mentioned but not automated. May be handled externally.",
+      "affectedScope": "Lottery ticket inventory management",
+      "implementationNotes": "Schedule workflow to run hourly: 1) Query lottery wins older than 24 hours without payment, 2) Send final warning at 23 hours, 3) At 24 hours: cancel reservation, update inventory, trigger new mini-lottery for released tickets, 4) Send expiration confirmation"
+    },
+    {
+      "id": "r9",
+      "reasoning": "Resale marketplace mentioned with 20% cap but no workflows manage listings, pricing validation, or transfers",
+      "type": "new_workflow",
+      "tier": "explore",
+      "name": "Automated Resale Marketplace",
+      "businessCase": "Capture revenue from secondary market while enforcing fair pricing caps",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Email mentions 'Resale Cap - face value + 20% max'",
+        "Support category 'Resale/Transfer' exists",
+        "Support: 'My resale listing was removed with no explanation'"
+      ],
+      "honestFraming": "Resale features are referenced but may be handled by separate platform",
+      "affectedScope": "Secondary ticket market operations",
+      "implementationNotes": "Workflow suite: 1) Listing creation with automatic price validation (≤120% face value), 2) Transfer initiation between verified accounts, 3) Payment processing with platform fee, 4) Ticket ownership update, 5) Both parties notification"
+    },
+    {
+      "id": "r10",
+      "reasoning": "AI classification happens but insights are never aggregated or acted upon",
+      "type": "new_workflow",
+      "tier": "explore",
+      "name": "Support Intelligence Dashboard",
+      "businessCase": "Turn 1000s of classified support tickets into actionable product improvements",
+      "confidence": "benchmark-based",
+      "evidenceChain": [
+        "362 versions of classifier shows heavy usage",
+        "Classification data written to sheets but never analyzed",
+        "Sentiment tracking exists but unused for prioritization"
+      ],
+      "honestFraming": null,
+      "affectedScope": "Customer experience optimization",
+      "implementationNotes": "Weekly workflow: 1) Aggregate classification data by category/sentiment, 2) Identify trending issues (>10% increase), 3) Generate insight report with specific examples, 4) Create Jira tickets for product improvements, 5) Update FAQ content based on common questions"
+    },
+    {
+      "id": "r11",
+      "reasoning": "Using expensive Claude Sonnet for classification when Haiku might suffice for 70% of clear-cut cases",
+      "type": "technical_fix",
+      "tier": "explore",
+      "name": "AI Cost Optimization with Tiered Models",
+      "businessCase": "Reduce AI costs by 60% using cheaper models for obvious classifications",
+      "confidence": "ai-suggested",
+      "evidenceChain": [
+        "Sonnet 4.6 used for all classifications at premium pricing",
+        "Confidence scores show many at 0.95+ (obvious classifications)",
+        "Already using cheaper Haiku for response generation"
+      ],
+      "honestFraming": "Assumes clear classifications don't need premium model. Test accuracy first.",
+      "affectedScope": "Support classification costs",
+      "implementationNotes": "Add pre-classifier using Haiku: if keywords match obvious patterns (e.g., 'how does fair queue work' = FAQ), use Haiku. Route only ambiguous messages (confidence <0.8) to Sonnet. Monitor accuracy degradation."
+    },
+    {
+      "id": "r12",
+      "reasoning": "Demo environment URLs and test data throughout suggest this isn't production-ready",
+      "type": "technical_fix",
+      "tier": "act_now",
+      "name": "Production Environment Setup",
+      "businessCase": "Move from demo to production to handle real customers and transactions",
+      "confidence": "data-driven",
+      "evidenceChain": [
+        "Hardcoded 'https://fairtix.demo/checkout' URL",
+        "Test email 'mail@andreasstephan.com' throughout",
+        "'dlschoolautomations@gmail.com' suggests training environment"
+      ],
+      "honestFraming": "This appears to be demo/training setup. If so, this is preparation for go-live.",
+      "affectedScope": "Entire automation infrastructure",
+      "implementationNotes": "1) Replace all hardcoded test data with environment variables, 2) Set up production Gmail workspace, 3) Configure production credentials for all services, 4) Update all demo URLs to production domains, 5) Implement proper secret management"
+    }
+  ],
+  "processSuggestions": [
+    {
+      "name": "Fair Queue Lottery Management",
+      "description": "End-to-end automation from queue opening announcement to winner selection and notification",
+      "businessCase": "Core business process currently manual - automating enables 100x scale",
+      "basedOn": "Emails reference lottery selection but no selection workflow exists",
+      "connectedSystems": [
+        "User Database",
+        "Google Sheets",
+        "Gmail",
+        "SMS Gateway"
+      ],
+      "childRecommendationIds": [
+        "r2",
+        "r3",
+        "r8"
+      ]
+    },
+    {
+      "name": "Revenue Operations Pipeline",
+      "description": "Seamless flow from lottery win through payment, order creation, to ticket delivery",
+      "businessCase": "Every failed payment or missing ticket damages trust in 'fair' marketplace",
+      "basedOn": "Support shows payment issues but no payment automation exists",
+      "connectedSystems": [
+        "Payment Gateway",
+        "Order Management",
+        "Ticket Generation",
+        "Gmail"
+      ],
+      "childRecommendationIds": [
+        "r4",
+        "r6"
+      ]
+    },
+    {
+      "name": "Dynamic Inventory Management",
+      "description": "Track ticket availability, handle expirations, and manage resale inventory in real-time",
+      "businessCase": "Maximize revenue by ensuring no ticket goes unsold due to process gaps",
+      "basedOn": "24-hour windows expire with no automated reclaim process",
+      "connectedSystems": [
+        "Inventory System",
+        "Lottery Engine",
+        "Resale Platform"
+      ],
+      "childRecommendationIds": [
+        "r8",
+        "r9"
+      ]
+    }
+  ],
+  "nextMove": {
+    "text": "Start with workflow '2 - FairTix - LotteryWin' and add retry logic to the Gmail node - this alone could recover 36% of lost revenue. Next, build the missing lottery selection workflow to automate your core business process. Then connect your payment system via webhooks to prevent the double-charging issues flooding your support queue. These three changes would transform FairTix from a manual operation to a scalable platform.",
+    "reasoning": "Fixing the 36% failure rate is pure revenue recovery with minimal effort. Building lottery selection automation is essential for scale. Payment integration prevents the #1 support complaint. This sequence maximizes immediate revenue impact while building toward platform maturity."
+  },
+  "visibilityExpansions": [
+    {
+      "platform": "Payment Provider (Stripe/PayPal)",
+      "reasoning": "Order IDs exist but payment processing is invisible to automation platform",
+      "whatItUnlocks": "Real-time charge monitoring, automatic refunds, dispute handling, reconciliation"
+    },
+    {
+      "platform": "SMS Gateway (Twilio)",
+      "reasoning": "Phone verification is core to 'verified humans only' promise but not connected",
+      "whatItUnlocks": "International number support, delivery confirmations, backup notification channel"
+    },
+    {
+      "platform": "Analytics Platform",
+      "reasoning": "Rich classification data collected but never analyzed for patterns",
+      "whatItUnlocks": "Support trend detection, product improvement insights, FAQ optimization"
+    }
+  ]
+}

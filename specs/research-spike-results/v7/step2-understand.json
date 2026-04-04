@@ -1,0 +1,307 @@
+{
+  "reasoning": "FairTix is a ticketing marketplace combating scalping through a lottery-based 'Fair Queue' system. The automation landscape reveals three core business processes: 1) User onboarding with welcome emails explaining the anti-bot verification requirements, 2) Lottery winner notifications with 24-hour purchase windows and transparent pricing (no hidden fees, 20% resale cap), and 3) Customer support triage using AI to classify inquiries and auto-respond to FAQs. The workflows show varying maturity - support classification has 362 versions indicating heavy iteration, while lottery notifications have multiple duplicate versions suggesting testing/development phases. Error rates are concerning: lottery notifications fail 36.1% of the time (direct revenue impact), support classification fails 12% of the time, and even the error handler fails 15% of the time. The demo/training environment context (dlschoolautomations@gmail.com, hardcoded test data) suggests this might be a reference implementation or automation course material, not production. Missing processes include actual lottery selection, payment processing, ticket delivery, resale listing management, and verification workflows - all mentioned in emails but not automated.",
+  "processes": [
+    {
+      "name": "User Onboarding & Activation",
+      "summary": "Welcomes new users and drives them toward account verification to participate in ticket lotteries",
+      "workflows": [
+        "1 - FairTix Send Welcome Email"
+      ],
+      "steps": [
+        {
+          "name": "User Registration",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Welcome Email Delivery",
+          "workflowName": "1 - FairTix Send Welcome Email",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Phone Verification",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Account Activation",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "1 of 4 steps automated (25%)",
+      "reliability": "100% (5 executions, 0 errors)",
+      "maturityReasoning": "Single automated step with hardcoded test data, manual trigger only, missing critical verification automation",
+      "maturityLevel": "Prototype"
+    },
+    {
+      "name": "Ticket Lottery & Distribution",
+      "summary": "Manages fair queue lottery selection and notifies winners with purchase instructions",
+      "workflows": [
+        "2 - FairTix - LotteryWin",
+        "2b - FairTix - LotteryWin With Error Handling",
+        "5 - FairTix - LotteryWin - Published"
+      ],
+      "steps": [
+        {
+          "name": "Queue Entry Collection",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Random Lottery Selection",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Winner Notification",
+          "workflowName": "2 - FairTix - LotteryWin",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Purchase Window Tracking",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Payment Processing",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        },
+        {
+          "name": "Ticket Delivery",
+          "workflowName": null,
+          "isAutomated": false,
+          "isGap": true
+        }
+      ],
+      "coverage": "1 of 6 steps automated (17%)",
+      "reliability": "63.9% (36 executions, 13 errors)",
+      "maturityReasoning": "Multiple workflow versions indicate development phase, high error rate affects revenue, missing core lottery mechanics",
+      "maturityLevel": "Emerging"
+    },
+    {
+      "name": "Customer Support Management",
+      "summary": "Classifies support inquiries using AI and automates FAQ responses while escalating complex issues",
+      "workflows": [
+        "3 - FairTix- Support-Classifier",
+        "4 - FairTix- Switch FAQ/Manual",
+        "4 - FairTix- Switch FAQ/Manual (sheet based)"
+      ],
+      "steps": [
+        {
+          "name": "Support Request Intake",
+          "workflowName": "3 - FairTix- Support-Classifier",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "AI Classification",
+          "workflowName": "3 - FairTix- Support-Classifier",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "FAQ Auto-Response",
+          "workflowName": "4 - FairTix- Switch FAQ/Manual",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Human Escalation",
+          "workflowName": "4 - FairTix- Switch FAQ/Manual",
+          "isAutomated": true,
+          "isGap": false
+        },
+        {
+          "name": "Response Tracking",
+          "workflowName": "4 - FairTix- Switch FAQ/Manual",
+          "isAutomated": true,
+          "isGap": false
+        }
+      ],
+      "coverage": "5 of 5 steps automated (100%)",
+      "reliability": "94% average (143 total executions, ~9% error rate)",
+      "maturityReasoning": "Comprehensive automation with AI integration, multiple workflow versions showing iteration, but still has reliability issues",
+      "maturityLevel": "Developing"
+    }
+  ],
+  "suggestedProcesses": [
+    {
+      "name": "Fair Queue Management",
+      "summary": "Automate the lottery selection process that randomly chooses winners from verified users",
+      "basedOn": "Email templates mention 'Fair Queue selected you' and 'random selection' but no workflow handles the actual lottery drawing or queue management",
+      "suggestedSteps": [
+        "Queue Opening Announcement",
+        "Entry Collection & Validation",
+        "Random Winner Selection",
+        "Non-Winner Notifications",
+        "Queue Statistics Reporting"
+      ],
+      "connectedSystems": [
+        "FairTix Platform",
+        "User Database",
+        "Google Sheets",
+        "Gmail"
+      ]
+    },
+    {
+      "name": "Payment & Order Fulfillment",
+      "summary": "Handle payment processing, order confirmation, and digital ticket delivery",
+      "basedOn": "Support emails reference order numbers (FT-20260412-8834), payment issues, double charges, and missing tickets in accounts",
+      "suggestedSteps": [
+        "Payment Authorization",
+        "Order Creation",
+        "Payment Capture",
+        "Ticket Generation",
+        "Digital Delivery",
+        "Receipt Generation"
+      ],
+      "connectedSystems": [
+        "Payment Gateway",
+        "Order Management System",
+        "Ticket Generation Service",
+        "Gmail"
+      ]
+    },
+    {
+      "name": "Identity Verification",
+      "summary": "Automate phone number verification to ensure 'verified humans only' as promised",
+      "basedOn": "Welcome email states 'Verified Humans Only' and support messages show verification failures with international numbers (+48)",
+      "suggestedSteps": [
+        "SMS Code Generation",
+        "Code Delivery",
+        "Code Validation",
+        "Retry Logic for International Numbers",
+        "Manual Review Queue"
+      ],
+      "connectedSystems": [
+        "SMS Gateway",
+        "User Database",
+        "Verification Service"
+      ]
+    },
+    {
+      "name": "Resale Management",
+      "summary": "Enable and monitor ticket resales within the 20% price cap policy",
+      "basedOn": "Emails mention 'Resale Cap - face value + 20% max' and support categories include 'Resale/Transfer' issues",
+      "suggestedSteps": [
+        "Resale Listing Creation",
+        "Price Cap Validation",
+        "Listing Approval",
+        "Transfer Processing",
+        "Payment Distribution"
+      ],
+      "connectedSystems": [
+        "Marketplace Platform",
+        "Payment System",
+        "Ticket Transfer Service"
+      ]
+    }
+  ],
+  "systemLandscape": [
+    {
+      "name": "Gmail",
+      "role": "Primary communication channel for all customer touchpoints",
+      "workflowCount": 8,
+      "narrative": "Gmail handles welcome emails, lottery notifications, support responses, and error alerts - it's the sole customer communication channel, creating a single point of failure",
+      "insight": "No email delivery monitoring or bounce handling despite business-critical communications"
+    },
+    {
+      "name": "Google Sheets",
+      "role": "Database substitute for lottery winners and support ticket tracking",
+      "workflowCount": 6,
+      "narrative": "Sheets serve as makeshift databases with status codes (200/500) mimicking HTTP responses, suggesting a lean/prototype approach that won't scale",
+      "insight": "Polling sheets every minute is resource-intensive and indicates missing event-driven architecture"
+    },
+    {
+      "name": "Anthropic Claude",
+      "role": "AI engine for support classification and response generation",
+      "workflowCount": 3,
+      "narrative": "Uses expensive Sonnet model for classification accuracy but cheaper Haiku for responses, showing cost optimization awareness in AI strategy",
+      "insight": "No fallback for AI failures could leave support requests unprocessed during outages"
+    },
+    {
+      "name": "Google Docs",
+      "role": "Knowledge base for FAQ content",
+      "workflowCount": 2,
+      "narrative": "Stores FAQ content that AI uses to generate responses, enabling non-technical staff to update support answers",
+      "insight": "Hardcoded document IDs mean workflow updates needed for any knowledge base restructuring"
+    }
+  ],
+  "connectedAutomations": [
+    {
+      "fromWorkflow": "2 - FairTix - LotteryWin",
+      "toWorkflow": "5 - Generic Error Workflow",
+      "connectionType": "errorWorkflow",
+      "description": "Lottery notifications report failures to central error handler for debugging"
+    },
+    {
+      "fromWorkflow": "3 - FairTix- Support-Classifier",
+      "toWorkflow": "4 - FairTix- Switch FAQ/Manual",
+      "connectionType": "logical",
+      "description": "Classification results determine whether FAQ auto-response or human escalation path is taken"
+    },
+    {
+      "fromWorkflow": "All workflows",
+      "toWorkflow": "5 - Generic Error Workflow",
+      "connectionType": "errorWorkflow",
+      "description": "Centralized error monitoring for entire automation infrastructure"
+    }
+  ],
+  "crossWorkflowFindings": [
+    {
+      "finding": "Demo Environment Indicators",
+      "description": "Hardcoded test emails, demo URLs (fairtix.demo), and dlschoolautomations@ addresses suggest training/reference implementation",
+      "affectedWorkflows": [
+        "All workflows"
+      ],
+      "businessImplication": "This may be educational content for an automation course rather than production systems"
+    },
+    {
+      "finding": "Missing Revenue Pipeline",
+      "description": "No workflows handle lottery selection, payment processing, or ticket delivery despite these being core business functions",
+      "affectedWorkflows": [
+        "2 - FairTix - LotteryWin",
+        "Payment-related support tickets"
+      ],
+      "businessImplication": "Critical revenue-generating processes remain manual, limiting scalability and creating operational bottlenecks"
+    },
+    {
+      "finding": "Reliability Crisis",
+      "description": "36.1% failure rate on lottery notifications, 12% on support classification, 15% on error handler itself",
+      "affectedWorkflows": [
+        "2 - FairTix - LotteryWin",
+        "4 - FairTix- Switch FAQ/Manual",
+        "5 - Generic Error Workflow"
+      ],
+      "businessImplication": "High failure rates directly impact revenue (missed lottery sales) and customer satisfaction (unhandled support)"
+    },
+    {
+      "finding": "International Phone Verification Issues",
+      "description": "Support messages show Polish (+48) numbers failing verification, indicating missing international SMS support",
+      "affectedWorkflows": [
+        "Phone verification (not automated)",
+        "Support workflows handling verification issues"
+      ],
+      "businessImplication": "International customers blocked from participating in lotteries, limiting market reach"
+    },
+    {
+      "finding": "No Monitoring or Observability",
+      "description": "Workflows lack retry logic, health checks, or performance monitoring beyond basic error emails",
+      "affectedWorkflows": [
+        "All workflows"
+      ],
+      "businessImplication": "Team blind to performance degradation until customers complain, reactive rather than proactive operations"
+    }
+  ]
+}

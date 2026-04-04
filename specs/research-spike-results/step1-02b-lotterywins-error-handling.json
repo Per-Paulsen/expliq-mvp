@@ -1,0 +1,60 @@
+{
+  "name": "FairTix Lottery Winner Notification",
+  "description": "Automatically notifies customers when they win the Fair Queue lottery for event tickets, providing them with purchase details, transparent pricing, and a 24-hour checkout deadline. Also tracks notification delivery status back to the source system.",
+  "trigger": "When a new lottery winner is added to the FairTix signups spreadsheet",
+  "triggerType": "polling",
+  "coreLogic": "1) Triggers when a new row appears in the lottery winners sheet 2) Sends a celebration email with event details, ticket price (€X), and transparent 'no hidden fees' messaging 3) Provides a checkout link with 24-hour urgency deadline 4) Updates the spreadsheet with delivery status (200/success or 500/error) and timestamp for tracking",
+  "systemsTouched": [
+    "google sheets",
+    "gmail",
+    "fairtix checkout system"
+  ],
+  "dataTypes": [
+    "lottery winner record",
+    "event details",
+    "ticket pricing",
+    "customer contact info",
+    "notification status"
+  ],
+  "businessContext": "FairTix operates a fair lottery system for high-demand event tickets, positioning itself against bot-driven ticket scalping. The 'Fair Queue' appears to be their core differentiator - verified humans enter a lottery rather than fighting bots in first-come-first-served sales. The transparent pricing messaging ('€0.00 hidden fees') suggests they're competing against traditional ticketing platforms known for surprise fees. The 24-hour purchase window creates urgency while giving winners reasonable time to complete payment.",
+  "sideEffects": [
+    "Updates lottery winner record with notification delivery status",
+    "Triggers customer checkout journey via email CTA",
+    "Creates audit trail with timestamps for notification tracking"
+  ],
+  "impactProposal": {
+    "level": "critical",
+    "reasoning": "This is the pivotal moment in FairTix's customer journey - the transition from lottery winner to paying customer. Each failed notification is a direct revenue loss, as the winner doesn't know they've won and their spot gets released. With no retry logic and 24-hour deadline pressure, technical failures here directly impact conversion rates and customer satisfaction."
+  },
+  "stepName": "Lottery Win Notification",
+  "businessBrief": "The critical handoff from FairTix's fair lottery system to customer purchase completion — transforms lottery selection into revenue by notifying winners and driving them to checkout within 24 hours.",
+  "timeSavingsEstimate": "~5-8 minutes per notification — replaces manual winner notification, email composition, and status tracking. At scale during high-demand events, this could save hours of manual work. Confidence: benchmark-based.",
+  "revenueImpactEstimate": "Direct revenue impact — each notification drives a ticket purchase at the stated price (€X per ticket). Failed notifications mean lost sales and disappointed customers who never knew they won. With 24-hour deadlines, recovery time is minimal. Confidence: data-driven from business logic.",
+  "failureImpact": "Lottery winners never learn they've won their tickets. They miss the 24-hour purchase deadline through no fault of their own. Their reserved spot gets released to the next person. FairTix loses the sale and the winner becomes frustrated, potentially damaging brand trust in the 'fair' lottery system. Customer support likely gets contacted by confused winners who expected notification.",
+  "dataIn": "Lottery winner records with ID, Name, Email, EventName, and TicketPrice from the FairTix signups spreadsheet",
+  "dataOut": "Winner notification emails with checkout links, plus updated spreadsheet records showing notification status, delivery confirmation, and automation timestamps",
+  "technicalEvidence": {
+    "errorHandling": "Partial error handling: Gmail node has 'onError: continueErrorOutput' which routes failures to error tracking, but no retryOnFail (defaults to false). Error path updates spreadsheet with 500 status and error message. Success path updates with 200 status.",
+    "credentials": [
+      "gmailOAuth2: DL-School-Automations Gmail",
+      "googleSheetsTriggerOAuth2Api: DL School Automations Google Sheets",
+      "googleSheetsOAuth2Api: Google Sheets Account DL Automations"
+    ],
+    "nodeCount": 4,
+    "hasDisabledNodes": false,
+    "triggerInterval": "Every minute polling on Google Sheets for new rows",
+    "versionCount": "5",
+    "errorWorkflowId": null,
+    "callerIds": null,
+    "timeSavedPerExecution": null,
+    "keyFindings": [
+      "Workflow is inactive (active: false) despite being recently updated - suggests testing/development phase",
+      "Email template contains detailed FairTix branding and transparent pricing messaging - reveals anti-scalping business model",
+      "24-hour urgency deadline in email creates time pressure for conversion",
+      "Checkout URL points to fairtix.demo domain - indicates this is a demonstration system",
+      "Sophisticated error handling with status code tracking (200/500) back to source spreadsheet",
+      "Zero executions but 5 version iterations suggests active development without production deployment",
+      "lastIndexChecked: 2 in static data indicates minimal testing"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "reasoning": "This workflow is a centralized error handler that monitors all other workflows for failures. When any workflow throws an error, it triggers this one, which sends an email notification with debugging details. The 15% error rate indicates this is actively catching failures across their automation infrastructure. Being in the FairTix Automations project suggests this is monitoring ticketing system automations. The email goes to dlschoolautomations@gmail.com, indicating this might be a demo/training environment for a ticketing automation school or course.",
+  "name": "Automation Error Alert System",
+  "businessNarrative": "This workflow serves as the central nervous system for monitoring automation health across FairTix's infrastructure. It immediately alerts the automation team when any workflow fails, providing crucial debugging information including the workflow name, error message, stack trace, and execution URL. The 40 executions with 15% error rate reveals this company has a mature automation practice with active monitoring, though the error frequency suggests either complex integrations or workflows still being refined.",
+  "trigger": "Any workflow in the system encounters an error or exception",
+  "triggerType": "event",
+  "systemsTouched": [
+    "gmail",
+    "n8n"
+  ],
+  "dataFlow": "Error event data from failed workflows enters containing workflow name, error details, and execution metadata. This gets formatted into an email notification with debugging information and sent to the automation team's Gmail account.",
+  "impact": {
+    "reasoning": "This is infrastructure-critical as it's the only way teams know when automations fail. Without it, revenue-impacting workflows could fail silently. For a ticketing platform, failed automations could mean missed ticket sales, unprocessed orders, or poor customer experience.",
+    "level": "critical",
+    "failureScenario": "If this error handler fails, the team becomes blind to all other automation failures. Revenue-impacting workflows like ticket processing, customer communications, or payment reconciliation could fail without anyone knowing, leading to lost sales and angry customers.",
+    "revenueConnection": "Indirect - enables rapid response to failures in revenue-generating workflows"
+  },
+  "detectability": {
+    "reasoning": "Ironically, if this error monitoring workflow itself fails, there's no secondary monitoring in place to alert about its failure. The team would only notice when they realize they haven't received error emails despite ongoing issues.",
+    "level": "partially-monitored",
+    "evidence": "No error handler configured for the error handler itself, no webhook monitoring or health checks visible"
+  },
+  "stepName": "Infrastructure Monitoring & Alerting",
+  "timeSavingsEstimate": "10-20 hours/month - eliminates manual checking of workflow execution logs",
+  "technicalEvidence": {
+    "errorHandling": "No retry configuration, no error workflow set for this workflow itself - single point of failure risk",
+    "credentials": [
+      "DL-School-Automations Gmail: gmailOAuth2"
+    ],
+    "complexity": "2 nodes, simple linear flow, but critical infrastructure component",
+    "keyFindings": [
+      "Generic email account suggests this is a demo/training environment, not production",
+      "No escalation path - single email recipient could miss critical alerts",
+      "Execution URL included for quick debugging access",
+      "40 executions indicates active automation environment with regular failures to debug"
+    ]
+  }
+}

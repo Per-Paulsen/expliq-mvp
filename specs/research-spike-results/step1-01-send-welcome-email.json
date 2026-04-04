@@ -1,0 +1,51 @@
+{
+  "name": "User Welcome Onboarding",
+  "description": "Sends personalized welcome email to new FairTix users explaining platform benefits and next steps. Critical first touchpoint establishing trust and guiding user verification.",
+  "trigger": "Manual execution for testing welcome email template and flow",
+  "triggerType": "manual",
+  "coreLogic": "Creates test user data (name and email), then sends personalized welcome email highlighting FairTix's anti-bot fair queuing system, transparent pricing, human verification requirements, and resale caps. Guides user toward account verification as the next action.",
+  "systemsTouched": [
+    "gmail"
+  ],
+  "dataTypes": [
+    "user profile",
+    "email template",
+    "onboarding message"
+  ],
+  "businessContext": "This is FairTix's user onboarding workflow for a ticket marketplace that positions itself against scalpers and bots. The email content reveals a business model focused on 'fair queuing' (no speed advantages), transparent pricing, human verification, and capped resale prices (face value + 20% max). Currently in development/testing phase given manual trigger and hardcoded test data.",
+  "sideEffects": [
+    "sends welcome email to new users",
+    "initiates user onboarding sequence"
+  ],
+  "impactProposal": {
+    "level": "high",
+    "reasoning": "First impression workflow for users entering a trust-critical marketplace. Poor onboarding directly impacts user activation and verification completion rates. In ticketing, unverified users can't participate in queues, meaning conversion failure at this step eliminates potential transaction volume."
+  },
+  "stepName": "Welcome & Verification Guidance",
+  "businessBrief": "Delivers FairTix's value proposition to new users — establishing trust in their anti-bot marketplace and driving account verification completion.",
+  "timeSavingsEstimate": "~2 min/user at scale — eliminates manual welcome email composition and ensures consistent messaging. Confidence: benchmark-based.",
+  "revenueImpactEstimate": "Indirect but significant — effective onboarding increases user verification rates, and only verified users can participate in ticket queues. Each unverified user represents zero transaction potential. Confidence: ai-suggested.",
+  "failureImpact": "New users receive no welcome message or guidance. They don't understand the verification requirement or FairTix's value proposition. Lower verification completion rates mean fewer eligible queue participants. Customer support volume increases with users asking 'what's next' questions.",
+  "dataIn": "User name and email address from registration system",
+  "dataOut": "Welcome email with platform explanation and verification call-to-action",
+  "technicalEvidence": {
+    "errorHandling": "No retry logic (retryOnFail defaults to false). No error workflow linked. Silent failure if Gmail API fails — user never receives welcome email with no notification to operations.",
+    "credentials": [
+      "gmailOAuth2: DL-School-Automations Gmail"
+    ],
+    "nodeCount": "3 functional nodes",
+    "hasDisabledNodes": false,
+    "triggerInterval": "Manual trigger only — not production-ready for automated user onboarding",
+    "versionCount": "17 iterations — active development of welcome email content and flow",
+    "errorWorkflowId": null,
+    "callerIds": null,
+    "timeSavedPerExecution": null,
+    "keyFindings": [
+      "Workflow is inactive and manual-only — not connected to actual user registration",
+      "Hardcoded test data suggests development/template phase",
+      "Email content reveals FairTix's core business model: anti-bot queuing, price transparency, verification requirements",
+      "No error handling means silent failure if Gmail API unavailable",
+      "17 versions indicate significant iteration on welcome messaging"
+    ]
+  }
+}

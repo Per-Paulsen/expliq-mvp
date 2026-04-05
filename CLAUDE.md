@@ -74,7 +74,9 @@ Run a single test file: `npx vitest run src/__tests__/home.test.tsx`
 
 **PRD:** [`prd-2.0.md`](prd-2.0.md) — Automation Intelligence platform (4 screens: Dashboard, Process Map, Opportunities, Detail).
 
-**Detailed decisions:** [`prd-2.0-decisions.md`](prd-2.0-decisions.md) — 16 sections + Amendments A-S covering screens, schema, LLM architecture, design system, navigation map, recommendation framework.
+**Detailed decisions:** [`prd-2.0-decisions.md`](prd-2.0-decisions.md) — 16 sections + Amendments A-T covering screens, schema, LLM architecture, design system, navigation map, recommendation framework.
+
+**Design system:** [`specs/design-guidelines.md`](specs/design-guidelines.md) — authoritative for ALL visual decisions. Light theme, Plus Jakarta Sans font, card component system, page layouts, sidebar, auth pages. Overrides PRD §15 dark theme per Amendment T. Read this file before implementing any UI.
 
 **Research spike:** [`specs/research-spike.md`](specs/research-spike.md) — v1-v8 prompt testing results. v8 is canonical.
 

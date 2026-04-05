@@ -13,7 +13,7 @@ argument-hint: <epic-number> <slug> <brief-description>
   - `<slug>` — kebab-case identifier for this patch (e.g., `parallelize-llm`, `fix-loading-state`)
   - `<brief-description>` — remaining text describing what the patch should accomplish
 - **Tech stack** — read `tech-stack-idea.md`
-- **Design system** — if the patch involves UI changes, read `prd-2.0-decisions.md` section 15 for the authoritative design system (dark theme, tables/lists, color = meaning only)
+- **Design system** — if the patch involves UI changes, read `specs/design-guidelines.md` — authoritative for ALL visual decisions. Light theme (Amendment T overrides §15 dark theme), Plus Jakarta Sans font, card component system. Also read `prd-2.0-decisions.md` §15 + Amendment T for context.
 - **Prior epic results** — read all `specs/*-results.md` files. These contain decisions, established patterns, and risks.
 - **Existing codebase** — explore to understand current patterns and the code being patched
 

@@ -416,6 +416,7 @@ export async function runAnalysisPipeline(
           systemSource: rec.systemSource ?? null,
           systemDestination: rec.systemDestination ?? null,
           stepName: rec.stepName ?? null,
+          automationId: rec.automationId ?? null,
           priorityOrder: i,
         },
       });

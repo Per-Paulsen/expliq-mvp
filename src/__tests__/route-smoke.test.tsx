@@ -61,12 +61,15 @@ describe("Route smoke tests", () => {
   });
 
   describe("/opportunities (Opportunities)", () => {
-    it("renders Opportunities heading", async () => {
+    it("renders empty state when no recommendations", async () => {
       const { default: OpportunitiesPage } = await import(
         "@/app/(app)/opportunities/page"
       );
-      render(<OpportunitiesPage />);
-      expect(screen.getByText("Opportunities")).toBeInTheDocument();
+      const element = await OpportunitiesPage();
+      render(element);
+      expect(
+        screen.getByText("No recommendations yet. Sync your n8n instance to get started."),
+      ).toBeInTheDocument();
     });
   });
 

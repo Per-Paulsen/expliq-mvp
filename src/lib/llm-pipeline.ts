@@ -118,6 +118,7 @@ export interface WorkspaceRecommendation {
   systemSource?: string;
   systemDestination?: string;
   stepName?: string;
+  automationId?: string | null;
 }
 
 export interface WorkspaceProcessSuggestion {
@@ -338,7 +339,8 @@ Schema:
       "implementationNotes": "string",
       "systemSource": "string (optional)",
       "systemDestination": "string (optional)",
-      "stepName": "string (optional)"
+      "stepName": "string (optional)",
+      "automationId": "string or null — the ID of the specific automation this recommendation targets, from the input summaries. null if recommendation is process-level (e.g., 'add a new workflow')"
     }
   ],
   "processSuggestions": [

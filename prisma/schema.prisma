@@ -113,8 +113,9 @@ model Automation {
   createdAt             DateTime         @default(now())
   updatedAt             DateTime         @updatedAt
 
-  workspace Workspace        @relation(fields: [workspaceId], references: [id])
-  process   BusinessProcess? @relation(fields: [processId], references: [id])
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id])
+  process         BusinessProcess? @relation(fields: [processId], references: [id])
+  recommendations Recommendation[]
 
   @@unique([workspaceId, externalId])
 }
@@ -140,6 +141,7 @@ model Recommendation {
   workspaceId         String
   processId           String?
   processSuggestionId String?
+  automationId        String?
   type                String
   tier                String
   stepName            String?
@@ -162,6 +164,7 @@ model Recommendation {
   workspace         Workspace          @relation(fields: [workspaceId], references: [id])
   process           BusinessProcess?   @relation(fields: [processId], references: [id])
   processSuggestion ProcessSuggestion? @relation(fields: [processSuggestionId], references: [id])
+  automation        Automation?        @relation(fields: [automationId], references: [id])
 }
 
 model ProcessSuggestion {

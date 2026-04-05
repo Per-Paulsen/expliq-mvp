@@ -1,10 +1,18 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { getRequiredSession } from "@/lib/session";
+import { prisma } from "@/lib/prisma";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const session = await getRequiredSession();
+  const connector = await prisma.connectorConfig.findFirst({
+    where: { workspaceId: session.user.workspaceId },
+    select: { lastSyncAt: true },
+  });
+
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar lastSyncAt={connector?.lastSyncAt ?? null} />
       <SidebarInset>
         <main className="flex-1 p-6">{children}</main>
       </SidebarInset>

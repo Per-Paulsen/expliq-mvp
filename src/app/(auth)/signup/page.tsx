@@ -54,9 +54,9 @@ export default function SignupPage() {
   return (
     <>
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Create an Expliq account</h1>
+        <h1 className="text-2xl font-bold text-white">Create an Expliq account</h1>
         <p className="text-muted-foreground">
-          Get started with your RevOps automation governance
+          Get started with Automation Intelligence
         </p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -100,7 +100,7 @@ export default function SignupPage() {
             required
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
           {loading ? "Creating account..." : "Create account"}
         </Button>
       </form>

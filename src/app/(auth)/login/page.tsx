@@ -39,7 +39,7 @@ export default function LoginPage() {
   return (
     <>
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Sign in to Expliq</h1>
+        <h1 className="text-2xl font-bold text-white">Sign in to Expliq</h1>
         <p className="text-muted-foreground">
           Enter your credentials to access your workspace
         </p>
@@ -72,7 +72,7 @@ export default function LoginPage() {
             required
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
           {loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>

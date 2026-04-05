@@ -3,12 +3,10 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { X, Check, Loader2, Copy } from "lucide-react";
+import { X, Check, Loader2, Copy, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UnifiedCard } from "@/components/unified-card";
-import { SlideOverPanel } from "@/components/slide-over-panel";
 import { CollapsibleRow } from "@/components/collapsible-row";
-import { SystemFlow } from "@/components/system-flow";
 import { EmptyState } from "@/components/empty-state";
 import type {
   OpportunityRecommendation,
@@ -20,6 +18,8 @@ import {
 } from "@/lib/actions/deploy";
 
 export type OpportunitiesViewProps = OpportunitiesData;
+
+// ── Deploy Modal ────────────────────────────────────────
 
 type DeployState =
   | { step: "generate" }
@@ -208,6 +208,130 @@ function DeployModal({
   );
 }
 
+// ── Inline Detail Section ───────────────────────────────
+
+function RecommendationDetail({
+  rec,
+  onDeploy,
+}: {
+  rec: OpportunityRecommendation;
+  onDeploy: (id: string) => void;
+}) {
+  return (
+    <div className="px-5 pb-5 pt-3 border-t border-border">
+      {/* Structured detail grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        {/* Business Case — full width */}
+        {rec.businessCase && (
+          <div className="lg:col-span-2">
+            <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+              Business Case
+            </p>
+            <p className="text-[15px] text-foreground leading-relaxed">
+              {rec.businessCase}
+            </p>
+          </div>
+        )}
+
+        {/* Evidence — full width */}
+        {rec.evidenceChain && (
+          <div className="lg:col-span-2">
+            <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+              Evidence
+            </p>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              {rec.evidenceChain}
+            </p>
+          </div>
+        )}
+
+        {/* Honest Framing — amber callout, full width */}
+        {rec.honestFraming && (
+          <div className="lg:col-span-2 bg-status-attention/10 border-l-[3px] border-status-attention p-4 rounded-r-lg">
+            <p className="text-xs font-semibold text-status-attention uppercase tracking-wider mb-1.5">
+              Honest Framing
+            </p>
+            <p className="text-sm text-foreground leading-relaxed">
+              {rec.honestFraming}
+            </p>
+          </div>
+        )}
+
+        {/* Implementation Notes — left column */}
+        {rec.implementationNotes && (
+          <div>
+            <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+              Implementation
+            </p>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              {rec.implementationNotes}
+            </p>
+          </div>
+        )}
+
+        {/* Systems + Impact — right column as metadata pairs */}
+        <div className="space-y-3">
+          {(rec.systemSource || rec.systemDestination) && (
+            <div>
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+                Systems
+              </p>
+              <div className="flex items-center gap-2 flex-wrap">
+                {rec.systemSource && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    {rec.systemSource}
+                  </span>
+                )}
+                {rec.systemSource && rec.systemDestination && (
+                  <span className="text-text-tertiary text-xs">&rarr;</span>
+                )}
+                {rec.systemDestination && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    {rec.systemDestination}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {rec.impactEstimate && (
+            <div>
+              <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+                Impact
+              </p>
+              <p className="text-lg font-bold font-mono text-primary">
+                {rec.impactEstimate}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Actions — bottom row */}
+      <div className="flex items-center gap-3 pt-3 border-t border-border">
+        <button
+          type="button"
+          onClick={() => onDeploy(rec.id)}
+          className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+        >
+          {rec.automationId ? "Deploy improved version" : "Deploy"}
+        </button>
+
+        {rec.automationId && (
+          <Link
+            href={`/automations/${rec.automationId}`}
+            className="px-4 py-2 text-sm font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors"
+          >
+            View current workflow &rarr;
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Tier Config ─────────────────────────────────────────
+
 const tierConfig = {
   "act-now": {
     label: "ACT NOW",
@@ -223,6 +347,8 @@ const tierConfig = {
   },
 } as const;
 
+// ── Main Component ──────────────────────────────────────
+
 export function OpportunitiesView({
   actNow,
   investigate,
@@ -235,7 +361,7 @@ export function OpportunitiesView({
   const processFilter = searchParams.get("process");
   const highlight = searchParams.get("highlight");
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deployRecId, setDeployRecId] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
@@ -247,11 +373,6 @@ export function OpportunitiesView({
     }
     return all;
   }, [actNow, investigate, explore, processSuggestions]);
-
-  const selectedRec = useMemo(
-    () => allRecs.find((r) => r.id === selectedId) ?? null,
-    [allRecs, selectedId],
-  );
 
   // Filter by process if URL param present
   const filterByProcess = useCallback(
@@ -279,6 +400,7 @@ export function OpportunitiesView({
   useEffect(() => {
     if (!highlight) return;
     setHighlightedId(highlight);
+    setExpandedId(highlight);
 
     const timer = setTimeout(() => {
       const el = document.querySelector(`[data-rec-id="${highlight}"]`);
@@ -310,33 +432,61 @@ export function OpportunitiesView({
     filteredExplore.length === 0 &&
     (!processFilter ? processSuggestions.length === 0 : true);
 
+  function toggleExpanded(id: string) {
+    setExpandedId((prev) => (prev === id ? null : id));
+  }
+
   function renderCard(rec: OpportunityRecommendation) {
+    const isExpanded = expandedId === rec.id;
     return (
       <div
         key={rec.id}
         data-rec-id={rec.id}
-        onClick={() => setSelectedId(rec.id)}
         className={cn(
-          "transition-all",
-          highlightedId === rec.id &&
-            "ring-2 ring-primary/50 rounded-xl",
+          "bg-surface rounded-xl border border-border shadow-sm overflow-hidden transition-all",
+          highlightedId === rec.id && "ring-2 ring-primary/50",
+          isExpanded && "shadow-md",
         )}
       >
-        <UnifiedCard
-          type="recommendation"
-          tier={rec.tier}
-          name={rec.name}
-          description={rec.brief}
-          metric={rec.impactEstimate || "\u2014"}
-          confidence={
-            (rec.confidence?.toLowerCase().replace(/\s+/g, "-") as
-              | "data-driven"
-              | "benchmark-based"
-              | "ai-suggested") ?? undefined
-          }
-          scope={rec.affectedScope ?? undefined}
-          process={rec.processName ?? ""}
-        />
+        {/* Card header — clickable to expand */}
+        <button
+          type="button"
+          onClick={() => toggleExpanded(rec.id)}
+          className="w-full text-left flex items-center cursor-pointer"
+        >
+          <div className="flex-1 min-w-0">
+            <UnifiedCard
+              type="recommendation"
+              tier={rec.tier}
+              name={rec.name}
+              description={rec.brief}
+              metric={rec.impactEstimate || "\u2014"}
+              confidence={
+                (rec.confidence?.toLowerCase().replace(/\s+/g, "-") as
+                  | "data-driven"
+                  | "benchmark-based"
+                  | "ai-suggested") ?? undefined
+              }
+              scope={rec.affectedScope ?? undefined}
+              process={rec.processName ?? ""}
+              className="border-0 shadow-none rounded-none"
+            />
+          </div>
+          <ChevronRight
+            className={cn(
+              "w-5 h-5 text-text-tertiary shrink-0 mr-4 transition-transform duration-200",
+              isExpanded && "rotate-90",
+            )}
+          />
+        </button>
+
+        {/* Expanded detail */}
+        {isExpanded && (
+          <RecommendationDetail
+            rec={rec}
+            onDeploy={(id) => setDeployRecId(id)}
+          />
+        )}
       </div>
     );
   }
@@ -435,119 +585,18 @@ export function OpportunitiesView({
         </div>
       )}
 
-      {/* Slide-over panel */}
-      <SlideOverPanel
-        open={!!selectedRec}
-        onClose={() => setSelectedId(null)}
-        title={selectedRec?.name}
-      >
-        {selectedRec && (
-          <div className="space-y-6">
-            {/* Business Case */}
-            {selectedRec.businessCase && (
-              <div>
-                <h3 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2">
-                  Business Case
-                </h3>
-                <p className="text-[15px] text-foreground leading-relaxed">
-                  {selectedRec.businessCase}
-                </p>
-              </div>
-            )}
-
-            {/* Evidence */}
-            {selectedRec.evidenceChain && (
-              <div>
-                <h3 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2">
-                  Evidence
-                </h3>
-                <p className="text-[15px] text-text-secondary leading-relaxed">
-                  {selectedRec.evidenceChain}
-                </p>
-              </div>
-            )}
-
-            {/* Honest Framing */}
-            {selectedRec.honestFraming && (
-              <div className="bg-status-attention/10 border-l-[3px] border-status-attention p-4 rounded-r-lg">
-                <h3 className="text-xs font-semibold text-status-attention uppercase tracking-wider mb-2">
-                  Honest Framing
-                </h3>
-                <p className="text-[15px] text-foreground leading-relaxed">
-                  {selectedRec.honestFraming}
-                </p>
-              </div>
-            )}
-
-            {/* Implementation Notes */}
-            {selectedRec.implementationNotes && (
-              <div>
-                <h3 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2">
-                  Implementation Notes
-                </h3>
-                <p className="text-[15px] text-text-secondary leading-relaxed">
-                  {selectedRec.implementationNotes}
-                </p>
-              </div>
-            )}
-
-            {/* Systems */}
-            {(selectedRec.systemSource || selectedRec.systemDestination) && (
-              <div>
-                <h3 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2">
-                  Systems
-                </h3>
-                <SystemFlow
-                  systems={[
-                    selectedRec.systemSource,
-                    selectedRec.systemDestination,
-                  ].filter(Boolean) as string[]}
-                  className="text-sm"
-                />
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="pt-4 border-t border-border space-y-3">
-              {/* Deploy button — available for all recommendation types */}
-              <button
-                type="button"
-                onClick={() => {
-                  setDeployRecId(selectedRec.id);
-                  setSelectedId(null);
-                }}
-                className="w-full px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-              >
-                {selectedRec.automationId
-                  ? "Deploy improved version"
-                  : "Deploy"}
-              </button>
-
-              {/* View workflow link — for fix/optimize/enhance types with a target automation */}
-              {selectedRec.automationId && (
-                <Link
-                  href={`/automations/${selectedRec.automationId}`}
-                  className="block w-full px-4 py-2.5 text-center text-sm font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors"
-                >
-                  View current workflow &rarr;
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
-      </SlideOverPanel>
-
       {/* Deploy modal */}
-      {deployRecId && (() => {
-        const rec = allRecs.find((r) => r.id === deployRecId);
-        if (!rec) return null;
-        return (
-          <DeployModal
-            recommendation={rec}
-            onClose={() => setDeployRecId(null)}
-          />
-        );
-      })()}
+      {deployRecId &&
+        (() => {
+          const rec = allRecs.find((r) => r.id === deployRecId);
+          if (!rec) return null;
+          return (
+            <DeployModal
+              recommendation={rec}
+              onClose={() => setDeployRecId(null)}
+            />
+          );
+        })()}
     </div>
   );
 }

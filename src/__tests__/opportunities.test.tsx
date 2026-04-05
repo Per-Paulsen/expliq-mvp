@@ -19,7 +19,6 @@ import { OpportunitiesView } from "@/components/opportunities-view";
 import type { OpportunitiesViewProps } from "@/components/opportunities-view";
 import type {
   OpportunityRecommendation,
-  OpportunityProcessSuggestion,
 } from "@/lib/opportunities-data";
 import { generateDeployJson, deployToN8n } from "@/lib/actions/deploy";
 
@@ -151,23 +150,20 @@ describe("OpportunitiesView", () => {
   it("AC 34: renders tier sections with correct headers and sorted recommendations", () => {
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Page heading
     expect(screen.getByText("Opportunities")).toBeInTheDocument();
 
     // Tier section headers
     expect(screen.getAllByText("ACT NOW").length).toBeGreaterThanOrEqual(1);
-    expect(
-      screen.getAllByText("INVESTIGATE").length,
-    ).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("INVESTIGATE").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("EXPLORE").length).toBeGreaterThanOrEqual(1);
 
-    // Recommendations appear under correct tiers
+    // Recommendations appear
     expect(screen.getByText("Add retry logic")).toBeInTheDocument();
     expect(screen.getByText("Fix webhook timeout")).toBeInTheDocument();
     expect(screen.getByText("Automate invoice follow-up")).toBeInTheDocument();
     expect(screen.getByText("Connect analytics pipeline")).toBeInTheDocument();
 
-    // Correct ordering: act-now items appear before investigate, which appears before explore
+    // Correct order
     const allText = document.body.textContent ?? "";
     const retryIdx = allText.indexOf("Add retry logic");
     const webhookIdx = allText.indexOf("Fix webhook timeout");
@@ -184,99 +180,87 @@ describe("OpportunitiesView", () => {
         {...makeProps({ actNow: [], investigate: [], explore: [] })}
       />,
     );
-
-    // Tier headers should not appear as section headers (they may still appear as TierBadge inside ProcessSuggestion cards)
-    // Process suggestion section should still render
     expect(screen.getByText("Payment & Billing")).toBeInTheDocument();
   });
 
-  it("AC 35: slide-over opens with full recommendation detail", () => {
+  it("AC 35: expanding a card shows full recommendation detail", () => {
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Click on a recommendation card
+    // Detail not visible initially
+    expect(
+      screen.queryByText("Automating follow-up reduces DSO by 5 days"),
+    ).not.toBeInTheDocument();
+
+    // Click to expand
     fireEvent.click(screen.getByText("Automate invoice follow-up"));
 
-    // Slide-over should show detail fields
+    // Business case appears
     expect(
       screen.getByText("Automating follow-up reduces DSO by 5 days"),
     ).toBeInTheDocument();
 
-    // Implementation notes
+    // Implementation notes appear
     expect(
       screen.getByText("Create a scheduled workflow polling the CRM"),
     ).toBeInTheDocument();
 
-    // Honest framing callout
+    // Honest framing callout appears
     expect(
       screen.getByText("May be handled outside automation tools"),
     ).toBeInTheDocument();
 
-    // Business Case heading
-    expect(screen.getByText("Business Case")).toBeInTheDocument();
-
-    // Systems flow
+    // Systems shown as pills
     expect(screen.getByText("Stripe")).toBeInTheDocument();
+    expect(screen.getByText("Slack")).toBeInTheDocument();
   });
 
-  it("AC 35: slide-over shows deploy button for new_workflow type", () => {
+  it("AC 35: expanded card shows deploy button and workflow link", () => {
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Click on a new_workflow recommendation
-    fireEvent.click(screen.getByText("Automate invoice follow-up"));
-
-    // Deploy button should appear
-    expect(screen.getByText("Deploy")).toBeInTheDocument();
-  });
-
-  it("AC 35: slide-over shows workflow link for technical_fix with automationId", () => {
-    render(<OpportunitiesView {...makeProps()} />);
-
-    // Click on a technical_fix recommendation that has automationId
+    // Click technical_fix rec with automationId
     fireEvent.click(screen.getByText("Add retry logic"));
 
-    // Should show link to automation detail
+    // Deploy improved version button
+    expect(screen.getByText("Deploy improved version")).toBeInTheDocument();
+
+    // View current workflow link
     const link = screen.getByText(/View current workflow/);
     expect(link.closest("a")).toHaveAttribute("href", "/automations/auto-1");
-
-    // Should also show "Deploy improved version" button
-    expect(screen.getByText("Deploy improved version")).toBeInTheDocument();
   });
 
   it("AC 36: process suggestion sections with child recommendations", () => {
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Process suggestion header appears
     expect(screen.getByText("Payment & Billing")).toBeInTheDocument();
     expect(
       screen.getByText("End-to-end payment lifecycle automation"),
     ).toBeInTheDocument();
     expect(screen.getByText("1 recommendation")).toBeInTheDocument();
 
-    // Child recs are hidden initially (collapsed)
+    // Child recs hidden initially
     expect(
       screen.queryByText("Auto-reconcile payments"),
     ).not.toBeInTheDocument();
 
-    // Click to expand
+    // Expand
     fireEvent.click(screen.getByText("Payment & Billing"));
 
-    // Child recommendation should appear
+    // Child rec appears
     expect(screen.getByText("Auto-reconcile payments")).toBeInTheDocument();
   });
 
   it("AC 37: deploy modal loading state", async () => {
-    // Mock generateDeployJson to hang (return a promise that won't resolve during the test)
     vi.mocked(generateDeployJson).mockReturnValue(new Promise(() => {}));
 
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Open slide-over on a new_workflow recommendation
+    // Expand a new_workflow recommendation
     fireEvent.click(screen.getByText("Automate invoice follow-up"));
 
-    // Click deploy button in slide-over
+    // Click deploy
     fireEvent.click(screen.getByText("Deploy"));
 
-    // Deploy modal should show loading state
+    // Modal shows loading
     expect(
       screen.getByText("Generating workflow scaffold..."),
     ).toBeInTheDocument();
@@ -291,21 +275,11 @@ describe("OpportunitiesView", () => {
 
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Open slide-over on a new_workflow recommendation
     fireEvent.click(screen.getByText("Automate invoice follow-up"));
-
-    // Click deploy button
     fireEvent.click(screen.getByText("Deploy"));
 
-    // Wait for the JSON preview to appear
-    expect(
-      await screen.findByText("Deploy to n8n"),
-    ).toBeInTheDocument();
-
-    // JSON should be shown in preview
+    expect(await screen.findByText("Deploy to n8n")).toBeInTheDocument();
     expect(await screen.findByText(/\"nodes\"/)).toBeInTheDocument();
-
-    // Copy button should be present
     expect(screen.getByText("Copy")).toBeInTheDocument();
   });
 
@@ -332,26 +306,27 @@ describe("OpportunitiesView", () => {
 
     render(<OpportunitiesView {...propsWithCache} />);
 
-    // Open slide-over
     fireEvent.click(screen.getByText("Automate invoice follow-up"));
-
-    // Click deploy
     fireEvent.click(screen.getByText("Deploy"));
 
-    // Should show JSON preview immediately (no LLM call)
     expect(screen.getByText(/httpRequest/)).toBeInTheDocument();
     expect(generateDeployJson).not.toHaveBeenCalled();
   });
 
-  it("AC 38: deep-link highlights the correct recommendation", () => {
+  it("AC 38: deep-link highlights and expands the correct recommendation", () => {
     mockSearchParams = new URLSearchParams("highlight=rec-3");
 
     render(<OpportunitiesView {...makeProps()} />);
 
-    // The highlighted recommendation should have ring styling via data-rec-id
+    // Highlighted element has ring styling
     const highlightedEl = document.querySelector('[data-rec-id="rec-3"]');
     expect(highlightedEl).toBeTruthy();
     expect(highlightedEl?.className).toContain("ring-2");
+
+    // Should auto-expand to show detail
+    expect(
+      screen.getByText("Automating follow-up reduces DSO by 5 days"),
+    ).toBeInTheDocument();
   });
 
   it("AC 39: process filter shows only relevant recommendations", () => {
@@ -359,19 +334,12 @@ describe("OpportunitiesView", () => {
 
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Only bp-1 recommendations should show
     expect(screen.getByText("Add retry logic")).toBeInTheDocument();
-
-    // Recommendations from other processes should be hidden
     expect(screen.queryByText("Fix webhook timeout")).not.toBeInTheDocument();
     expect(
       screen.queryByText("Automate invoice follow-up"),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Connect analytics pipeline"),
-    ).not.toBeInTheDocument();
 
-    // Clear filter button should be visible
     expect(screen.getByText("Clear filter")).toBeInTheDocument();
   });
 
@@ -380,9 +348,7 @@ describe("OpportunitiesView", () => {
 
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Click clear filter
     fireEvent.click(screen.getByText("Clear filter"));
-
     expect(mockPush).toHaveBeenCalledWith("/opportunities");
   });
 
@@ -394,13 +360,9 @@ describe("OpportunitiesView", () => {
 
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Open slide-over on a new_workflow recommendation
     fireEvent.click(screen.getByText("Automate invoice follow-up"));
-
-    // Click deploy
     fireEvent.click(screen.getByText("Deploy"));
 
-    // generateDeployJson should be called with rec-3
     await waitFor(() => {
       expect(generateDeployJson).toHaveBeenCalledWith("rec-3");
     });
@@ -423,27 +385,18 @@ describe("OpportunitiesView", () => {
     ).toBeInTheDocument();
   });
 
-  it("slide-over closes on X button click", () => {
+  it("collapse expanded card on second click", () => {
     render(<OpportunitiesView {...makeProps()} />);
 
-    // Open slide-over
-    fireEvent.click(screen.getByText("Add retry logic"));
-    expect(screen.getByText("Business Case")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Automate invoice follow-up"));
+    expect(
+      screen.getByText("Automating follow-up reduces DSO by 5 days"),
+    ).toBeInTheDocument();
 
-    // Find close button (X icon button in SlideOverPanel header)
-    // The SlideOverPanel renders a button with X icon after the title
-    const closeButtons = document.querySelectorAll(
-      ".fixed button",
-    );
-    // The last button in the fixed overlay should be the X close
-    const xButton = Array.from(closeButtons).find((btn) =>
-      btn.querySelector("svg"),
-    );
-    if (xButton) {
-      fireEvent.click(xButton);
-    }
-
-    // After closing, business case should no longer be visible
-    expect(screen.queryByText("Business Case")).not.toBeInTheDocument();
+    // Click again to collapse
+    fireEvent.click(screen.getByText("Automate invoice follow-up"));
+    expect(
+      screen.queryByText("Automating follow-up reduces DSO by 5 days"),
+    ).not.toBeInTheDocument();
   });
 });

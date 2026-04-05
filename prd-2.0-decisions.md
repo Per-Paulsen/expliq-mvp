@@ -975,3 +975,73 @@ The research spike tested Claude Opus 4 and Claude Sonnet 4 across eight prompt 
 **Decision: Sonnet for production default. Opus as configurable upgrade.**
 
 For the demo and standard usage, Sonnet provides sufficient quality at manageable cost. The model is configurable via `OPENROUTER_MODEL` environment variable — switching to Opus requires no code change. If a customer needs deeper analysis or the product targets enterprise pricing, Opus is one setting away.
+
+### Amendment T: Design spike — light theme + card-based layout (amends §15)
+
+> From design spike (2026-04-05). Full results in [`specs/design-spike.md`](specs/design-spike.md).
+
+Epic 12 implemented §15's dark advisory theme. After building Epic 13 (Dashboard) and reviewing with real data, the dark theme was rejected: text unreadable (9-11px body), no visual depth (flat sections), revenue/savings numbers invisible, "Your Next Move" was a paragraph instead of a structured card.
+
+A design spike (5 iterations) tested light themes, card patterns, and fonts against reference dashboards (FlowDash, Fillow). The following decisions amend §15:
+
+**Theme: Light replaces dark.**
+- Background: light gray (#f5f5f7). Cards: white with subtle shadow + 12px rounded corners.
+- Text: dark gray (#111827) headings, medium gray (#6b7280) secondary. Minimum body text: 15px.
+- Accent teal (#0d9488), status green/amber/red — unchanged.
+- Color = meaning only — unchanged.
+- Reference: FlowDash, Fillow SaaS dashboard templates.
+
+**Font: Plus Jakarta Sans replaces Geist.**
+- Body: Plus Jakarta Sans (geometric, modern, wide characters, high readability).
+- Numbers: JetBrains Mono (monospace, all metrics/counts/percentages).
+- Geist Sans, Inter, and DM Sans were tested and rejected for insufficient readability.
+
+**Card component system (amends Component Patterns in §15).**
+
+§15 said "Tables/lists for data, NOT cards." This remains true for **Process Map** (collapsible rows) and **Priorities** (table rows grouped by tier). But for the **Dashboard**, cards are the right pattern because each item shows DIFFERENT information that doesn't need cross-comparison.
+
+| Component | Used for | Key fields |
+|-----------|----------|------------|
+| `UnifiedCard` | Both attention items AND recommendations — same structure, different accent color | Name, description, metric, scope, process. Left accent border: red/amber (attention) or green/amber/gray (recommendations). |
+| `KpiCard` | Hard fact metrics | Label + large monospace number + delta indicator |
+| `EstimateCard` | LLM-estimated values | Label + number + explanation text + confidence badge + "methodology →" link. Per §1 transparency principle. |
+| `ProcessCard` | Process coverage | Name, maturity badge, big coverage bar, reliability, value at risk, recommendation count |
+
+Cards are **reusable** — the same UnifiedCard appears on the Dashboard ("Your Next Move", "Needs Attention", "Top Opportunities") and on the Priorities page.
+
+**"Your Next Move" layout (amends §3 Dashboard).**
+
+§3 says "AI banner: 1 specific recommendation." The design spike found that a paragraph of free text is unreadable. Instead:
+- Tinted teal background section with teal left accent border (3px)
+- Bot icon + "YOUR NEXT MOVE" heading
+- The #1 recommendation rendered as a standard UnifiedCard (recommendation type)
+- Optional follow-up "Then" card for the #2 action
+- Total impact summary
+
+The recommendation card inside is the same component used on the Priorities page — not a custom text layout.
+
+**Delta banner enhancements (amends §3 Dashboard).**
+
+§3 defines three change categories (landscape, health, recommendation). The design spike adds color-coding: amber for "updated", green for "improved", teal for "resolved". All numbers in the banner are bold monospace.
+
+**Estimate transparency (amends §3 Dashboard).**
+
+§3 says estimates should be "secondary with (methodology →)." The design spike implements this as `EstimateCard` — a distinct card type that shows:
+1. The estimate value (large, colored)
+2. Explanation text (what it measures)
+3. Confidence badge (Benchmark-based / AI-suggested)
+4. "methodology →" link
+
+This clearly separates hard facts (KpiCard: "12 workflows") from estimates (EstimateCard: "~€4.2K/mo at risk — AI-suggested").
+
+**Numbers rule (extends §15 Typography).**
+
+All numbers must be visually highlighted: bold + monospace + contextual color. Numbers never appear as plain body text. Even inline numbers in sentences (e.g., "2 workflows updated") use bold monospace. Per §15's existing rule "Metrics/numbers: Monospace, semibold" — this extends it to ALL number occurrences.
+
+**What stays unchanged from §15:**
+- Accent teal (#0d9488), status green/amber/red, color = meaning only
+- Section header style: uppercase, tracking-wider, semibold
+- Confidence visual pattern: solid/dashed/outline
+- Sidebar structure (nav items, logo, sync status)
+- Tables/lists for Process Map and Priorities pages
+- Slide-over panel for recommendation detail

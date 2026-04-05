@@ -248,6 +248,34 @@ Screenshots: `epic-15-final-collapsed.png`, `epic-15-final-expanded-detail.png`
 | `373fee2` | `style: replace slide-over with inline collapsible detail for recommendations` |
 | `35cdf95` | `fix: deduplicate process name in recommendation cards` |
 | `dd121e6` | `fix: robust tier normalization, FK validation, process linking, scope guidance` |
+| `8216afc` | `fix: process linking via processName field + new process creation` |
+
+---
+
+## Post-commit: Process linking via processName field (2026-04-06)
+
+**Problem:** Recommendations had `processId: null` because the pipeline matched `affectedScope` to process names, but the LLM used different phrasing (e.g., "Lead Generation & Qualification process" vs "Lead Management"). Result: 0 of 12 recommendations linked to any process.
+
+**Root cause:** The LLM generates process names in its `processes` array AND recommendation scope text independently — they don't cross-reference each other.
+
+**Fix:**
+1. Added `processName` field to recommendation output schema in the LLM prompt
+2. Prompt explicitly instructs: "MUST match exactly one of the process names from your `processes` array, OR be a new process name if this recommendation creates a new process"
+3. Pipeline uses `processName` as primary linker (exact match against process map)
+4. If `processName` doesn't match any existing process, creates a new BusinessProcess record — this enables the LLM to recommend entirely new business processes
+5. Kept `affectedScope` + `automationId` as fallback linkage
+
+**Verification (full re-sync):** All 10 recommendations now linked to processes:
+- Lead Generation and Qualification (3 recs)
+- Sales Pipeline Management (2 recs)
+- Customer Communication and Support (1 rec)
+- Customer Success and Retention (2 recs)
+- Employee Onboarding (1 rec)
+- Automation Governance (1 rec)
+
+Cards now show distinct scope + process: e.g., "Stripe Invoice Payment → HubSpot Deal Update & Slack Notification · Sales Pipeline Management"
+
+Screenshot: `epic-15-final-with-processes.png`
 
 ---
 

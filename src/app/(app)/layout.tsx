@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <SidebarProvider>
       <AppSidebar lastSyncAt={connector?.lastSyncAt ?? null} />
       <SidebarInset>
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 px-8 py-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

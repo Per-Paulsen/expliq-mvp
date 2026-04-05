@@ -58,7 +58,7 @@ export function DashboardView(props: DashboardViewProps) {
   const secondRec = props.nextMoveRecommendations[1] ?? null;
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground tracking-tight">
@@ -226,7 +226,7 @@ export function DashboardView(props: DashboardViewProps) {
               No issues detected
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {props.attentionItems.map((item) => (
                 <Link key={item.id} href={`/automations/${item.id}`}>
                   <UnifiedCard
@@ -275,7 +275,7 @@ export function DashboardView(props: DashboardViewProps) {
               No recommendations yet
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {props.topOpportunities.map((opp) => (
                 <Link
                   key={opp.id}

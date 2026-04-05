@@ -799,6 +799,80 @@ No cross-epic issues found. Sync progress tracking gap (AnalysisStatus vs sync-p
 
 ---
 
+# Cross-Epic Review Pass 10 (Post-Epic 11) — 2026-04-05
+
+Post-implementation review after Epic 11 (LLM Pipeline V2) completion. Individual refinement (`/refine_all_ind` pass 7) found no new within-epic issues. This pass verifies cross-epic consistency against Epic 11's actual implementation.
+
+## Summary
+- Total specs reviewed: 17 (11 completed read-only: 01-08, 05.5, 10, 11; 1 deferred: 09; 5 unbuilt: 12-17)
+- Specs modified: none
+- Specs clean: 12, 13, 14, 15, 16, 17
+
+## Changes by Epic
+
+### 12 — Design System + App Shell
+No cross-epic issues. No Epic 11 dependency.
+
+### 13 — Dashboard
+No cross-epic issues. Verified against Epic 11 results:
+- CompanyProfile fields (nextMoveText, deltaSummary, systemLandscape, aggregateEstimates, analysisStatus) — all populated by `runAnalysisPipeline()` ✓
+- Governance dots via `computeGovernanceDot()` — pure function, no DB calls, consistent with spec's "governance dot = critical or attention" filtering ✓
+- Empty/analyzing states driven by CompanyProfile.analysisStatus enum (5 values) ✓
+- Epic 11 risk #2 (processMetrics OQ unresolved) — spec 13 reads aggregateEstimates, not processMetrics. No impact ✓
+
+### 14 — Process Map
+No cross-epic issues. Verified against Epic 11 results:
+- BusinessProcess.steps Json structure defined in Epic 11 scope: `{ name, isAutomated, isGap, automationExternalId? }` ✓
+- BusinessProcess.maturityLevel vocabulary defined: Prototype/Emerging/Developing/Production/Optimized ✓
+- BusinessProcess.valueAtStake field added in Epic 11 migration ✓
+- Automation.businessNarrative (not businessBrief) — already fixed in pass 9 ✓
+- Per-process reliability computed on-read from Automation.errorRate — defined in pass 9 ✓
+
+### 15 — Opportunities
+No cross-epic issues. Verified against Epic 11 results:
+- Recommendation fields all populated by workspace call (including impactEstimate, honestFraming, affectedScope) ✓
+- Deploy LLM call (spec 15 ACs 15-28) can reuse Epic 11's `retryWithBackoff()` and `stripJsonFences()` exports ✓
+- Recommendation.suggestedPlatform populated from systemSource (Epic 11 risk #4) — consistent with spec 15's SystemFlow display ✓
+- ProcessSuggestion child recommendations linked via processSuggestionId ✓
+
+### 16 — Detail
+No cross-epic issues. Verified against Epic 11 results:
+- All Automation enriched fields now populated: businessNarrative, impact (Json), detectability (Json), timeSavingsEstimate, revenueImpactEstimate, technicalEvidence (Json), trigger, triggerType, systemsTouched ✓
+- upstreamIds/downstreamIds populated by `resolveDeterministicConnections()` + `mergeLlmConnections()` ✓
+- Connection type heuristic (resolved in ind-review Q2) reads rawWorkflowJson.settings.errorWorkflow/callerIds — independent of Epic 11's connection resolution ✓
+- Automation.processId links to BusinessProcess for process position section ✓
+
+### 17 — Settings + Seed + Polish
+No cross-epic issues. Verified against Epic 11 results:
+- `runAnalysisPipeline()` called synchronously inside `syncAndAnalyze` — sync action waits for analysis to complete before returning ✓
+- analysisStatus progresses: pending → analyzing_workflows → analyzing_workspace → complete (4 stages map to UI stages 3-6 in spec 17) ✓
+- Sync-phase stages (stages 1-2) tracked separately from analysisStatus — already noted in ind-review pass 6 ✓
+- Seed data "all v8 fields" covers Epic 11's new fields (trigger, triggerType, systemsTouched on Automation; valueAtStake on BusinessProcess) ✓
+
+## Cross-Epic Consistency Verified (R2, Post-Epic 11)
+
+| Concern | Epics involved | Status |
+|---------|---------------|--------|
+| Automation field names (businessNarrative, impact, detectability, etc.) | 11→13, 14, 16 | Consistent (verified against implementation) |
+| Recommendation field names (brief, businessCase, impactEstimate, etc.) | 11→13, 15 | Consistent |
+| BusinessProcess fields (steps, maturityLevel, valueAtStake) | 11→14 | Consistent (migration applied) |
+| CompanyProfile fields (systemLandscape, nextMoveText, aggregateEstimates, deltaSummary) | 11→13 | Consistent |
+| ConnectorConfig.lastSyncAt | 10→12 | Consistent |
+| Governance dot computation (computeGovernanceDot pure function) | 11→13, 14, 16 | Consistent |
+| AnalysisStatus enum (5 values) | 10→11→13, 17 | Consistent |
+| Route paths (/, /processes, /opportunities, /automations/[id], /settings) | 12→13-17 | Consistent |
+| URL deep-linking params (?highlight, ?process) | 13, 14, 15, 16 | Consistent |
+| Deploy infrastructure (retryWithBackoff, stripJsonFences) | 11→15 | Reusable exports available |
+| Connected automations (upstreamIds/downstreamIds + heuristic type derivation) | 11→16 | Consistent |
+| Sync + analysis pipeline integration | 10, 11→17 | Consistent (synchronous call) |
+| Epic 11 risk: R1 stubs preserved in risk-engine.ts | 11→13-16 | No impact (R2 pages use computeGovernanceDot, not R1 functions) |
+| Epic 11 risk: processMetrics OQ unresolved | 11→13 | No impact (Dashboard reads aggregateEstimates, not processMetrics) |
+
+## Cascading Changes
+None. All cross-epic relationships verified consistent with Epic 11's implementation.
+
+---
+
 ## Related
 
 - [Individual Epic Review](ind-epic-review.md)

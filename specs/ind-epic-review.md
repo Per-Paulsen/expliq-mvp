@@ -508,6 +508,31 @@ Both `NEEDS CONFIRMATION` items resolved and applied to specs:
 
 ---
 
+# Individual Epic Review — 2026-04-05 (pass 7)
+
+## Summary
+- Specs reviewed: 09, 12, 13, 14, 15, 16, 17
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 05.5, 06, 07, 08, 10, 11
+- Specs skipped (already refined): none (all stale — missing 11-llm-pipeline-v2-results.md)
+- Specs modified: none
+- Specs clean: 09, 12, 13, 14, 15, 16, 17
+
+## Post-Epic 11 Review
+
+Reviewed all 7 unbuilt specs against Epic 11 results. No new issues found:
+
+- **09 (deferred)**: No Epic 11 dependencies. Still deferred.
+- **12 (Design System)**: No Epic 11 dependency. Sidebar reads from ConnectorConfig.lastSyncAt, not LLM output.
+- **13 (Dashboard)**: References CompanyProfile fields (nextMoveText, deltaSummary, systemLandscape, aggregateEstimates, analysisStatus) — all now populated by Epic 11. Governance dot references consistent with new `computeGovernanceDot()`.
+- **14 (Process Map)**: BusinessProcess fields (steps, maturityLevel, valueAtStake) all defined and populated by Epic 11. businessNarrative already fixed in pass 6.
+- **15 (Opportunities)**: Recommendation fields all populated. Deploy LLM call can reuse Epic 11's retryWithBackoff + stripJsonFences. suggestedPlatform mapping from systemSource noted in results but no spec impact.
+- **16 (Detail)**: Automation enriched fields (businessNarrative, impact, detectability, systemsTouched, etc.) all populated. Connection type heuristic independent of Epic 11.
+- **17 (Settings + Seed + Polish)**: Sync progress consistent with Epic 11's synchronous pipeline call + analysisStatus enum. Seed data "all v8 fields" covers new fields (trigger, triggerType, systemsTouched). processMetrics OQ (Epic 11 risk #2) doesn't affect spec 17.
+
+All refinement markers updated with `11-llm-pipeline-v2-results.md`.
+
+---
+
 ## Related
 
 - [Cross-Epic Review](cross-epic-review.md)

@@ -1,8 +1,3 @@
----
-tags:
-  - type/index
----
-
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -28,35 +23,73 @@ Run a single test file: `npx vitest run src/__tests__/home.test.tsx`
 - `src/app/(auth)/` — login/signup pages, centered layout, no sidebar
 - `src/app/api/` — API route handlers
 
-**Routes:** `/` (Workspace Snapshot), `/automations` (Portfolio), `/automations/[id]` (Automation Detail), `/login`, `/signup`
+**R2 Routes (being built):** `/` (Dashboard), `/processes` (Process Map), `/opportunities` (Opportunities), `/automations/[id]` (Detail), `/settings`, `/login`, `/signup`
 
-**Auth:** Auth.js v5 (next-auth) with Credentials provider and JWT sessions. Config split into two files:
-- `src/lib/auth.config.ts` — lightweight, Edge-safe (route protection logic only, no DB imports)
+**R1 Routes (being replaced):** `/` was Workspace Snapshot, `/automations` was Portfolio — these are replaced by Epics 12-16.
+
+**Auth:** Auth.js v5 (next-auth) with Credentials provider and JWT sessions. Config split:
+- `src/lib/auth.config.ts` — lightweight, Edge-safe (route protection only, no DB imports)
 - `src/lib/auth.ts` — full config with PrismaAdapter, Credentials provider, bcrypt
-- `src/middleware.ts` — imports only `auth.config.ts` (Edge Runtime can't use Prisma/bcrypt)
+- `src/middleware.ts` — imports only `auth.config.ts` (Edge Runtime)
 - `src/lib/session.ts` — `getRequiredSession()` returns session with `user.id` and `user.workspaceId`
 
-**Database:** Prisma 7 with Supabase PostgreSQL. Schema at `prisma/schema.prisma`, datasource config at `prisma.config.ts`. Generated client at `src/generated/prisma/`. **Import from `@/generated/prisma/client`** (not `@/generated/prisma` — no index.ts). Runtime client requires driver adapter: `new PrismaClient({ adapter: new PrismaPg({ connectionString }) })`. Singleton at `src/lib/prisma.ts`.
+**Database:** Prisma 7 with Supabase PostgreSQL. Schema at `prisma/schema.prisma`, datasource at `prisma.config.ts`. Generated client at `src/generated/prisma/`. **Import from `@/generated/prisma/client`** (not `@/generated/prisma`). Runtime client requires driver adapter: `new PrismaClient({ adapter: new PrismaPg({ connectionString }) })`. Singleton at `src/lib/prisma.ts`.
 
-**Models:** Workspace, User (has `passwordHash`), ConnectorConfig, Automation + Auth.js adapter models (Account, Session, VerificationToken). All application models scoped by `workspaceId`.
+**Models:**
+- Core: Workspace, User (passwordHash), ConnectorConfig (n8n credentials, selectedTags, discoveryData)
+- R2 analysis: Automation (LLM fields + execution stats), BusinessProcess (steps, maturity, valueAtStake), Recommendation (tiers, deploy), ProcessSuggestion, CompanyProfile (landscape, nextMove, delta)
+- Auth.js: Account, Session, VerificationToken
+- All application models scoped by `workspaceId`
+
+**Key modules:**
+- `src/lib/llm-pipeline.ts` — v8 two-call LLM architecture: `analyzeAutomation()` (parallel) + `analyzeWorkspace()` (single). OpenRouter via OpenAI SDK, lazy-initialized client.
+- `src/lib/risk-engine.ts` — `computeGovernanceDot()` pure function: healthy/attention/critical from errorRate, impact, detectability, active status. R1 stubs preserved until R1 pages replaced.
+- `src/lib/connected-automations.ts` — deterministic (errorWorkflow, callerIds) + LLM connection merge
+- `src/lib/delta-generation.ts` — `captureSnapshot()` + `generateDeltaSummary()` for re-sync banners
+- `src/lib/actions/analysis.ts` — `runAnalysisPipeline(workspaceId)` orchestration (20-step flow)
+- `src/lib/actions/connector.ts` — two-phase sync: verifyAndDiscover (Phase 1) + syncAndAnalyze (Phase 2, calls analysis pipeline)
+- `src/lib/execution-stats.ts` — `computeExecutionStats()` for runsPerWeek, errorRate, etc.
+- `src/lib/n8n-client.ts` — n8n API client (10 methods including deploy)
+- `src/lib/encryption.ts` — AES-256-GCM for API key storage
 
 **Components:** shadcn/ui primitives in `src/components/ui/`, custom components in `src/components/`. Use `cn()` from `src/lib/utils.ts` for className merging.
 
 ## Key Conventions
 
 - **Dynamic route params are async** (Next.js 15+): `{ params }: { params: Promise<{ id: string }> }` — must `await params`
-- **shadcn/ui sidebar** uses `render` prop pattern (not `asChild`), `SidebarProvider` lives in `(app)/layout.tsx`
+- **shadcn/ui sidebar** uses `render` prop pattern (not `asChild`), `SidebarProvider` in `(app)/layout.tsx`
 - **Tailwind v4**: CSS-first config via `src/app/globals.css`, not `tailwind.config.ts`
 - **Path alias**: `@/*` maps to `src/*`
-- **Prisma 7**: Datasource configured in `prisma.config.ts` with `dotenv`, not inline in schema. Import from `@/generated/prisma/client`.
-- **Prisma client**: Always use the singleton from `@/lib/prisma` — never instantiate `PrismaClient` directly
-- **Auth in server components**: Use `getRequiredSession()` from `@/lib/session` to get `userId` and `workspaceId`
-- **New protected pages** go in `src/app/(app)/`, auth-only pages in `src/app/(auth)/`
-- **Vitest**: jsdom environment, globals enabled, setup file imports `@testing-library/jest-dom`. Alias `@/generated/prisma/client` configured in `vitest.config.ts`.
+- **Prisma 7**: Datasource in `prisma.config.ts` with `dotenv`. Import from `@/generated/prisma/client`.
+- **Prisma client**: Always use singleton from `@/lib/prisma` — never instantiate directly
+- **Auth in server components**: Use `getRequiredSession()` from `@/lib/session`
+- **New protected pages** go in `src/app/(app)/`, auth pages in `src/app/(auth)/`
+- **Vitest**: jsdom environment, globals enabled, `@/generated/prisma/client` alias in `vitest.config.ts`
+- **OpenRouter**: Lazy-init client (not module scope). Model via `OPENROUTER_MODEL` env (default: `anthropic/claude-sonnet-4`). JSON fence stripping on all responses.
+- **Server actions**: `"use server"`, call `getRequiredSession()` first, return `{ success } | { error }` — never throw to client
+- **LLM prompts**: Simple prompts + full data. No rubrics, no methods. Output schema IS the instruction (v8 architecture).
+- **Json fields**: Write with `as Prisma.InputJsonValue`, read with type narrowing
 
 ## Specs & Epics
 
-PRD at [`expliq_prd.md`](expliq_prd.md). Ten sequential epics — see [Map of Content](_MOC.md) for the full index.
+**PRD:** [`prd-2.0.md`](prd-2.0.md) — Automation Intelligence platform (4 screens: Dashboard, Process Map, Opportunities, Detail).
+
+**Detailed decisions:** [`prd-2.0-decisions.md`](prd-2.0-decisions.md) — 16 sections + Amendments A-S covering screens, schema, LLM architecture, design system, navigation map, recommendation framework.
+
+**Research spike:** [`specs/research-spike.md`](specs/research-spike.md) — v1-v8 prompt testing results. v8 is canonical.
+
+**n8n API reference:** [`n8n-api-examples/README.md`](n8n-api-examples/README.md) — API schemas and real response examples.
+
+**Epic specs:** `specs/[0-9][0-9]-*.md` — see [Map of Content](_MOC.md) for full index.
+- Epics 01-08: R1 MVP (completed)
+- Epic 09: Production hardening (deferred — absorbed by R2 page epics + Epic 17)
+- Epic 10: Schema + extended sync (completed)
+- Epic 11: LLM Pipeline V2 (completed)
+- Epics 12-17: R2 screens + polish (pending)
+
+**Results files:** `specs/*-results.md` — decisions, deviations, risks from completed epics. Read these before implementing dependent specs.
+
+**Review files:** `specs/ind-epic-review.md` (within-epic), `specs/cross-epic-review.md` (cross-epic consistency).
 
 ## Workflow Rules
 

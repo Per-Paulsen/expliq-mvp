@@ -24,6 +24,7 @@ Results incorporated:
 - 07-automation-detail-results.md
 - 08-workspace-snapshot-results.md
 - 10-schema-sync-results.md
+- 11-llm-pipeline-v2-results.md
 
 ---
 

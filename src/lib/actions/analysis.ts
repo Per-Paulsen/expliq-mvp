@@ -380,13 +380,32 @@ export async function runAnalysisPipeline(
     for (let i = 0; i < sortedRecs.length; i++) {
       const rec = sortedRecs[i];
 
-      // Link to process: try exact match on affectedScope, then partial match, then via automationId
+      // Link to process via processName (primary), then affectedScope fallback, then automationId
       let processId: string | undefined;
-      if (rec.affectedScope) {
-        // Exact match
-        processId = processMap.get(rec.affectedScope.toLowerCase());
 
-        // Partial match: check if any process name is contained in affectedScope or vice versa
+      // Primary: match on processName (LLM should output exact process name)
+      if (rec.processName) {
+        processId = processMap.get(rec.processName.toLowerCase());
+
+        // If processName doesn't match existing process, create a new one
+        // (LLM recommends a new business process)
+        if (!processId) {
+          const newProcess = await prisma.businessProcess.create({
+            data: {
+              workspaceId,
+              name: rec.processName,
+              summary: `New process identified from recommendation: ${rec.name}`,
+              order: processMap.size,
+            },
+          });
+          processId = newProcess.id;
+          processMap.set(rec.processName.toLowerCase(), newProcess.id);
+        }
+      }
+
+      // Fallback: match on affectedScope
+      if (!processId && rec.affectedScope) {
+        processId = processMap.get(rec.affectedScope.toLowerCase());
         if (!processId) {
           const scopeLower = rec.affectedScope.toLowerCase();
           for (const [procName, procId] of processMap) {
@@ -398,7 +417,7 @@ export async function runAnalysisPipeline(
         }
       }
 
-      // If still no match, derive from automationId's process
+      // Last resort: derive from automationId's process
       if (!processId && rec.automationId && validAutomationIds.has(rec.automationId)) {
         const targetAuto = automations.find((a) => a.id === rec.automationId);
         if (targetAuto?.processId) {

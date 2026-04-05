@@ -112,6 +112,7 @@ export interface WorkspaceRecommendation {
   confidence: string;
   evidenceChain: string;
   honestFraming: string;
+  processName?: string;
   affectedScope: string;
   impactEstimate: string;
   implementationNotes: string;
@@ -285,6 +286,10 @@ FIRST — UNDERSTAND the landscape: What does this company do? What business pro
 
 THEN — RECOMMEND opportunities: What should this company build, fix, or connect? Be extensive and creative. Think about: broken things, missing things, forgotten participants, unused data, time-sensitive operations lacking follow-ups. For technical fixes: be SPECIFIC — name nodes, cite config values, describe exact changes.
 
+IMPORTANT — Every recommendation MUST have a processName that either:
+(a) matches EXACTLY one of the process names from your "processes" array above, OR
+(b) is a NEW process name if the recommendation creates or belongs to a process that doesn't exist yet
+
 Confidence labels: 'data-driven' (cite evidence), 'benchmark-based' (industry knowledge), 'ai-suggested' (inference).
 For uncertain recommendations: 'We don't see this in your workflows. If handled elsewhere, consider connecting for visibility.'
 
@@ -334,7 +339,8 @@ Schema:
       "confidence": "string",
       "evidenceChain": "string",
       "honestFraming": "string",
-      "affectedScope": "string — for technical fixes: the specific workflow name (e.g., 'HubSpot → Gmail Cold Outreach'). For new automations: the process name or description like '3 workflows affected'",
+      "processName": "string — MUST match exactly one of the process names from your 'processes' array, OR be a new process name if this recommendation creates a new process",
+      "affectedScope": "string — for technical fixes: the specific workflow name (e.g., 'HubSpot → Gmail Cold Outreach'). For new automations: a description like '3 workflows affected'",
       "impactEstimate": "string",
       "implementationNotes": "string",
       "systemSource": "string (optional)",

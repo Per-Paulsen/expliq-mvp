@@ -35,8 +35,13 @@ interface PerAutomationSuccess {
 
 const TIER_ORDER: Record<string, number> = {
   "act now": 0,
+  immediate: 0,
+  critical: 0,
+  high: 0,
   investigate: 1,
+  medium: 1,
   explore: 2,
+  low: 2,
 };
 
 function tierPriority(tier: string): number {
@@ -364,6 +369,9 @@ export async function runAnalysisPipeline(
     }
 
     // Create Recommendation records with priority ordering and linkage
+    // Build set of valid automation IDs for FK validation
+    const validAutomationIds = new Set(automations.map((a) => a.id));
+
     // Sort: Act Now first, then Investigate, then Explore (preserving LLM order within tiers)
     const sortedRecs = [...wsResult.recommendations].sort(
       (a, b) => tierPriority(a.tier) - tierPriority(b.tier),
@@ -372,10 +380,30 @@ export async function runAnalysisPipeline(
     for (let i = 0; i < sortedRecs.length; i++) {
       const rec = sortedRecs[i];
 
-      // Link to process by matching recommendation's affectedScope to process name
+      // Link to process: try exact match on affectedScope, then partial match, then via automationId
       let processId: string | undefined;
       if (rec.affectedScope) {
+        // Exact match
         processId = processMap.get(rec.affectedScope.toLowerCase());
+
+        // Partial match: check if any process name is contained in affectedScope or vice versa
+        if (!processId) {
+          const scopeLower = rec.affectedScope.toLowerCase();
+          for (const [procName, procId] of processMap) {
+            if (scopeLower.includes(procName) || procName.includes(scopeLower)) {
+              processId = procId;
+              break;
+            }
+          }
+        }
+      }
+
+      // If still no match, derive from automationId's process
+      if (!processId && rec.automationId && validAutomationIds.has(rec.automationId)) {
+        const targetAuto = automations.find((a) => a.id === rec.automationId);
+        if (targetAuto?.processId) {
+          processId = targetAuto.processId;
+        }
       }
 
       // Link to process suggestion by matching child recommendation names
@@ -416,7 +444,10 @@ export async function runAnalysisPipeline(
           systemSource: rec.systemSource ?? null,
           systemDestination: rec.systemDestination ?? null,
           stepName: rec.stepName ?? null,
-          automationId: rec.automationId ?? null,
+          automationId:
+            rec.automationId && validAutomationIds.has(rec.automationId)
+              ? rec.automationId
+              : null,
           priorityOrder: i,
         },
       });

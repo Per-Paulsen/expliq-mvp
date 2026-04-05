@@ -41,10 +41,11 @@ export interface OpportunitiesData {
 // ── Helpers ─────────────────────────────────────────────
 
 function normalizeTier(tier: string): "act-now" | "investigate" | "explore" {
-  return tier.toLowerCase().replace(/\s+/g, "-") as
-    | "act-now"
-    | "investigate"
-    | "explore";
+  const t = tier.toLowerCase().replace(/\s+/g, "-");
+  // Map alternative tier names the LLM might output
+  if (t === "act-now" || t === "immediate" || t === "critical" || t === "high") return "act-now";
+  if (t === "investigate" || t === "medium") return "investigate";
+  return "explore"; // explore, low, or anything else
 }
 
 function extractEvidenceChain(evidence: unknown): string | null {

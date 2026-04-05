@@ -327,14 +327,14 @@ Schema:
   "recommendations": [
     {
       "type": "string",
-      "tier": "string",
+      "tier": "act now | investigate | explore",
       "name": "string",
       "brief": "string",
       "businessCase": "string",
       "confidence": "string",
       "evidenceChain": "string",
       "honestFraming": "string",
-      "affectedScope": "string",
+      "affectedScope": "string — for technical fixes: the specific workflow name (e.g., 'HubSpot → Gmail Cold Outreach'). For new automations: the process name or description like '3 workflows affected'",
       "impactEstimate": "string",
       "implementationNotes": "string",
       "systemSource": "string (optional)",

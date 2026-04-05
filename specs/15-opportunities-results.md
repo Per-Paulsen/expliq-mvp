@@ -1,0 +1,109 @@
+---
+tags:
+  - type/results
+  - status/done
+  - epic/15
+---
+
+# Epic 15 — Opportunities: Results
+
+> Upstream: [Epic 15: Opportunities](15-opportunities.md)
+
+## What Was Built
+
+Opportunities page with all recommendations grouped by tier (ACT NOW, INVESTIGATE, EXPLORE), slide-over panel with full recommendation detail (business case, evidence, honest framing, implementation notes, systems), deploy modal for new_workflow recommendations (LLM generation → JSON preview → n8n deployment), process suggestion collapsible sections, deep-linking via highlight URL param, and process filtering via process URL param.
+
+## Key Files Created/Modified
+
+### New Files (6)
+
+| File | Purpose |
+|------|---------|
+| `prisma/migrations/20260405212742_add_recommendation_automation_id/migration.sql` | Adds `automationId` FK to Recommendation model |
+| `src/lib/opportunities-data.ts` | `prepareOpportunitiesData(workspaceId)` — queries recommendations split by tier + process suggestions. Normalizes tier strings, extracts evidence chain from JSON. |
+| `src/components/opportunities-view.tsx` | "use client" component. Tier sections with styled headers, UnifiedCard per recommendation, slide-over panel on click, deploy modal (4-state flow), process filter bar, deep-link highlight with accent pulse. |
+| `src/lib/actions/deploy.ts` | Two server actions: `generateDeployJson()` (LLM call → cached JSON) + `deployToN8n()` (n8n client deploy + activate). |
+| `src/app/(app)/opportunities/error.tsx` | Client error boundary for Opportunities route. |
+| `src/__tests__/opportunities.test.tsx` | 15 tests covering AC 34-40 plus empty state and slide-over close. |
+
+### Modified Files (5)
+
+| File | Change |
+|------|--------|
+| `prisma/schema.prisma` | Added `automationId String?` + Automation relation on Recommendation. Added reverse `recommendations` relation on Automation. |
+| `src/lib/llm-pipeline.ts` | Added `automationId` to `WorkspaceRecommendation` interface and workspace prompt output schema. |
+| `src/lib/actions/analysis.ts` | Stores `automationId` from LLM response when creating Recommendation records. |
+| `src/app/(app)/opportunities/page.tsx` | Complete rewrite from stub to async server component. Handles empty/analyzing/failed/complete states. |
+| `src/__tests__/route-smoke.test.tsx` | Updated Opportunities smoke test for async server component pattern. |
+
+## Decisions and Deviations from Spec
+
+1. **automationId migration folded into Epic 15** — The spec called for adding `automationId` to Recommendation. This was resolved as part of the cross-epic review (OQ 3). Migration, LLM prompt update, and pipeline update all done in this epic.
+
+2. **Tier normalization** — LLM stores tier as "act now" (with space). Data layer normalizes to "act-now" for the frontend using `tier.toLowerCase().replace(/\s+/g, "-")`.
+
+3. **Evidence extraction** — The `evidence Json?` field stores `{ chain: string }`. Data layer extracts: `(rec.evidence as { chain?: string })?.chain ?? null`.
+
+4. **Deploy modal as inline component** — Rather than a separate file, the DeployModal is defined within `opportunities-view.tsx` since it's only used there. 4-state flow: generate → preview → deploying → success/error.
+
+5. **Type safety fix for deployToN8n return** — The server action returns `instanceUrl` and `workflowId` as potentially undefined. Fixed with `?? ""` fallback in the setState call.
+
+6. **Process filter shows process ID when name unavailable** — If the process filter URL param doesn't match any recommendation's processId, the raw ID is displayed (graceful degradation rather than hiding the filter bar).
+
+7. **No ProcessSuggestion data in current pipeline** — The analysis pipeline doesn't create ProcessSuggestion records with the current LLM prompt. The UI handles this gracefully (empty sections hidden). Process suggestions will appear when the LLM is prompted to generate them.
+
+## Verification Results
+
+| Check | Result |
+|-------|--------|
+| `npm run test` (279 tests, 24 files) | Pass (183 skipped — R1 test files) |
+| `npm run build` | Pass (all routes compile, /opportunities is dynamic) |
+| `npm run lint` | No new errors (pre-existing: R1 files, demo page) |
+| Playwright browser verification | Pass — all features verified with real Fairtix data |
+
+### Test Coverage (15 new tests)
+
+- `opportunities.test.tsx`: 15 tests — AC 34 (tier sections render + ordering + empty tier hiding), AC 35 (slide-over opens with business case + implementation notes + honest framing + systems + deploy button + workflow link), AC 36 (process suggestions expand with child recs), AC 37 (deploy modal loading + preview + cached skip), AC 38 (deep-link highlight ring), AC 39 (process filter + clear filter navigation), AC 40 (generateDeployJson called with correct ID), empty state, slide-over close
+- `route-smoke.test.tsx`: Updated Opportunities test (async server component with empty state)
+
+### Playwright Browser Verification
+
+Verified with real Fairtix pipeline data (seed-real workspace, existing analysis data):
+
+1. **Tier sections** — 3 ACT NOW, 3 INVESTIGATE, 2 EXPLORE recommendations. All with correct tier badges (green/amber/gray), confidence badges, impact estimates, process names.
+
+2. **Slide-over panel** — Clicked "Add error handling to lead capture". Panel opens with full business case text referencing the HubSpot → Gmail workflow, API timeout details, and €300-500 per lost opportunity estimate.
+
+3. **Deep-linking** — `/opportunities?highlight={id}` scrolls to and highlights the target recommendation with accent ring pulse (2s).
+
+4. **Process filter** — `/opportunities?process={id}` shows filter bar with process name and "Clear filter" button. Correctly filters to matching recommendations.
+
+Screenshots: `epic-15-opportunities-full.png`, `epic-15-slide-over.png`, `epic-15-deep-link.png`, `epic-15-process-filter.png`
+
+## Risks for Future Epics
+
+1. **Deploy flow untested with real n8n** — The deploy modal and server actions are implemented but not tested end-to-end against a real n8n instance. The LLM generates a scaffold JSON, but production-quality workflow generation may need prompt tuning.
+
+2. **automationId not populated for existing data** — Existing recommendations (from prior sync runs) don't have `automationId` set. The field will be populated on the next Sync & Analyze run since the LLM prompt now includes it in the output schema.
+
+3. **ProcessSuggestion sections empty** — The current LLM workspace prompt generates recommendations but doesn't consistently create ProcessSuggestion records. The UI handles this gracefully (sections don't render when empty), but demo value is reduced.
+
+4. **Confidence badge normalization** — Confidence values from the LLM (e.g., "high", "medium", "low") don't always match the expected ConfidenceBadge levels ("data-driven", "benchmark-based", "ai-suggested"). The badge falls through to the default styling when unmatched.
+
+## Open Questions
+
+None.
+
+## Commit
+
+`673adf0` — `feat: implement epic 15 — opportunities`
+
+---
+
+## Related
+
+- [Spec](15-opportunities.md)
+- [Epic 11: LLM Pipeline V2](11-llm-pipeline-v2.md) (data source)
+- [Epic 12: Design System](12-design-system.md) (components)
+- [Epic 13: Dashboard](13-dashboard.md) (UnifiedCard pattern)
+- [Epic 14: Process Map](14-process-map.md) (gap card links)

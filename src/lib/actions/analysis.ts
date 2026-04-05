@@ -167,6 +167,39 @@ export async function runAnalysisPipeline(
       });
     }
 
+    // Step 2b: Capture previous analysis context for LLM continuity
+    let previousAnalysis: import("@/lib/llm-pipeline").PreviousAnalysis | null = null;
+    if (companyProfile.analyzedAt) {
+      const prevProcesses = await prisma.businessProcess.findMany({
+        where: { workspaceId },
+        select: {
+          name: true,
+          summary: true,
+          automations: { select: { name: true } },
+        },
+      });
+      const prevRecommendations = await prisma.recommendation.findMany({
+        where: { workspaceId },
+        select: {
+          name: true,
+          tier: true,
+          process: { select: { name: true } },
+        },
+      });
+      previousAnalysis = {
+        processes: prevProcesses.map((p) => ({
+          name: p.name,
+          summary: p.summary ?? "",
+          automationNames: p.automations.map((a) => a.name ?? "Untitled"),
+        })),
+        recommendations: prevRecommendations.map((r) => ({
+          name: r.name,
+          tier: r.tier,
+          processName: r.process?.name ?? null,
+        })),
+      };
+    }
+
     // Step 3: Clean slate — delete existing workspace-level analysis data + clear processId
     await prisma.recommendation.deleteMany({ where: { workspaceId } });
     await prisma.processSuggestion.deleteMany({ where: { workspaceId } });
@@ -344,6 +377,7 @@ export async function runAnalysisPipeline(
         json: automations.find((a) => a.id === s.automationId)?.rawWorkflowJson,
       })),
       metadata: extractMetadata(connectorConfig),
+      previousAnalysis,
     };
 
     // Step 11: Run workspace LLM call

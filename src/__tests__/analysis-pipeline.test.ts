@@ -36,6 +36,7 @@ const {
       count: vi.fn(),
       create: vi.fn(),
       deleteMany: vi.fn(),
+      findMany: vi.fn().mockResolvedValue([]),
     },
     connectorConfig: {
       findFirst: vi.fn(),
@@ -595,9 +596,12 @@ describe("runAnalysisPipeline", () => {
       makeAutomation("auto-1", "ext-1", "Workflow A"),
     ]);
     mockPrisma.recommendation.findMany.mockResolvedValue([
-      { id: "rec-old", name: "Old rec", type: "fix", tier: "Act Now" },
+      { id: "rec-old", name: "Old rec", type: "fix", tier: "Act Now", process: null },
     ]);
     mockPrisma.businessProcess.count.mockResolvedValue(1);
+    mockPrisma.businessProcess.findMany.mockResolvedValue([
+      { name: "Test Process", summary: "A test process", automations: [] },
+    ]);
 
     mockAnalyzeAutomation.mockResolvedValue(makePerAutomationResult("Workflow A"));
     mockAnalyzeWorkspace.mockResolvedValue(makeWorkspaceResult());

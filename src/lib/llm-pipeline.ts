@@ -49,6 +49,19 @@ export interface PerAutomationResult {
   technicalEvidence: PerAutomationTechnicalEvidence;
 }
 
+export interface PreviousAnalysis {
+  processes: Array<{
+    name: string;
+    summary: string;
+    automationNames: string[];
+  }>;
+  recommendations: Array<{
+    name: string;
+    tier: string;
+    processName: string | null;
+  }>;
+}
+
 export interface WorkspaceInput {
   automationSummaries: Array<{
     id: string;
@@ -73,6 +86,7 @@ export interface WorkspaceInput {
     credentials?: Array<{ name: string; type: string }>;
     users?: Array<{ email: string; role: string }>;
   };
+  previousAnalysis?: PreviousAnalysis | null;
 }
 
 export interface WorkspaceProcessStep {
@@ -290,6 +304,8 @@ FIRST — UNDERSTAND the landscape: What does this company do? What business pro
 
 THEN — RECOMMEND opportunities: What should this company build, fix, or connect? Be extensive and creative. Think about: broken things, missing things, forgotten participants, unused data, time-sensitive operations lacking follow-ups. For technical fixes: be SPECIFIC — name nodes, cite config values, describe exact changes.
 
+CONTINUITY — If previousAnalysis is provided, you are RE-ANALYZING a workspace you've seen before. Maintain process names and structure unless you have clear evidence to change them (e.g., new workflows that require splitting or merging processes). If you restructure, explain why in your reasoning.
+
 IMPORTANT — Every recommendation MUST have a processName that either:
 (a) matches EXACTLY one of the process names from your "processes" array above, OR
 (b) is a NEW process name if the recommendation creates or belongs to a process that doesn't exist yet
@@ -384,6 +400,7 @@ export async function analyzeWorkspace(
     automationSummaries: input.automationSummaries,
     workflowJsons: input.workflowJsons,
     metadata: input.metadata,
+    ...(input.previousAnalysis ? { previousAnalysis: input.previousAnalysis } : {}),
   });
 
   const raw = await retryWithBackoff(async () => {

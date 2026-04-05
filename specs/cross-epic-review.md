@@ -931,6 +931,440 @@ None. Epic 16's `brief` fix was self-contained (13 and 15 were already correct).
 
 ---
 
+# Cross-Epic Review — 2026-04-05
+
+> Trigger: Post card-layout patch. Epics 12-13 complete with new card components + dashboard-data.ts utility. Epics 14-17 unbuilt.
+
+## Summary
+
+- Total specs reviewed: 17 (13 completed + read-only, 4 unbuilt + 1 deferred)
+- Specs modified: 14, 15
+- Specs clean: 09 (deferred), 16, 17
+
+## Changes by Epic
+
+### 14 — Process Map
+
+- **Issue**: UnifiedCard component dependency misleading (implementation drift)
+  - **Involved epics**: 13 (Dashboard — produced stacked UnifiedCard), 14 (Process Map — consumes same data fields)
+  - **Change**: Clarified dependency text from "card components" to "dashboard-data.ts utilities" only. The `/refine_all_ind` pass added "UnifiedCard pattern" but design guidelines §5 explicitly states "Same UnifiedCard fields for workflow rows (but as **aligned columns, not stacked cards**)." Process Map uses table-row layout for workflow rows, not the stacked UnifiedCard component. Removed misleading component reference.
+  - **Cascade**: None — Epic 14 spec already described table rows in its scope.
+
+### 15 — Opportunities
+
+- **Issue 1**: Same UnifiedCard clarification (implementation drift)
+  - **Involved epics**: 13 (Dashboard), 15 (Opportunities)
+  - **Change**: Updated Related section note to explicitly say "use same data fields as UnifiedCard but in table-row layout, not the stacked card component" per design guidelines §5.
+  - **Cascade**: None.
+
+- **Issue 2**: Technical fix → Detail page link has no automation ID (forward dependency gap)
+  - **Involved epics**: 11 (LLM Pipeline — produces Recommendation with processId but no automationId), 15 (Opportunities — AC 6/10 assume linking to a specific automation's Detail page)
+  - **Change**: `NEEDS CONFIRMATION` — added as open question 3 on Epic 15. The Recommendation model has `processId` (FK to BusinessProcess) but no `automationId`. AC 6 says technical_fix rows have "→" link to Detail, and AC 10 says the slide-over includes a link to the affected workflow. Neither can be resolved without knowing which specific automation. Three options proposed: (a) link to first automation in process, (b) match by affectedScope text, (c) link to Process Map instead.
+  - **Cascade**: None — this is a data gap in the Recommendation model design, but adding an FK would require an LLM pipeline change (Epic 11, completed). The unbuilt spec (Epic 15) must adapt to the existing model.
+
+### 09 — Production Hardening (deferred)
+
+Clean — no cross-epic issues. The deferred status means R2 page epics handle their own concerns.
+
+### 16 — Detail
+
+Clean after `/refine_all_ind` pass. All cross-page links verified consistent:
+- Process position → `/processes` (Epic 14) ✓
+- Connected automations → `/automations/[id]` (self) ✓
+- Recommendation rows → `/opportunities?highlight={id}` (Epic 15) ✓
+
+### 17 — Settings + Seed + Polish
+
+Clean after `/refine_all_ind` pass. Theme references corrected. Cross-page navigation ACs (26-29) reference all pages consistently.
+
+## Cross-Page Navigation Verification
+
+| From | Link | To | Handler |
+|------|------|----|----|
+| Dashboard attention items | `/automations/{id}` | Detail (Epic 16) | AC 1-4 ✓ |
+| Dashboard opportunities | `/opportunities?highlight={id}` | Opportunities (Epic 15) | AC 29-30 ✓ |
+| Dashboard "View recommendations" | `/opportunities` | Opportunities (Epic 15) | route ✓ |
+| Dashboard process coverage | `/processes` | Process Map (Epic 14) | route ✓ |
+| Process Map workflow rows | `/automations/{id}` | Detail (Epic 16) | AC 6 ✓ |
+| Process Map gap indicators | `/opportunities?process={processId}` | Opportunities (Epic 15) | AC 31-33 ✓ |
+| Opportunities technical_fix | `/automations/{id}` | Detail (Epic 16) | **NEEDS CONFIRMATION** (no automationId) |
+| Detail back nav | `/processes` | Process Map (Epic 14) | AC 30 ✓ |
+| Detail recommendations | `/opportunities?highlight={id}` | Opportunities (Epic 15) | AC 29-30 ✓ |
+| Detail connected automations | `/automations/{id}` | Detail (Epic 16) | AC 20 ✓ |
+
+## Cascading Changes
+
+None. The UnifiedCard clarification was self-contained in each spec's dependency section. The technical_fix → Detail link gap is an isolated issue on Epic 15.
+
+---
+
+## Brainstorming: Card-Based Layout for Process Map + Opportunities
+
+**Context:** The design spike redesigned the Dashboard with card components (UnifiedCard, ProcessCard, KpiCard, EstimateCard) but left Process Map and Opportunities with table-row layouts per the original PRD. This creates an inconsistent experience — Dashboard shows rich cards, then dedicated pages fall back to plain tables. The user wants consistent card-based design across all pages, using the same components as the Dashboard.
+
+**Design reference:** [Fillow Dashboard Template](https://fillow.dexignlab.com/) — modern card-based admin UI with consistent visual units throughout.
+
+**Core principle:** Workflows and recommendations are our "units." They should look the same whether they appear on the Dashboard (as a preview) or on their dedicated page (as the full list). A UnifiedCard on the Dashboard → same UnifiedCard on Process Map / Opportunities.
+
+---
+
+### Proposal A: Process Map — Card-Based Layout
+
+**Current spec:** Collapsible rows → table rows for workflows inside.
+
+**Proposed:** Collapsible ProcessCards → UnifiedCards for workflows inside.
+
+| Element | Current (table rows) | Proposed (cards) |
+|---------|---------------------|-----------------|
+| **Collapsed process** | CollapsibleRow with inline columns | **ProcessCard** (same component as Dashboard) — name, maturity badge, coverage bar, reliability, at-risk, recommendations. Click to expand. |
+| **Expanded workflows** | Table rows: StatusDot + name + narrative + SystemFlow + ImpactBadge in aligned columns | **UnifiedCard (type=attention)** — same as Dashboard attention items: severity dot, name, description, metric (error rate), scope (step position), process name. Stacked vertically in a grid or single-column list. |
+| **Gap indicators** | Dashed-border table rows | **Styled gap cards** — dashed border, step name, "Gap" label, recommendation count, subtle call-to-action to view on Opportunities. Similar visual weight to an "explore" tier UnifiedCard. |
+
+**Layout:**
+```
+[Search bar]                           [Show gaps toggle]
+
+┌─ ProcessCard: Lead Management ──── Production ─────┐
+│ Coverage ████████░░ 60%  |  Reliability 86%        │
+│ At Risk ~€2.1K/mo  |  Recommendations 2            │
+└────────────────────────────────────────────── [▼] ──┘
+
+  ↳ Expanded:
+  ┌─ UnifiedCard (attention) ─────────────────────────┐
+  │ ● HubSpot → Gmail Cold Outreach                   │
+  │ Primary lead capture — entry point for pipeline... │
+  │ 31% error rate         Step 1 of 5 · Lead Mgmt    │
+  └────────────────────────────────────────────────────┘
+  ┌─ UnifiedCard (attention) ─────────────────────────┐
+  │ ● Employee Onboarding Automation                   │
+  │ Provisions accounts to Workspace, Slack, Jira...   │
+  │ 8% error rate          Step 2 of 5 · Lead Mgmt    │
+  └────────────────────────────────────────────────────┘
+  ┌╌╌ Gap Card ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+  ╎ ○ Lead Scoring (Gap)          2 recommendations   ╎
+  ╎ View opportunities →                               ╎
+  └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+```
+
+**Benefits:**
+- ProcessCard is reused from Dashboard (zero new components)
+- UnifiedCard (attention type) is reused from Dashboard (same component, same visual)
+- User sees the same workflow card whether scanning Dashboard or drilling into Process Map
+- Gap cards get proper visual weight instead of being invisible table rows
+
+**Questions for you:**
+1. Should expanded workflows be single-column (full width under the ProcessCard) or 2-column grid (like Dashboard attention/opportunities)?
+
+why should it be two column? waht should be in the second column?
+
+2. The ProcessCard in Dashboard is clickable (links to /processes). On Process Map, it would expand/collapse instead. Should we add an expand chevron to ProcessCard, or wrap it differently?
+
+chevron. how else?
+
+---
+
+### Proposal B: Opportunities — Card-Based Layout
+
+**Current spec:** Table rows grouped by tier header.
+
+**Proposed:** UnifiedCards grouped by tier header. Same cards as Dashboard "Top Opportunities" section, just showing ALL recommendations instead of top 3.
+
+| Element | Current (table rows) | Proposed (cards) |
+|---------|---------------------|-----------------|
+| **Tier section header** | Styled text header | Same — ACT NOW / INVESTIGATE / EXPLORE section headers with visual weight |
+| **Recommendation rows** | Table row: name + brief + confidence + scope + impact in columns | **UnifiedCard (type=recommendation)** — Sparkles icon + tier badge + confidence badge, name, description, impact metric, scope, process name. Same as Dashboard cards. |
+| **Slide-over trigger** | Click table row | Click UnifiedCard |
+| **Deploy button** | Action column in table | Button inside UnifiedCard (or keep in slide-over only) |
+| **Process suggestions** | Collapsible section → table rows | Collapsible section → UnifiedCards (same card for child recommendations) |
+
+**Layout:**
+```
+ACT NOW                                        3 recommendations
+
+┌─ UnifiedCard (recommendation) ─────────────────────┐
+│ ✦ ACT NOW  |  Data-driven                          │
+│ Add error handling to lead capture                   │
+│ Silent failures lose inbound leads...                │
+│ ~€1.2K/mo saved    Lead Mgmt · HubSpot → Gmail      │
+└──────────────────────────────────────── [Deploy ▶] ──┘
+
+┌─ UnifiedCard (recommendation) ─────────────────────┐
+│ ✦ ACT NOW  |  Data-driven                          │
+│ Reduce error rate on notifications                   │
+│ Status notification running at 8% error rate...      │
+│ ~€800/mo in support cost    Customer Communication   │
+└──────────────────────────────────────── [Deploy ▶] ──┘
+
+INVESTIGATE                                    2 recommendations
+
+┌─ UnifiedCard (recommendation) ─────────────────────┐
+│ ✦ INVESTIGATE  |  Benchmark-based                   │
+│ Connect CRM for visibility                           │
+│ Customer lifecycle gaps unknown without CRM data...  │
+│ Strategic              Lead Mgmt · Salesforce        │
+└───────────────────────────────────────────── [→] ───┘
+```
+
+**Benefits:**
+- UnifiedCard (recommendation type) is the EXACT same component as Dashboard "Top Opportunities"
+- Dashboard shows top 3 as preview → Opportunities page shows all — same card, same visual
+- Visual tier hierarchy maintained through left-border colors (green/amber/gray) which UnifiedCard already implements
+- Confidence badge, tier badge, impact metric — all already built into UnifiedCard
+
+**One addition needed:** The UnifiedCard currently has no slot for an action button (Deploy ▶ / →). Options:
+1. Add an optional `action` prop to UnifiedCard that renders a button in the bottom-right of row 4
+2. Keep the action button outside UnifiedCard — render it adjacent
+3. Only show action buttons in the slide-over panel (simplest — keeps the card clean, matches Dashboard where cards are click-to-navigate)
+
+**My recommendation:** Option 3 — keep cards clean (no action buttons on cards), match Dashboard behavior. Cards click to open slide-over. Deploy button lives in the slide-over. This is simpler AND more consistent. The "→" for technical_fix can also be in the slide-over ("View affected workflow →").
+
+**Questions for you:**
+1. Should cards be single-column (full width) or 2-column grid? Single-column lets descriptions breathe; 2-column is more information-dense.
+
+i dont even know what should be two column or a second column?
+
+2. Deploy button on the card or only in the slide-over?
+
+what?!!? slide-over?!?!
+
+3. Process suggestion sections: same UnifiedCard for child recommendations, or a different (more compact) layout?
+
+i dont understand the question?
+
+---
+
+### Summary of Component Reuse
+
+If both proposals are accepted:
+
+| Component | Dashboard | Process Map | Opportunities |
+|-----------|-----------|-------------|---------------|
+| **UnifiedCard (attention)** | Attention items | Workflow cards in expanded process | — |
+| **UnifiedCard (recommendation)** | Top Opportunities + Your Next Move | — | All recommendations |
+| **ProcessCard** | Process Coverage grid | Collapsed process rows | — |
+| **KpiCard** | Facts bar | — | — |
+| **EstimateCard** | Facts bar | — | — |
+
+**Zero new card components needed.** Everything reuses what already exists from the Dashboard build.
+
+### Resolved Decisions
+
+Based on your answers:
+
+**Process Map:**
+1. **Single-column** for expanded workflows — cards stack vertically under the process. No 2-column grid needed (there's no second entity type to put in a second column).
+2. **Chevron on ProcessCard** — add expand/collapse chevron to the component. On Dashboard it navigates; on Process Map it expands.
+
+
+
+**Opportunities:**
+1. **Single-column** for recommendation cards — same reasoning, one entity type stacked.
+2. **Deploy button in slide-over** — the slide-over panel is already in the Epic 15 spec (AC 8-11: click card opens slide-over with full detail + deploy button). Cards stay clean, click opens the panel. This is the existing spec behavior — no change needed.
+3. **Same UnifiedCard for process suggestion children** — obviously same component. No reason for a different layout.
+
+**Both proposals accepted in principle. But I jumped ahead without properly understanding the PRD. Correcting now.**
+
+---
+
+### PRD-Informed Field Mapping: Cards Must Show Exactly What the PRD Specifies
+
+I re-read PRD decisions §3, §4, §5, §9 and the McKinsey/Celonis framework. The card-based layout changes HOW we display data, but WHAT data each card shows is precisely defined in the PRD. Here's the mapping:
+
+#### Process Map — Workflow Cards (PRD §4)
+
+The PRD specifies these fields for a workflow inside an expanded process:
+
+| PRD Field | Source | UnifiedCard Prop |
+|-----------|--------|-----------------|
+| Name + step label | n8n name + LLM stepName | `name` |
+| Business brief (one line) | LLM businessNarrative (truncated) | `description` |
+| Governance dot | Risk engine | `severity` (via StatusDot) |
+| Error rate metric | Automation.errorRate | `metric` (e.g., "31% error rate") |
+| Step position | LLM stepName + process.steps | `scope` (e.g., "Step 1 of 5") |
+| Process name | BusinessProcess.name | `process` |
+| **Impact badge** | LLM impact.level | **Not in UnifiedCard — needs adding** |
+| **System flow** | Deterministic from node types | **Not in UnifiedCard — needs adding** |
+
+**Gap vs UnifiedCard:** The PRD's workflow card has two fields that UnifiedCard doesn't currently show: **SystemFlow** (source → destination) and **ImpactBadge** (critical/high/medium/low). Options:
+1. Add optional `systemFlow` and `impactBadge` slots to UnifiedCard — keeps one component
+2. Show them as separate elements above/below the card
+3. Accept Process Map workflow cards as a slightly extended variant
+
+My recommendation: option 1 — add optional props to UnifiedCard. ImpactBadge fits in row 1 (next to severity dot). SystemFlow fits in row 4 (next to scope + process). This keeps one unified component with optional fields.
+
+#### Opportunities — Recommendation Cards (PRD §5)
+
+| PRD Field | Source | UnifiedCard Prop |
+|-----------|--------|-----------------|
+| Title | Recommendation.name | `name` ✓ |
+| Business case (one line) | Recommendation.brief | `description` ✓ |
+| Confidence badge | Recommendation.confidence | `confidence` ✓ |
+| Tier badge | Recommendation.tier | `tier` ✓ |
+| Affected scope | Recommendation.affectedScope | `scope` ✓ |
+| Impact estimate | Recommendation.impactEstimate | `metric` ✓ |
+| Process name | BusinessProcess.name | `process` ✓ |
+
+**This maps perfectly to UnifiedCard (recommendation type).** Zero new fields needed. Dashboard already shows the exact same card for "Top Opportunities" — the Opportunities page just shows ALL of them instead of top 3.
+
+**Deploy button:** PRD §5 says deploy button on the card for `new_workflow` type, but also says the slide-over has a deploy button. Since cards click to open the slide-over (PRD §5 slide-over spec), deploy lives there. Cards stay clean.
+
+**The slide-over panel (PRD §5)** is the drill-down level per the McKinsey pyramid:
+- Full business case (reasoning, 2-3 sentences)
+- Evidence chain (specific data points from user's n8n data)
+- Key assumptions
+- Honest framing (amber callout for investigate/explore)
+- Implementation notes
+- Systems involved (SystemFlow)
+- Deploy button (if applicable)
+
+Cards = scan level. Slide-over = depth level. This is the McKinsey answer-first structure preserved.
+
+#### Summary
+
+| Page | Card Component | Maps to PRD? | Changes Needed |
+|------|---------------|-------------|----------------|
+| Process Map — processes | ProcessCard | ✓ | Add expand chevron |
+| Process Map — workflows | UnifiedCard (attention) | **Partial** — missing SystemFlow + ImpactBadge | Add 2 optional props |
+| Opportunities — recommendations | UnifiedCard (recommendation) | ✓ Perfect match | None |
+| Opportunities — slide-over | SlideOverPanel | ✓ Already in spec | None |
+
+#### The Nesting Problem: Workflow Cards Inside Process Cards
+
+This is the core layout challenge. A ProcessCard is a white card with border + shadow. UnifiedCards are also white cards with border + shadow. Nesting cards inside cards creates visual clutter — double borders, double shadows, confusing depth.
+
+**Option A: Accordion — cards appear BELOW, not inside**
+
+ProcessCard stays closed. When you click the chevron, workflow cards appear below it (not inside), slightly indented. ProcessCard acts like an accordion header.
+
+```
+┌─ ProcessCard: Lead Management ───── Production ──┐
+│ Coverage ████████░░ 60%  |  Reliability 86%      │
+│ At Risk ~€2.1K/mo  |  Recommendations 2          │
+└──────────────────────────────────────────── [▲] ──┘
+   ┌─ UnifiedCard ────────────────────────────────┐
+   │ ● HubSpot → Gmail Cold Outreach              │
+   │ Primary lead capture — entry point for...     │
+   │ 31% error rate      Step 1 of 5 · Lead Mgmt  │
+   └──────────────────────────────────────────────┘
+   ┌─ UnifiedCard ────────────────────────────────┐
+   │ ● Employee Onboarding Automation              │
+   │ Provisions accounts to Workspace, Slack...    │
+   │ 8% error rate       Step 2 of 5 · Lead Mgmt  │
+   └──────────────────────────────────────────────┘
+```
+
+Pros: Simple, no visual nesting confusion, each card has its own space.
+Cons: Long list when multiple processes expanded — lots of vertical scroll.
+
+**Option B: ProcessCard transforms into a section header when expanded**
+
+Collapsed: full ProcessCard with all metrics. Expanded: ProcessCard simplifies to just a header bar (name + maturity badge + collapse chevron), and workflow cards appear below in a tinted area.
+
+```
+┌─ Lead Management ── Production ───────── [▲] ────┐
+│                                                    │
+│  ┌─ UnifiedCard ──────────────────────────────┐   │
+│  │ ● HubSpot → Gmail Cold Outreach            │   │
+│  │ Primary lead capture — entry point...       │   │
+│  │ 31% error rate    Step 1 of 5 · Lead Mgmt  │   │
+│  └────────────────────────────────────────────┘   │
+│  ┌─ UnifiedCard ──────────────────────────────┐   │
+│  │ ● Employee Onboarding Automation            │   │
+│  │ Provisions accounts to Workspace, Slack...  │   │
+│  │ 8% error rate     Step 2 of 5 · Lead Mgmt  │   │
+│  └────────────────────────────────────────────┘   │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
+Pros: Clear visual containment — workflows are "inside" their process. The containing area uses a tinted background (bg-surface-raised = #f5f5f7) to differentiate from the white workflow cards.
+Cons: Loses the ProcessCard metrics (coverage bar, reliability, etc.) when expanded — user has to collapse to see summary again.
+
+**Option C: ProcessCard stays full, workflow cards in a tinted area below the metrics**
+
+ProcessCard keeps ALL its content visible. Below the metrics row, a tinted expanded area appears with workflow cards inside.
+
+```
+┌─ ProcessCard: Lead Management ───── Production ──┐
+│ Coverage ████████░░ 60%  |  Reliability 86%      │
+│ At Risk ~€2.1K/mo  |  Recommendations 2          │
+│──────────────────────────────────────────── [▲] ──│
+│ ┌─────────────────────────────────────────────┐   │
+│ │ bg-surface-raised area                      │   │
+│ │  ┌─ UnifiedCard ─────────────────────────┐  │   │
+│ │  │ ● HubSpot → Gmail Cold Outreach       │  │   │
+│ │  │ 31% error rate  Step 1 of 5           │  │   │
+│ │  └───────────────────────────────────────┘  │   │
+│ │  ┌─ UnifiedCard ─────────────────────────┐  │   │
+│ │  │ ● Employee Onboarding Automation      │  │   │
+│ │  │ 8% error rate   Step 2 of 5           │  │   │
+│ │  └───────────────────────────────────────┘  │   │
+│ └─────────────────────────────────────────────┘   │
+└───────────────────────────────────────────────────┘
+```
+
+Pros: Process metrics stay visible while drilling in. Background contrast (white card → gray area → white cards) creates natural depth without double-border confusion.
+Cons: Very tall cards when expanded. Triple nesting of visual containers (page bg → ProcessCard → tinted area → UnifiedCards).
+
+**Option D: No nesting — master-detail layout**
+
+Don't expand inline at all. Process cards are a grid/list. Clicking a ProcessCard navigates to a process detail view (could be a separate route `/processes/[id]` or a slide-over panel) that shows the workflow cards.
+
+```
+Process Grid:
+┌─ ProcessCard ──┐  ┌─ ProcessCard ──┐
+│ Lead Mgmt      │  │ Customer Comm  │
+│ 60% coverage   │  │ 75% coverage   │
+└────────────────┘  └────────────────┘
+
+Click "Lead Mgmt" → slide-over or new view:
+
+│ Lead Management — Production
+│ Coverage ████████░░ 60%
+│
+│ Workflows:
+│ ┌─ UnifiedCard ─────────────────────┐
+│ │ ● HubSpot → Gmail Cold Outreach   │
+│ │ 31% error rate  Step 1 of 5       │
+│ └───────────────────────────────────┘
+│ ┌─ UnifiedCard ─────────────────────┐
+│ │ ● Employee Onboarding Automation  │
+│ │ 8% error rate   Step 2 of 5       │
+│ └───────────────────────────────────┘
+```
+
+Pros: Cleanest separation. No nesting at all. Each level gets full screen width. Familiar pattern (Fillow uses this — grid of cards, click for detail).
+Cons: Navigation away from the list. Can't compare workflows across processes without switching back and forth.
+
+**My recommendation: Option A (accordion).** Reasons:
+- Simplest to implement
+- No visual nesting confusion — cards are BELOW, not inside
+- ProcessCard keeps all its metrics visible
+- The slight indent (pl-6 or pl-8) creates visual hierarchy without containers
+- This is how the existing CollapsibleRow component works already — just replace table rows with cards
+- Fillow and similar dashboards use this pattern for expandable sections
+
+What do you think?
+
+**Answer:** The PRD already solved this — **CollapsibleRow** is an accordion. Process summary is the header, workflow cards are the children that appear below when expanded. No nesting of cards inside cards. This is Option A, confirmed.
+
+---
+
+## Confirmations Applied (2026-04-05)
+
+All brainstorming items resolved. Changes applied to specs:
+
+1. **Design guidelines §5** — Updated Process Map and Opportunities from table-row layouts to card-based layouts using ProcessCard, UnifiedCard, and CollapsibleRow.
+2. **Epic 14 (Process Map)** — Scope and ACs updated: CollapsibleRow with ProcessCard-style header + UnifiedCard (attention) workflow cards + dashed-border gap cards. Single-column, accordion pattern.
+3. **Epic 15 (Opportunities)** — Scope and ACs updated: UnifiedCard (recommendation) per recommendation, grouped by tier. Same card as Dashboard "Top Opportunities." Click opens slide-over. Deploy in slide-over.
+4. **Process Map nesting** — Resolved: accordion pattern (CollapsibleRow). Workflow cards appear BELOW the process header, not inside a card.
+5. **Layout** — Single-column for both pages. No 2-column grids.
+6. **Component reuse** — Zero new card components. Everything reuses ProcessCard + UnifiedCard from Epic 13 + CollapsibleRow from Epic 12.
+
+Specs are ready for implementation.
+
+---
+
 ## Related
 
 - [Individual Epic Review](ind-epic-review.md)

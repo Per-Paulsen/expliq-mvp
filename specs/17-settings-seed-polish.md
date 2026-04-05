@@ -25,7 +25,7 @@ Final polish, seed data, and loading states for demo readiness.
 - Important for the demo: audience sees the intelligence being built in real time
 
 **Loading / skeleton states:**
-- Dashboard: skeleton layout with "Analyzing your automation landscape..." message while analysisStatus is not "complete" (scaffolded in Epic 13 — polish here)
+- Dashboard: skeleton layout already implemented in Epic 13 (DashboardAnalyzing component in page.tsx) — polish styling if needed
 - Process Map: skeleton or "Analysis in progress..." message
 - Opportunities: skeleton or "Generating recommendations..." message
 - Detail: per-automation data may be available before workspace analysis completes — show available sections, skeleton for process/recommendation sections
@@ -42,9 +42,9 @@ Final polish, seed data, and loading states for demo readiness.
 - Both seeds create a login account with known credentials (documented in .env.example)
 
 **Login page polish:**
-- Dark theme already applied in Epic 12
+- Light theme applied in Epic 12 + light-theme patch (Amendment T)
 - Add: product tagline or brief description below the Expliq logo
-- Ensure error states (wrong password, etc.) render cleanly in dark theme
+- Ensure error states (wrong password, etc.) render cleanly in light theme
 
 **R1 artifact cleanup:**
 - Delete R1 components no longer imported by any R2 page: `snapshot-dashboard.tsx`, `portfolio-view.tsx`, `automation-detail-view.tsx`, `portfolio-automation-card.tsx`, `portfolio-filter-chips.tsx`, `portfolio-filter-section.tsx`, `portfolio-header.tsx`, `portfolio-active-filters-bar.tsx`, `portfolio-sort-bar.tsx`
@@ -87,7 +87,7 @@ Final polish, seed data, and loading states for demo readiness.
 
 ### Login Polish
 19. Login page shows Expliq tagline or brief description
-20. Error states render correctly in dark theme
+20. Error states render correctly in light theme (per Amendment T)
 21. Signup page consistent styling
 
 ### R1 Cleanup

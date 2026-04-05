@@ -109,19 +109,22 @@ Same base as KpiCard, but with additional:
 | 5 | Process Coverage | 2×2 grid of ProcessCards |
 | 6 | Connected Systems | Chip row: name + bold count per system |
 
-### Process Map (per PRD §4 — NOT changed by design spike)
+### Process Map (per PRD §4 — updated to card-based layout)
 
-- Collapsible rows for processes (compare vertically)
-- Table rows for workflows inside expanded process
-- Same UnifiedCard fields for workflow rows (but as aligned columns, not stacked cards)
-- Gap indicators when "Show gaps" toggle ON
+- ProcessCard per process (same component as Dashboard), with expand/collapse chevron
+- Expanded: single-column UnifiedCard (attention type) per workflow — same card as Dashboard attention items
+- Gap cards: dashed-border card with step name, "Gap" label, recommendation count, "View opportunities →" link
+- Gap cards visible only when "Show gaps" toggle ON
+- Search bar + toggle at page top
 
-### Priorities/Opportunities (per PRD §5 — NOT changed by design spike)
+### Priorities/Opportunities (per PRD §5 — updated to card-based layout)
 
-- Table rows grouped by tier header (ACT NOW, INVESTIGATE, EXPLORE)
-- Same UnifiedCard fields but as aligned columns
-- Slide-over panel on click for full detail
-- Visual weight decreases by tier (solid → dashed → outline left border)
+- UnifiedCard (recommendation type) per recommendation — same card as Dashboard "Top Opportunities"
+- Cards grouped under tier section headers (ACT NOW, INVESTIGATE, EXPLORE)
+- Single-column layout, cards stacked vertically
+- Click card → opens slide-over panel with full detail + deploy button
+- Visual weight via left-border colors (green/amber/gray) — already built into UnifiedCard
+- Process suggestion sections: collapsible, child recommendations as same UnifiedCards
 
 ### Detail (per PRD §6 — NOT changed by design spike)
 

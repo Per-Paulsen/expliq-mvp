@@ -9,20 +9,21 @@ tags:
 
 > Upstream: [PRD 2.0](../prd-2.0.md) | [Decisions §5, §9, Amendment P](../prd-2.0-decisions.md) | [Brainstorming](brainstorming.md)
 > Phase: 3 (after Epics 11 + 12, parallel with 13/14/16)
-> Dependencies: Epic 11 (LLM data), Epic 12 (design system + route shell)
+> Dependencies: Epic 11 (LLM data), Epic 12 (design system + route shell), Epic 13 (dashboard-data.ts utilities, data field pattern from UnifiedCard)
 
 ## Scope
 
 All recommendations ranked by business impact, answering "What should I do?" Includes the deploy feature — from recommendation to running workflow in one click.
 
-**Recommendation rows grouped by tier:**
+**Recommendation cards grouped by tier:**
 - Three tier sections with section headers: "ACT NOW" (green accent), "INVESTIGATE" (amber accent), "EXPLORE" (gray accent)
-- Within each tier, rows sorted by Recommendation.priorityOrder
-- Row columns: TierBadge (on first row of section only), title, business case (one line), ConfidenceBadge, affected scope, impactEstimate badge, action button
-- Action button varies by type: "Deploy" (new_workflow), "→" arrow to Detail (technical_fix), text only (platform_connection)
-- Visual weight decreases with tier: Act Now has solid left border, Investigate has dashed left border, Explore has no left border
+- Within each tier, **UnifiedCard (type=recommendation)** per recommendation — same card component as Dashboard "Top Opportunities"
+- Cards sorted by Recommendation.priorityOrder, single-column layout stacked vertically with space-y-4
+- Each card shows: Sparkles icon + TierBadge + ConfidenceBadge, name, brief (description), impactEstimate (metric), affectedScope (scope), process name
+- Visual weight via left-border colors already built into UnifiedCard: green (act-now), amber (investigate), gray (explore)
+- No action buttons on cards — cards stay clean, click opens slide-over
 
-**Slide-over panel (on row click):**
+**Slide-over panel (on card click):**
 - SlideOverPanel component opens from right
 - Content: full business case (reasoning), evidence chain (bulleted list citing sources), key assumptions, honest framing (for investigate/explore — amber callout box), implementation notes, systems involved (SystemFlow), deploy button (if applicable)
 - Close on Escape, click-outside, or X button
@@ -65,10 +66,10 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 3. Left border accent: solid green (Act Now), dashed amber (Investigate), none (Explore)
 4. Empty tiers hidden (if no Act Now recommendations, that section doesn't render)
 
-### Recommendation Rows
-5. Each row shows: name, brief (one-liner from Recommendation.brief — not the full businessCase, which is shown in the slide-over panel), ConfidenceBadge (solid/dashed/outline), affectedScope, impactEstimate badge, action button
-6. Action button: "Deploy ▶" for new_workflow, "→" link for technical_fix, none for platform_connection
-7. Click on row (not action button) opens slide-over panel
+### Recommendation Cards
+5. Each **UnifiedCard (type=recommendation)** shows: Sparkles icon + TierBadge, name, brief (one-liner from Recommendation.brief — not the full businessCase, which is shown in the slide-over panel), ConfidenceBadge, impactEstimate (metric), affectedScope (scope), process name. Same card component as Dashboard "Top Opportunities" — reused from Epic 13.
+6. Cards are clean — no action buttons on cards. Deploy and technical_fix actions live in the slide-over panel.
+7. Click on card opens slide-over panel
 
 ### Slide-Over Panel
 8. Renders: full businessCase, evidence (bulleted list from Recommendation.evidence Json — may contain evidenceChain array and keyAssumptions array), honest framing (amber callout from Recommendation.honestFraming if non-null), implementationNotes, systems (SystemFlow from systemSource/systemDestination)
@@ -79,7 +80,7 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 ### Process Suggestions
 12. ProcessSuggestion sections rendered after tier sections
 13. Each collapsible: header with name + description + child count
-14. Expanded shows child recommendation rows (same row format as tier sections)
+14. Expanded shows child recommendations as UnifiedCards (same card format as tier sections)
 
 ### Deploy Modal
 15. "Deploy" button opens modal
@@ -141,6 +142,7 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 
 1. Should the deploy LLM call use the same model as the analysis pipeline (Sonnet default), or always use a specific model optimized for code generation? (Recommendation: same model via OPENROUTER_MODEL — keep it simple, Sonnet generates adequate n8n JSON.)
 2. Should the "Deploy to n8n" button also trigger a re-sync after deployment, so the new workflow appears in the analysis? (Recommendation: no — show a message "Re-sync to see this workflow in your analysis" with a link to Settings. Automatic re-sync after deploy is a future enhancement.)
+3. `NEEDS CONFIRMATION` — AC 6 says technical_fix recommendations have a "→" link to Detail page, and AC 10 says the slide-over panel links to the affected workflow. But the Recommendation model has no `automationId` FK — only `processId`. How should the target automation be determined? Options: (a) link to the first automation in the recommendation's process, (b) match by `affectedScope` text against automation names, (c) link to the Process Map filtered by process instead of a specific Detail page. Recommendation: (a) — link to the first automation in the process; most technical_fix recommendations target the primary workflow in the process.
 
 ---
 
@@ -149,5 +151,6 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 - [Epic 11: LLM Pipeline V2](11-llm-pipeline-v2.md) (data source: Recommendation, ProcessSuggestion)
 - [Epic 10: Schema + Extended Sync](10-schema-sync.md) (deploy endpoint: n8n client)
 - [Epic 12: Design System](12-design-system.md) (components: SlideOverPanel, ConfidenceBadge, TierBadge)
+- [Epic 13: Dashboard](13-dashboard.md) (dashboard-data.ts for shared data fields. NOTE: design guidelines §5 specify "UnifiedCard fields as aligned columns, not stacked cards" for this page — use same data fields as UnifiedCard but in table-row layout, not the stacked card component)
 - [Epic 14: Process Map](14-process-map.md) (gap indicators link to this page)
 - [Decisions §5: Priorities](../prd-2.0-decisions.md) | [Amendment P: Deploy](../prd-2.0-decisions.md)

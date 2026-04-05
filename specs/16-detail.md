@@ -9,7 +9,7 @@ tags:
 
 > Upstream: [PRD 2.0](../prd-2.0.md) | [Decisions §6](../prd-2.0-decisions.md) | [Brainstorming](brainstorming.md)
 > Phase: 3 (after Epics 11 + 12, parallel with 13/14/15)
-> Dependencies: Epic 11 (LLM data), Epic 12 (design system + route shell)
+> Dependencies: Epic 11 (LLM data), Epic 12 (design system + route shell), Epic 13 (dashboard-data.ts utilities for step scope, metric formatting)
 
 ## Scope
 
@@ -24,7 +24,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 
 **Business Narrative:**
 - Full businessNarrative text (3-5 sentences from LLM per-automation output)
-- Body text style (12-13px, light gray, regular weight)
+- Body text style (15px minimum per design guidelines, text-secondary, regular weight)
 
 **Business Case Card:**
 - Three-column layout:
@@ -147,7 +147,8 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 ## Related
 
 - [Epic 11: LLM Pipeline V2](11-llm-pipeline-v2.md) (data source: Automation enriched fields)
-- [Epic 12: Design System](12-design-system.md) (components: StatusDot, SystemFlow, ConfidenceBadge, ImpactBadge)
+- [Epic 12: Design System](12-design-system.md) (components: StatusDot, SystemFlow, ConfidenceBadge, ImpactBadge, TierBadge)
+- [Epic 13: Dashboard](13-dashboard.md) (reusable utilities: resolveStepScope, formatAttentionMetric from dashboard-data.ts)
 - [Epic 15: Opportunities](15-opportunities.md) (recommendation links)
 - [Epic 14: Process Map](14-process-map.md) (back navigation, process position link)
 - [Decisions §6: Detail](../prd-2.0-decisions.md)

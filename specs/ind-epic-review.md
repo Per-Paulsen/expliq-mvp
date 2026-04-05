@@ -630,6 +630,77 @@ Reviewed all 6 unbuilt specs against new results from epics 06, 07, 08, 10, 11, 
 
 ---
 
+# Individual Epic Review — 2026-04-05 (pass 3)
+
+> Trigger: Epic 13 Dashboard completed + card-layout patch applied. All remaining specs (09, 14-17) were stale — missing `13-dashboard-results.md` from their refinement markers.
+
+## Summary
+
+- Specs reviewed: 09, 14, 15, 16, 17
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 06, 07, 08, 10, 11, 12, 13
+- Specs skipped (already refined): none (all 5 remaining specs were stale)
+- Specs modified: 14, 15, 16, 17
+- Specs clean: 09
+
+## 09 — Production Hardening
+
+### Findings
+- No changes needed. Spec is deferred (`status/deferred`). The deferred resolution already notes that R2 page epics handle their own error boundaries and loading states.
+
+### Changes applied
+- None — spec clean.
+
+## 14 — Process Map
+
+### Findings
+- **Dark theme color reference** (inconsistent domain language): Scope references `border-bottom (#262626)` — this is a dark theme hex value. Must use light theme semantic token `border-border` (#e5e7eb) per Amendment T.
+- **Duplicated computation logic** (hidden scope creep): AC 19a describes computing reliability on-read, but this logic already exists in `dashboard-data.ts` as `buildProcessCoverage()`. Spec should reference the shared utility to prevent duplication (flagged in Epic 13 results as a risk).
+- **Missing dependency** (ungrounded assumption): Spec depends on `dashboard-data.ts` utilities from Epic 13 but doesn't list Epic 13 as a dependency.
+- **AC 19 missing maturityLevel and stepName** in query fields: These fields are needed for the collapsed row maturity badge and workflow step scope, but weren't listed in the query AC.
+
+### Changes applied
+- Fixed `#262626` → `border-border` token in scope section
+- Updated AC 19 to include `maturityLevel` and `stepName` in query fields
+- Updated AC 19a to reference `buildProcessCoverage()` and `formatAttentionMetric()` from `dashboard-data.ts`
+- Added Epic 13 to dependencies
+- Added Epic 13 to Related section
+
+## 15 — Opportunities
+
+### Findings
+- **Missing dependency** (ungrounded assumption): Recommendation rows should maintain visual consistency with Dashboard's UnifiedCard pattern (same data fields: name, brief, tier, confidence, impactEstimate, scope, process). Spec doesn't reference Epic 13 which established this pattern.
+
+### Changes applied
+- Added Epic 13 to dependencies (UnifiedCard pattern, dashboard-data.ts utilities)
+- Added Epic 13 to Related section
+
+## 16 — Detail
+
+### Findings
+- **Body text size violation** (inconsistent domain language): Business Narrative scope says "12-13px, light gray" but design guidelines mandate 15px minimum body text. Fixed.
+- **Missing dependency** (ungrounded assumption): Detail page can reuse `resolveStepScope()` and `formatAttentionMetric()` from `dashboard-data.ts` (Epic 13) for process position and metric display.
+- **Missing TierBadge in Related** (hidden scope creep): Recommendation rows use TierBadge but it wasn't listed in the Related section's component list.
+
+### Changes applied
+- Updated body text size from "12-13px" to "15px minimum per design guidelines"
+- Added Epic 13 to dependencies
+- Added TierBadge to component list in Related section
+- Added Epic 13 to Related section
+
+## 17 — Settings + Seed + Polish
+
+### Findings
+- **Dark theme references** (inconsistent domain language): AC 20 says "dark theme" but Amendment T mandates light theme. Scope section also references "Dark theme already applied" — must be "Light theme."
+- **Dashboard loading state already exists** (oversized slice): Scope implies creating Dashboard skeleton, but Epic 13 already implemented `DashboardAnalyzing` component in `page.tsx`. Updated to "polish styling if needed."
+
+### Changes applied
+- AC 20: "dark theme" → "light theme (per Amendment T)"
+- Scope: "Dark theme already applied" → "Light theme applied in Epic 12 + light-theme patch"
+- Scope: "Ensure error states render cleanly in dark theme" → "light theme"
+- Dashboard loading state: noted as already implemented in Epic 13
+
+---
+
 ## Related
 
 - [Cross-Epic Review](cross-epic-review.md)

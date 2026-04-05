@@ -1,10 +1,80 @@
-// TODO: Epic 10 — R1 risk engine stubbed out. R2 replaces governance with
-// process-centric analysis (CompanyProfile, BusinessProcess, Recommendation).
-// These stubs preserve the module's public API so existing pages compile.
+// Risk Engine V2 — Governance Dot computation (Epic 11)
+// Pure functions only — no DB calls, no Prisma imports.
 
 import type { Automation } from "@/generated/prisma/client";
 
-// ── Constants (kept for backwards compat) ──────────────
+// ── R2 Governance Dot ──────────────────────────────────
+
+export type GovernanceDot = "healthy" | "attention" | "critical";
+
+export interface GovernanceDotInput {
+  errorRate: number | null;
+  isActive: boolean;
+  impact: { level: string } | null;
+  detectability: { level: string } | null;
+  lastExecutedAt: Date | null;
+  rawWorkflowJson: unknown;
+}
+
+function hasErrorWorkflow(rawWorkflowJson: unknown): boolean {
+  if (
+    rawWorkflowJson != null &&
+    typeof rawWorkflowJson === "object" &&
+    "settings" in rawWorkflowJson
+  ) {
+    const settings = (rawWorkflowJson as Record<string, unknown>).settings;
+    if (
+      settings != null &&
+      typeof settings === "object" &&
+      "errorWorkflow" in settings
+    ) {
+      const val = (settings as Record<string, unknown>).errorWorkflow;
+      return typeof val === "string" && val.length > 0;
+    }
+  }
+  return false;
+}
+
+export function computeGovernanceDot(input: GovernanceDotInput): GovernanceDot {
+  // ── Critical (red) — check first, highest priority ──
+  if (input.isActive && input.errorRate != null && input.errorRate > 0.20) {
+    return "critical";
+  }
+  if (
+    input.impact?.level === "critical" &&
+    input.detectability?.level === "silent"
+  ) {
+    return "critical";
+  }
+
+  // ── Attention (amber) ──
+  if (
+    input.isActive &&
+    input.errorRate != null &&
+    input.errorRate >= 0.05 &&
+    input.errorRate <= 0.20
+  ) {
+    return "attention";
+  }
+  if (!input.isActive && input.lastExecutedAt != null) {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    if (input.lastExecutedAt >= thirtyDaysAgo) {
+      return "attention";
+    }
+  }
+  if (
+    (input.impact?.level === "critical" || input.impact?.level === "high") &&
+    !hasErrorWorkflow(input.rawWorkflowJson)
+  ) {
+    return "attention";
+  }
+
+  // ── Healthy (green) — everything else ──
+  return "healthy";
+}
+
+// ── R1 Stubs (preserved for backward compatibility) ────
 
 export const STALE_THRESHOLD_DAYS = 14;
 
@@ -20,8 +90,6 @@ export const RISK_WEIGHTS: Record<string, number> = {
   medium: 2,
   low: 1,
 };
-
-// ── Types ───────────────────────────────────────────────
 
 export interface GovernanceSignals {
   documentationOutdated: boolean;
@@ -45,8 +113,6 @@ export interface OwnerExposure {
   automationCount: number;
 }
 
-// ── Stubbed Pure Functions (R1 fields removed from schema) ──
-
 export function getEffectiveStatus(automation: Automation): string {
   return automation.status;
 }
@@ -54,7 +120,6 @@ export function getEffectiveStatus(automation: Automation): string {
 export function getEffectiveImpact(
   _automation: Automation,
 ): string | null {
-  // R2 stores impact as Json — will be handled by new detail views
   return null;
 }
 
@@ -63,8 +128,6 @@ export function getActiveSignalCount(signals: GovernanceSignals): number {
 }
 
 export function getGovernanceSignals(_automation: Automation): GovernanceSignals {
-  // R1 governance signals no longer computable — fields removed.
-  // Returns all-false so downstream code (snapshot, portfolio) won't crash.
   return {
     documentationOutdated: false,
     automationStale: false,
@@ -77,8 +140,6 @@ export function getGovernanceSignals(_automation: Automation): GovernanceSignals
 export function getRiskLevel(_automation: Automation): RiskLevel {
   return "low";
 }
-
-// ── Stubbed Data-Loading Functions ──────────────────────
 
 export async function getSystemExposure(
   _workspaceId: string,

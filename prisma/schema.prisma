@@ -92,6 +92,9 @@ model Automation {
   timeSavingsEstimate   String?
   revenueImpactEstimate String?
   technicalEvidence     Json?
+  trigger               String?
+  triggerType           String?
+  systemsTouched        String[]
 
   // R2 process mapping fields
   stepName              String?
@@ -122,6 +125,7 @@ model BusinessProcess {
   name          String
   summary       String?
   maturityLevel String?
+  valueAtStake  String?
   steps         Json?
   order         Int      @default(0)
   createdAt     DateTime @default(now())

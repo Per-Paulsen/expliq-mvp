@@ -113,6 +113,10 @@ vi.mock("@/lib/execution-stats", () => ({
   computeExecutionStats: mockComputeExecutionStats,
 }));
 
+vi.mock("@/lib/actions/analysis", () => ({
+  runAnalysisPipeline: vi.fn().mockResolvedValue({ success: true }),
+}));
+
 // ── Imports ───────────────────────────────────────────
 
 import {

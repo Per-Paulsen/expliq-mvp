@@ -6,6 +6,7 @@ import { encrypt, decrypt } from "@/lib/encryption";
 import { createN8nClient, type N8nWorkflow } from "@/lib/n8n-client";
 import { computeExecutionStats } from "@/lib/execution-stats";
 import { Prisma } from "@/generated/prisma/client";
+import { runAnalysisPipeline } from "@/lib/actions/analysis";
 
 // ── Types ──────────────────────────────────────────────
 
@@ -371,20 +372,25 @@ export async function syncAndAnalyze() {
     data: { lastSyncAt: new Date() },
   });
 
-  return {
-    success: true,
-    summary: {
-      created,
-      updated,
-      unchanged,
-      removed,
-      errors,
-      enrichment: {
-        credentials: credentials !== null,
-        users: users !== null,
-        projects: projects !== null,
-        variables: variables !== null,
-      },
-    } satisfies SyncSummary,
+  const summary: SyncSummary = {
+    created,
+    updated,
+    unchanged,
+    removed,
+    errors,
+    enrichment: {
+      credentials: credentials !== null,
+      users: users !== null,
+      projects: projects !== null,
+      variables: variables !== null,
+    },
   };
+
+  // Phase 3: Run LLM analysis pipeline after sync
+  const analysisResult = await runAnalysisPipeline(workspaceId);
+  if ("error" in analysisResult) {
+    summary.errors.push(analysisResult.error);
+  }
+
+  return { success: true, summary };
 }

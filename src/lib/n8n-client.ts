@@ -287,7 +287,10 @@ export function createN8nClient(
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to deploy workflow: ${res.status}`);
+        const body = await res.text().catch(() => "");
+        throw new Error(
+          `Failed to deploy workflow: ${res.status}${body ? ` — ${body}` : ""}`,
+        );
       }
 
       return res.json();

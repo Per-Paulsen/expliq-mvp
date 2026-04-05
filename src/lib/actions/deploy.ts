@@ -73,8 +73,38 @@ export async function generateDeployJson(recommendationId: string) {
       : [];
 
     // 5. Build the LLM prompt
-    const systemPrompt =
-      "You are an n8n workflow automation expert. Generate a valid n8n workflow JSON that implements the described automation. Output ONLY valid JSON — no markdown, no explanations.";
+    const systemPrompt = `You are an n8n workflow automation expert. Generate a valid n8n workflow JSON for the POST /api/v1/workflows endpoint.
+
+REQUIRED FORMAT — output ONLY this JSON structure:
+{
+  "name": "Workflow Name",
+  "nodes": [
+    {
+      "id": "unique-id",
+      "name": "Node Name",
+      "type": "n8n-nodes-base.nodeType",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": { ... }
+    }
+  ],
+  "connections": {
+    "Source Node Name": {
+      "main": [[{ "node": "Target Node Name", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
+
+RULES:
+- Include ONLY: name, nodes, connections, settings
+- Do NOT include: active, id, meta, tags, createdAt, updatedAt, description
+- Every node needs: id, name, type, typeVersion, position, parameters
+- Use real n8n node types (n8n-nodes-base.*)
+- Connection keys must match node "name" fields exactly
+- Output ONLY valid JSON — no markdown, no explanations`;
 
     const userMessage = JSON.stringify({
       recommendation: {
@@ -115,13 +145,27 @@ export async function generateDeployJson(recommendationId: string) {
       return content;
     }, 3);
 
-    // 7. Strip JSON fences, validate as parseable JSON
+    // 7. Strip JSON fences, validate as parseable JSON, sanitize for n8n API
     const cleaned = stripJsonFences(raw);
-    let parsedJson: unknown;
+    let parsedJson: Record<string, unknown>;
     try {
-      parsedJson = JSON.parse(cleaned);
+      parsedJson = JSON.parse(cleaned) as Record<string, unknown>;
     } catch {
       return { error: "Failed to parse generated workflow JSON" };
+    }
+
+    // Remove read-only / unsupported fields that cause 400 errors
+    delete parsedJson.active;
+    delete parsedJson.id;
+    delete parsedJson.meta;
+    delete parsedJson.tags;
+    delete parsedJson.createdAt;
+    delete parsedJson.updatedAt;
+    delete parsedJson.description;
+
+    // Ensure required settings field exists
+    if (!parsedJson.settings) {
+      parsedJson.settings = { executionOrder: "v1" };
     }
 
     // 8. Store on Recommendation.deployableJson
@@ -180,14 +224,21 @@ export async function deployToN8n(recommendationId: string) {
       recommendation.deployableJson as object,
     );
 
-    // 6. Activate workflow
-    await client.activateWorkflow(workflow.id);
+    // 6. Try to activate workflow (best-effort — may fail if credentials not configured)
+    let activated = false;
+    try {
+      await client.activateWorkflow(workflow.id);
+      activated = true;
+    } catch {
+      // Activation failed (e.g., missing credentials) — workflow is still created
+    }
 
-    // 7. Return success
+    // 7. Return success (workflow created, activation status noted)
     return {
       success: true,
       workflowId: workflow.id,
       instanceUrl: config.instanceUrl,
+      activated,
     };
   } catch (err) {
     return {

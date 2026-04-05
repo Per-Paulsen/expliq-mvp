@@ -25,7 +25,7 @@ type DeployState =
   | { step: "generate" }
   | { step: "preview"; json: string }
   | { step: "deploying"; json: string }
-  | { step: "success"; instanceUrl: string; workflowId: string }
+  | { step: "success"; instanceUrl: string; workflowId: string; activated: boolean }
   | { step: "error"; message: string };
 
 function DeployModal({
@@ -77,6 +77,7 @@ function DeployModal({
         step: "success",
         instanceUrl: result.instanceUrl ?? "",
         workflowId: result.workflowId ?? "",
+        activated: result.activated ?? false,
       });
     } else {
       setState({ step: "error", message: result.error });
@@ -163,6 +164,11 @@ function DeployModal({
                 <p className="text-[15px] font-semibold text-foreground mb-1">
                   Workflow deployed!
                 </p>
+                {!state.activated && (
+                  <p className="text-xs text-status-attention mb-2">
+                    Activation skipped — configure credentials in n8n first.
+                  </p>
+                )}
                 <a
                   href={`${state.instanceUrl}/workflow/${state.workflowId}`}
                   target="_blank"

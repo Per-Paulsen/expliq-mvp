@@ -45,7 +45,16 @@ export async function generateDeployJson(recommendationId: string) {
       return { success: true, json: recommendation.deployableJson };
     }
 
-    // 3. Fetch related workflows in the same process
+    // 3. Fetch the target automation (for technical fix — improve existing workflow)
+    let targetWorkflow: { name: string | null; rawWorkflowJson: unknown } | null = null;
+    if (recommendation.automationId) {
+      targetWorkflow = await prisma.automation.findFirst({
+        where: { id: recommendation.automationId, workspaceId },
+        select: { name: true, rawWorkflowJson: true },
+      });
+    }
+
+    // 4. Fetch related workflows in the same process (for context)
     let relatedWorkflows: Array<{ name: string | null; rawWorkflowJson: unknown }> = [];
     if (recommendation.processId) {
       relatedWorkflows = await prisma.automation.findMany({
@@ -53,13 +62,15 @@ export async function generateDeployJson(recommendationId: string) {
           workspaceId,
           processId: recommendation.processId,
           isRemoved: false,
+          // Exclude the target workflow itself from related list
+          ...(recommendation.automationId ? { id: { not: recommendation.automationId } } : {}),
         },
         select: { name: true, rawWorkflowJson: true },
         take: 5,
       });
     }
 
-    // 4. Fetch connector config for system/credential info
+    // 5. Fetch connector config for system/credential info
     const connectorConfig = await prisma.connectorConfig.findFirst({
       where: { workspaceId, platform: "n8n" },
       select: { discoveryData: true },
@@ -72,10 +83,10 @@ export async function generateDeployJson(recommendationId: string) {
         )
       : [];
 
-    // 5. Build the LLM prompt
-    const systemPrompt = `You are an n8n workflow automation expert. Generate a valid n8n workflow JSON for the POST /api/v1/workflows endpoint.
+    // 6. Build the LLM prompt
+    const isImprovement = !!targetWorkflow;
 
-REQUIRED FORMAT — output ONLY this JSON structure:
+    const baseFormatRules = `REQUIRED FORMAT — output ONLY this JSON structure:
 {
   "name": "Workflow Name",
   "nodes": [
@@ -106,7 +117,26 @@ RULES:
 - Connection keys must match node "name" fields exactly
 - Output ONLY valid JSON — no markdown, no explanations`;
 
+    const systemPrompt = isImprovement
+      ? `You are an n8n workflow automation expert. You will receive an EXISTING n8n workflow and a recommended improvement. Generate an IMPROVED VERSION of the workflow that applies the recommended change.
+
+The improved workflow will be deployed as a NEW workflow alongside the original — do NOT delete or modify the original. Name the improved version with a "v2" suffix (e.g., "Original Name v2 — with error handling").
+
+${baseFormatRules}`
+      : `You are an n8n workflow automation expert. Generate a valid n8n workflow JSON for the POST /api/v1/workflows endpoint.
+
+${baseFormatRules}`;
+
     const userMessage = JSON.stringify({
+      ...(isImprovement
+        ? {
+            mode: "improve_existing",
+            existingWorkflow: {
+              name: targetWorkflow!.name,
+              workflow: targetWorkflow!.rawWorkflowJson,
+            },
+          }
+        : { mode: "create_new" }),
       recommendation: {
         name: recommendation.name,
         businessCase: recommendation.businessCase,

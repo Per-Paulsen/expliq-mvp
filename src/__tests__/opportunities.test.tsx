@@ -235,8 +235,11 @@ describe("OpportunitiesView", () => {
     fireEvent.click(screen.getByText("Add retry logic"));
 
     // Should show link to automation detail
-    const link = screen.getByText(/View workflow/);
+    const link = screen.getByText(/View current workflow/);
     expect(link.closest("a")).toHaveAttribute("href", "/automations/auto-1");
+
+    // Should also show "Deploy improved version" button
+    expect(screen.getByText("Deploy improved version")).toBeInTheDocument();
   });
 
   it("AC 36: process suggestion sections with child recommendations", () => {
@@ -316,6 +319,7 @@ describe("OpportunitiesView", () => {
           brief: "Close revenue gap in billing",
           tier: "investigate",
           type: "new_workflow",
+          automationId: null,
           honestFraming: "May be handled outside automation tools",
           businessCase: "Automating follow-up reduces DSO by 5 days",
           implementationNotes: "Create a scheduled workflow polling the CRM",

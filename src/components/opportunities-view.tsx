@@ -509,46 +509,29 @@ export function OpportunitiesView({
 
             {/* Actions */}
             <div className="pt-4 border-t border-border space-y-3">
-              {(selectedRec.type === "new_workflow" ||
-                selectedRec.type === "new-automation" ||
-                selectedRec.type === "automate") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDeployRecId(selectedRec.id);
-                    setSelectedId(null);
-                  }}
-                  className="w-full px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+              {/* Deploy button — available for all recommendation types */}
+              <button
+                type="button"
+                onClick={() => {
+                  setDeployRecId(selectedRec.id);
+                  setSelectedId(null);
+                }}
+                className="w-full px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                {selectedRec.automationId
+                  ? "Deploy improved version"
+                  : "Deploy"}
+              </button>
+
+              {/* View workflow link — for fix/optimize/enhance types with a target automation */}
+              {selectedRec.automationId && (
+                <Link
+                  href={`/automations/${selectedRec.automationId}`}
+                  className="block w-full px-4 py-2.5 text-center text-sm font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors"
                 >
-                  Deploy
-                </button>
+                  View current workflow &rarr;
+                </Link>
               )}
-
-              {(selectedRec.type === "technical_fix" ||
-                selectedRec.type === "fix" ||
-                selectedRec.type === "optimize" ||
-                selectedRec.type === "enhance") &&
-                selectedRec.automationId && (
-                  <Link
-                    href={`/automations/${selectedRec.automationId}`}
-                    className="block w-full px-4 py-2.5 text-center text-sm font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors"
-                  >
-                    View workflow &rarr;
-                  </Link>
-                )}
-
-              {(selectedRec.type === "technical_fix" ||
-                selectedRec.type === "fix" ||
-                selectedRec.type === "optimize" ||
-                selectedRec.type === "enhance") &&
-                !selectedRec.automationId && (
-                  <Link
-                    href="/processes"
-                    className="block w-full px-4 py-2.5 text-center text-sm font-medium text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors"
-                  >
-                    View on Process Map &rarr;
-                  </Link>
-                )}
             </div>
           </div>
         )}

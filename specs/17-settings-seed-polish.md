@@ -19,7 +19,7 @@ Final polish, seed data, and loading states for demo readiness.
 - Replace basic progress indicator (from Epic 10) with step-by-step named stages
 - Stages: "Fetching workflows..." → "Fetching execution data..." → "Analyzing workflows..." → "Clustering processes..." → "Generating recommendations..." → "Complete"
 - Each stage shows a checkmark when done, current stage shows spinner/animation
-- Progress reads from CompanyProfile.analysisStatus and per-automation completion tracking
+- Progress sources span two pipelines: sync-phase stages ("Fetching workflows", "Fetching execution data") are tracked by the sync action's progress (not by AnalysisStatus), while analysis-phase stages ("Analyzing workflows" → "Complete") map to CompanyProfile.analysisStatus (pending → analyzing_workflows → analyzing_workspace → complete). The UI must combine both sources.
 - Important for the demo: audience sees the intelligence being built in real time
 
 **Loading / skeleton states:**

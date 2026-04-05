@@ -85,6 +85,7 @@ Depends on all prior epics (01-08). This is a hardening pass, not new functional
 
 - ~~Resolved: Error boundaries show "Try again" only for MVP. No "Report issue" link — no external error tracking or support channel exists yet.~~
 - ~~Resolved: Loading skeletons use approximate layout (recognizable shapes, not pixel-perfect). Pages are still evolving through epics 05-08.~~
+- ~~Resolved: Spec deferred — shelved for the R2 build sequence. R2 page epics (12-17) handle their own error boundaries and loading states. May be revisited post-R2 if a dedicated hardening pass is needed.~~
 
 ---
 

@@ -7,3 +7,19 @@ tags:
 # Epic 13 — Dashboard — Brainstorming
 
 > Upstream: [Spec](13-dashboard.md)
+
+## Implementation Refinement Applied
+
+Batch-refined via `/refine_all_ind` (in-dev mode). See `specs/ind-epic-review.md` for details.
+
+Results incorporated:
+- 01-project-setup-results.md
+- 02-auth-results.md
+- 03-n8n-connector-results.md
+- 04-llm-pipeline-results.md
+- 05-risk-engine-results.md
+- 05.5-test-infrastructure-results.md
+- 06-portfolio-screen-results.md
+- 07-automation-detail-results.md
+- 08-workspace-snapshot-results.md
+- 10-schema-sync-results.md

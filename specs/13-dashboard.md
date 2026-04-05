@@ -30,7 +30,7 @@ Executive summary page answering "What needs my attention?" Following the McKins
    - Aggregate estimates secondary: "est. ~X hrs/wk saved" and "~€X/mo at risk" from CompanyProfile.aggregateEstimates, with "(methodology →)" expandable or link
 
 4. **Two-column section:**
-   - Left: **Attention** — Automations with governance dot = critical or attention. Each row: StatusDot + name + brief. Click → `/automations/[id]`. Cap at 5, "View all on Process Map" link.
+   - Left: **Attention** — Automations with governance dot = critical or attention. Each row: StatusDot + name + businessNarrative (truncated to one line). Click → `/automations/[id]`. Cap at 5, "View all on Process Map" link.
    - Right: **Top Opportunities** — Top 3 recommendations by priorityOrder. Each row: TierBadge + title + business case one-liner + impactEstimate badge. Click → `/opportunities?highlight={id}`.
 
 5. **Process Coverage** — Table: process name, existing workflow count / total step count, CoverageBar, reliability % (monospace), recommendation count. Rows sorted by BusinessProcess.order. Click → `/processes`.
@@ -65,10 +65,10 @@ Executive summary page answering "What needs my attention?" Following the McKins
 13. Aggregate estimates shown secondary with "(methodology →)" text (expandable or tooltip acceptable for MVP)
 
 ### Attention + Opportunities
-14. Attention section: lists up to 5 automations with critical/attention governance dot, each with StatusDot + name + businessBrief
+14. Attention section: lists up to 5 automations with critical/attention governance dot, each with StatusDot + name + businessNarrative (truncated to one line)
 15. Click on attention item navigates to `/automations/[id]`
 16. Top Opportunities section: lists top 3 recommendations by priorityOrder
-17. Each opportunity shows TierBadge + name + businessCase + impactEstimate
+17. Each opportunity shows TierBadge + name + brief (one-liner from Recommendation.brief, not the full businessCase) + impactEstimate
 18. Click on opportunity navigates to `/opportunities?highlight={recommendationId}`
 
 ### Process Coverage
@@ -106,7 +106,7 @@ Executive summary page answering "What needs my attention?" Following the McKins
 
 ## Open Questions
 
-1. Should the "methodology" link on aggregate estimates expand inline (accordion) or link to a separate section/page? (Recommendation: inline accordion for MVP — keeps the user on the Dashboard.)
+1. ~~Resolved: Inline accordion for MVP (per AC 13: "expandable or tooltip acceptable for MVP"). Keeps the user on the Dashboard.~~
 
 ---
 

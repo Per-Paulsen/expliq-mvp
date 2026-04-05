@@ -16,7 +16,7 @@ tags:
 Per-automation deep dive answering "Tell me everything about this one." Existing route `/automations/[id]` — complete page rewrite with business-first content.
 
 **Header:**
-- Automation name (LLM-generated business name)
+- Automation name (from n8n — the `name` field synced from the workflow)
 - StatusDot + status label (e.g., "Critical — 31% error rate" or "Healthy — active, monitored")
 - Platform badge ("n8n")
 - SystemFlow (source → destination systems)
@@ -66,7 +66,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 ## Acceptance Criteria
 
 ### Header
-1. Renders automation name (LLM business name), StatusDot with governance level, status label describing the dot reason
+1. Renders automation name (from n8n `name` field), StatusDot with governance level, status label describing the dot reason
 2. Platform badge shows "n8n"
 3. SystemFlow renders systems from Automation.systemsTouched
 4. Step label shows stepName + process name (from BusinessProcess via processId), clickable
@@ -140,6 +140,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 ## Open Questions
 
 1. Should we include an "Open in n8n" link in the header? It's trivially constructable (`{instanceUrl}/workflow/{externalId}`) and high-value. (Recommendation: yes, include it — low effort, immediate user value for cross-referencing.)
+2. ~~Resolved: Connection type labels derived heuristically. The Detail page checks `rawWorkflowJson`: if a connected ID matches `settings.errorWorkflow` → "error handler", if matched via `settings.callerIds` → "sub-workflow", otherwise → "logical." No schema change needed.~~
 
 ---
 

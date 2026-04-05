@@ -320,6 +320,194 @@ No new issues. Reviewed against epic 07 results:
 
 ---
 
+# Individual Epic Review — 2026-04-05 (pass 6)
+
+## Summary
+- Specs reviewed: 09, 11, 12, 13, 14, 15, 16, 17
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 06, 07, 08, 10
+- Specs skipped (already refined): none (09 stale — missing 08-workspace-snapshot-results.md, 10-schema-sync-results.md; 11-17 had no prior refinement marker)
+- Specs modified: 09, 11, 13, 14, 16, 17
+- Specs clean: 12, 15
+
+## 09 — Production Hardening
+
+### Findings
+
+- **Spec scope is obsolete due to R2 pivot** (ungrounded assumptions)
+  - The spec targets R1 routes (Workspace Snapshot, Portfolio, Automation Detail), R1 buttons ("Regenerate", "Sync Now", "Test Connection"), and R1 server actions (`src/lib/actions/automation.ts`, `actions/llm.ts`) — all of which are being replaced or have been stubbed by the R2 pivot (Epic 10 results confirm stubs).
+  - Epic 17 (Settings + Seed + Polish) covers R2-era loading states, integration polish, and UX gap fixing — overlapping significantly with 09's intent.
+  - `NEEDS CONFIRMATION` — added as open question with three options: (A) drop, (B) rewrite for R2, (C) keep as-is and build last.
+
+### Changes applied
+
+- Added `NEEDS CONFIRMATION` open question about spec viability with three options
+- **Resolution: Deferred** — spec 09 is shelved for now. Not dropped (may be revisited later), not built in the R2 sequence. The R2 page epics (12-17) handle their own error boundaries and loading states.
+
+## 11 — LLM Pipeline V2
+
+### Findings
+
+- **Missing DB fields for per-automation output** (ungrounded assumption)
+  - AC 3 says `trigger`, `triggerType`, and `systemsTouched` are "stored on the Automation model." Verified against `prisma/schema.prisma` — these three fields do NOT exist. The Epic 10 migration added 17 R2 fields but not these three. Epic 11 needs its own migration.
+  - **Change**: Added migration requirement note to the scope section.
+
+- **Open question 1 contradicts v8 architecture** (inconsistent spec)
+  - The scope section included a lightweight nudge sentence in the workspace prompt. This contradicts the v8 research spike findings (Amendment O): simple prompts + full data, no rubrics, no methods, no nudges. The nudge was a leftover from pre-spike prompt engineering.
+  - **Change**: Removed nudge from scope. Resolved OQ 1 as "no nudge — per v8 architecture."
+
+- **AC 30 overlaps with Epic 10 tests** (hidden scope creep)
+  - "Unit tests for execution aggregation → LLM input formatting" — execution aggregation is already tested in Epic 10 (`execution-stats.test.ts`, 12 tests). This AC should only cover LLM input formatting.
+  - **Change**: Clarified AC 30 to specify it tests LLM input formatting, not aggregation.
+
+### Changes applied
+
+- Added migration note in scope: `trigger` (String?), `triggerType` (String?), `systemsTouched` (String[]) need to be added via Prisma migration
+- Removed lightweight nudge from scope (contradicts v8 simple-prompt architecture)
+- Resolved open question 1 as "no nudge"
+- Clarified AC 30 to avoid overlap with Epic 10 execution aggregation tests
+
+## 12 — Design System + App Shell
+
+### Findings
+
+No issues found. The spec is internally consistent:
+- The "Opportunities" screen name (diverging from PRD's "Priorities") is consistent across ALL R2 specs (12-17) — this is an intentional rename, not an inconsistency.
+- Sidebar "Synced X ago" open question is appropriately flagged and well-scoped.
+- Component specifications match decisions §15 with concrete props and behaviors.
+- Route scaffolding correctly covers all R2 routes.
+
+### Changes applied
+
+- None
+
+## 13 — Dashboard
+
+### Findings
+
+- **AC 17 uses wrong field for one-liner** (inconsistent domain language)
+  - AC 17 said "businessCase" for the opportunity one-liner. The Recommendation model has both `brief` (one-sentence summary) and `businessCase` (full reasoning shown in slide-over panels). The Dashboard row should use `brief`, not `businessCase`.
+  - **Change**: Updated AC 17 to specify `Recommendation.brief`.
+
+- **Open question 1 already answered by AC 13** (redundant)
+  - OQ 1 asks whether methodology is inline accordion or separate page. AC 13 already specifies "expandable or tooltip acceptable for MVP."
+  - **Change**: Resolved OQ 1 per AC 13.
+
+### Changes applied
+
+- Updated AC 17: "businessCase" → "brief (one-liner from Recommendation.brief, not the full businessCase)"
+- Resolved open question 1 (inline accordion per AC 13)
+
+## 14 — Process Map
+
+### Findings
+
+- **"Value at stake" placement assumed in scope but questioned in OQ** (inconsistent spec)
+  - The scope lists "value at stake" as a collapsed row column, but open question 1 asks whether it should be on the collapsed or expanded row. The scope should not presume the answer.
+  - **Change**: Updated collapsed row columns to mark value at stake as TBD per OQ 1.
+
+- **Maturity level names not established upstream** (ungrounded assumption)
+  - AC 2 lists five maturity levels (Prototype/Emerging/Developing/Production/Optimized), but these names aren't defined in Epic 11's spec or the PRD. They depend on the LLM output schema.
+  - **Change**: Added note to AC 2 that maturity level names must match Epic 11's workspace call output schema.
+
+### Changes applied
+
+- Updated scope: value at stake column marked as "TBD — see open question 1"
+- Added note to AC 2: maturity badge names must match Epic 11's LLM output schema
+
+## 15 — Opportunities
+
+### Findings
+
+No issues found. The spec is comprehensive and internally consistent:
+- All referenced Recommendation fields verified against Prisma schema: `impactEstimate`, `affectedScope`, `honestFraming`, `brief`, `businessCase`, `evidence`, `confidence`, `tier`, `deployableJson` all exist.
+- Deploy modal flow (generate → review → deploy) is well-specified with clear error handling.
+- Deep-linking and filtering URL parameters are concrete and testable.
+- Process suggestion sections are clearly separated from tier sections.
+- Open questions (model selection, post-deploy re-sync) are genuine design decisions appropriately flagged.
+
+### Changes applied
+
+- None
+
+## 16 — Detail
+
+### Findings
+
+- **"LLM-generated business name" doesn't exist** (ungrounded assumption)
+  - The header spec said "Automation name (LLM-generated business name)." The Automation model has `name` (synced from n8n) but no LLM-generated business name field. Epic 11's per-automation output produces `businessNarrative` (multi-sentence), not a short business name.
+  - **Change**: Updated header and AC 1 to "Automation name (from n8n)."
+
+- **Connection type labels have no data source** (ungrounded assumption)
+  - AC 21 specifies type labels (error handler / sub-workflow / logical) per connected automation, but `upstreamIds`/`downstreamIds` are flat `String[]` arrays with no type metadata. The information is lost during the merge step in Epic 11 (AC 12-14).
+  - `NEEDS CONFIRMATION` — added as open question with three options: (A) change Epic 11 to store typed connections, (B) derive heuristically on the Detail page, (C) drop type labels.
+
+### Changes applied
+
+- Updated header and AC 1: "LLM-generated business name" → "from n8n `name` field"
+- Added `NEEDS CONFIRMATION` open question about connection type labels (schema gap)
+
+## 17 — Settings + Seed + Polish
+
+### Findings
+
+- **Sync progress stages don't map to AnalysisStatus enum** (ungrounded assumption)
+  - The spec lists 6 UI stages, but CompanyProfile.analysisStatus has only 5 enum values (pending, analyzing_workflows, analyzing_workspace, complete, failed). The first two stages ("Fetching workflows", "Fetching execution data") are sync-phase activities from Epic 10, not tracked by AnalysisStatus. The spec assumed one tracking source but needs two.
+  - **Change**: Clarified that sync-phase stages need separate tracking from analysis-phase stages (AnalysisStatus).
+
+### Changes applied
+
+- Clarified sync progress section: UI must combine sync-phase tracking (from sync action) with analysis-phase tracking (from CompanyProfile.analysisStatus)
+
+## Brainstorming
+
+2 design decisions need your input before they can be applied to the specs. Please answer below each question.
+
+---
+
+### Epic 09 — Production Hardening
+
+#### Q1: Spec viability after R2 pivot
+
+Epic 09 was written for the R1 MVP (epics 01-08). The R2 pivot replaces most of the routes, actions, and buttons it targets:
+- Routes: Workspace Snapshot → Dashboard (Epic 13), Portfolio → Process Map (Epic 14), Detail → rewritten (Epic 16)
+- Buttons: "Regenerate" is gone, "Sync Now" is now "Sync & Analyze" (Epic 10)
+- Actions: `actions/automation.ts` and `actions/llm.ts` are stubbed
+
+Meanwhile, Epic 17 (Settings + Seed + Polish) covers R2-era loading states, UX gaps, and integration testing — which overlaps with 09's intent.
+
+- **(A) Drop spec 09** — its concerns are absorbed by individual R2 page epics (each builds their own error boundaries, loading states) + Epic 17 (polish pass). Remove from the build sequence.
+- **(B) Rewrite spec 09 for R2** — update routes, buttons, and actions to target the R2 pages. Keep it as a dedicated hardening pass after all R2 pages are built. Risk: significant overlap with Epic 17.
+- **(C) Keep as-is, build last** — build Epic 09 after all R2 epics complete, targeting whatever routes/actions exist at that point. The spec text will be inaccurate but the intent (error boundaries, loading states, rate limiting, graceful degradation) remains valid. Risk: spec text doesn't match reality, implementation requires interpretation.
+
+**Recommendation:** (A) Drop it. Each R2 page epic should include its own error boundary and loading state. Epic 17 handles the cross-cutting polish. A separate hardening pass adds complexity without new value.
+
+Your answer: Defer — skip for now, may revisit later. Not part of the R2 build sequence.
+
+---
+
+### Epic 16 — Detail
+
+#### Q2: Connection type labels
+
+The Detail page spec (AC 21) shows connection type labels per connected automation: "error handler", "sub-workflow", or "logical." However, `upstreamIds` and `downstreamIds` on the Automation model are flat `String[]` arrays — they don't carry type metadata. During Epic 11's connected automations resolution (AC 12-14), deterministic connections (errorWorkflow, callerIds) and LLM connections are all merged into the same arrays, losing type information.
+
+- **(A) Change Epic 11 schema** — store connections as `Json[]` with `{ id: string, type: "error_handler" | "sub_workflow" | "logical" }` objects instead of flat string arrays. Requires schema migration in Epic 11 and updates to the resolution logic. Most accurate data.
+- **(B) Derive heuristically on Detail page** — keep flat arrays. On the Detail page, check if a connected ID matches `settings.errorWorkflow` from the raw workflow JSON → "error handler". If matched via `settings.callerIds` → "sub-workflow". Otherwise → "logical." Avoids schema change but adds heuristic logic to the UI layer.
+- **(C) Drop type labels** — show connected automations without type distinction. Simplest. The connection itself is valuable; the type label is nice-to-have.
+
+**Recommendation:** (B) Derive heuristically. The type information is deterministic and available in the raw workflow JSON (already stored on Automation.rawWorkflowJson). No schema change needed, and the heuristic is straightforward.
+
+Your answer: b
+
+## Confirmations Applied
+
+Both `NEEDS CONFIRMATION` items resolved and applied to specs:
+
+1. **Spec 09 — Q1: Spec viability** → Deferred. Spec shelved for R2 build sequence; may revisit post-R2. Marked resolved in spec.
+2. **Spec 16 — Q2: Connection type labels** → (B) derive heuristically. Detail page checks `rawWorkflowJson` for `errorWorkflow`/`callerIds` to determine type. No schema change. Marked resolved in spec.
+
+---
+
 ## Related
 
 - [Cross-Epic Review](cross-epic-review.md)

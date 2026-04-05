@@ -66,7 +66,7 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 4. Empty tiers hidden (if no Act Now recommendations, that section doesn't render)
 
 ### Recommendation Rows
-5. Each row shows: title, businessCase (one line truncated), ConfidenceBadge (solid/dashed/outline), affectedScope, impactEstimate badge, action button
+5. Each row shows: name, brief (one-liner from Recommendation.brief — not the full businessCase, which is shown in the slide-over panel), ConfidenceBadge (solid/dashed/outline), affectedScope, impactEstimate badge, action button
 6. Action button: "Deploy ▶" for new_workflow, "→" link for technical_fix, none for platform_connection
 7. Click on row (not action button) opens slide-over panel
 

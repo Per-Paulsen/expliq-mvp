@@ -17,13 +17,13 @@ Process-centric view answering "What do I have?" Primary entity is the business 
 
 **Process rows (collapsed — top level):**
 - CollapsibleRow component per BusinessProcess
-- Columns: process name, summary (one line, truncated), maturity badge, coverage bar, reliability % (monospace), value at stake (from LLM), recommendation count
+- Columns: process name, summary (one line, truncated), maturity badge, coverage bar, reliability % (monospace), recommendation count (value at stake placement TBD — see open question 1)
 - Sorted by BusinessProcess.order
 - Click chevron to expand
 
 **Expanded process — workflow rows:**
 - Table rows inside expanded process, one per Automation linked to this process (via processId)
-- Columns: StatusDot (governance), name + stepName label, businessBrief (truncated), SystemFlow, ImpactBadge
+- Columns: StatusDot (governance), name + stepName label, businessNarrative (truncated), SystemFlow, ImpactBadge
 - Click → `/automations/[id]`
 - Rows use subtle border-bottom (#262626), no card chrome
 
@@ -51,12 +51,12 @@ Process-centric view answering "What do I have?" Primary entity is the business 
 
 ### Process Rows
 1. One CollapsibleRow per BusinessProcess, sorted by `order`
-2. Each row displays: name, summary (truncated to one line), maturity badge (Prototype/Emerging/Developing/Production/Optimized), CoverageBar, reliability % (monospace), recommendation count
+2. Each row displays: name, summary (truncated to one line), maturity badge (maturity level names must match the LLM output schema defined in Epic 11's workspace call — e.g., Prototype/Emerging/Developing/Production/Optimized or whatever levels the prompt specifies), CoverageBar, reliability % (monospace), recommendation count
 3. Expand/collapse on chevron click with smooth animation
 
 ### Workflow Rows
 4. Inside expanded process: one row per Automation where processId matches
-5. Each workflow row: StatusDot + name + stepName label + businessBrief (truncated) + SystemFlow + ImpactBadge
+5. Each workflow row: StatusDot + name + stepName label + businessNarrative (truncated) + SystemFlow + ImpactBadge
 6. Click on workflow row navigates to `/automations/[id]`
 7. Rows aligned in columns, subtle border-bottom between rows
 
@@ -78,7 +78,8 @@ Process-centric view answering "What do I have?" Primary entity is the business 
 
 ### Data Loading
 18. Server component with `getRequiredSession()` for workspaceId
-19. Queries: BusinessProcess (with order), Automation (with processId, governance fields), Recommendation count per process
+19. Queries: BusinessProcess (with order, valueAtStake), Automation (with processId, governance fields, errorRate), Recommendation count per process
+19a. Per-process reliability computed on-read: average `(1 - errorRate)` across automations in the process where errorRate is non-null. Processes with no execution data show "—" instead of a percentage.
 20. Empty state when no BusinessProcess records exist
 
 ### Tests

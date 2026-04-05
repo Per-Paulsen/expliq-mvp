@@ -673,6 +673,132 @@ None. Both fixes were isolated to their respective specs.
 
 ---
 
+# Cross-Epic Review Pass 9 (R2) — 2026-04-05
+
+First cross-epic review of R2 specs (11-17) after Epic 10 completion. Individual refinement (`/refine_all_ind` pass 6) already applied. This pass focuses on data flow consistency, schema alignment, and missing handoffs across the R2 epic chain.
+
+## Summary
+- Total specs reviewed: 17 (10 completed read-only: 01-08, 05.5, 10; 1 deferred: 09; 6 unbuilt: 11-17 — note: 17 was 17 in the spec sequence)
+- Specs modified: 11, 12, 13, 14, 15
+- Specs clean: 16, 17
+
+## Data Flow Model (R2)
+
+```
+Epic 10 (completed)
+  └── Schema: Automation (R2 fields), BusinessProcess, Recommendation,
+      ProcessSuggestion, CompanyProfile, ConnectorConfig extensions
+  └── n8n client: deploy methods, execution fetch
+  └── Sync pipeline: two-phase (Discover → Sync & Analyze)
+
+Epic 11 (LLM Pipeline V2) ← PRODUCER
+  ├── Per-automation → Automation: businessNarrative, impact, detectability, etc.
+  ├── Workspace → BusinessProcess, Recommendation, ProcessSuggestion, CompanyProfile
+  ├── Governance dot: pure function from error rate + detectability + impact
+  └── Delta: previousSnapshot → deltaSummary
+
+Epic 12 (Design System) ← COMPONENTS
+  └─�� 10 shared components + dark theme + route shells + sidebar
+
+Epics 13-16 ← CONSUMERS (all depend on 11 + 12)
+  13 Dashboard:  CompanyProfile, Automation (governance), BusinessProcess, Recommendation (top 3)
+  14 Process Map: BusinessProcess (steps, maturity, valueAtStake), Automation (per-process)
+  15 Opportunities: Recommendation, ProcessSuggestion, deploy LLM call
+  16 Detail:     Automation (all fields), BusinessProcess, Recommendation
+
+Epic 17 (Polish) ← INTEGRATOR (depends on all above)
+```
+
+## Changes by Epic
+
+### 11 — LLM Pipeline V2
+- **Issue 1**: Missing output structure definitions for Json fields consumed by Epics 13-16 (missing handoff)
+  - **Involved epics**: 11 (produces), 13 (systemLandscape), 14 (steps, maturityLevel, valueAtStake), 16 (steps)
+  - `BusinessProcess.steps` — spec 14 assumes `isGap` entries, spec 16 assumes ordered step names. Structure was never defined.
+  - `CompanyProfile.systemLandscape` — spec 13 needs system names + workflow counts. Structure was never defined.
+  - `BusinessProcess.maturityLevel` — spec 14 lists 5 named levels but spec 11 never defined the vocabulary.
+  - **Change**: Added "Workspace call output structures" section to scope defining: steps Json array structure, maturityLevel values, systemLandscape array structure.
+
+- **Issue 2**: `BusinessProcess.valueAtStake` has no data source (forward dependency gap)
+  - **Involved epics**: 11 (must produce), 14 (displays it on process rows)
+  - Spec 14 shows "value at stake" per process (from PRD §4/§8), but no field exists on BusinessProcess and Epic 11's workspace call output doesn't include it.
+  - **Change**: Added `valueAtStake` (String?) to the Epic 11 migration scope (alongside trigger/triggerType/systemsTouched).
+  - **Cascade**: None — spec 14 already references it
+
+### 12 — Design System + App Shell
+- **Issue**: `lastSyncedAt` field name incorrect (schema drift from completed Epic 10)
+  - **Involved epics**: 10 (completed — ConnectorConfig has `lastSyncAt`), 12 (sidebar scope + OQ)
+  - The actual Prisma field is `lastSyncAt`, not `lastSyncedAt`.
+  - **Change**: Updated all references from `lastSyncedAt` to `lastSyncAt`.
+  - **Cascade**: None
+
+### 13 — Dashboard
+- **Issue**: "brief" in Attention section references wrong field (schema drift)
+  - **Involved epics**: 11 (produces Automation.businessNarrative), 13 (displays it)
+  - The Attention section said "StatusDot + name + brief" — but Automation has `businessNarrative`, not `brief`. (`brief` exists on Recommendation, not Automation.) Ambiguous reference could lead to using the wrong field.
+  - **Change**: Updated scope and AC 14 to `businessNarrative (truncated to one line)`.
+  - **Cascade**: None
+
+### 14 — Process Map
+- **Issue 1**: `businessBrief` doesn't exist on Automation model (schema drift)
+  - **Involved epics**: 10 (schema), 11 (produces `businessNarrative`), 14 (displays it)
+  - Spec 14 used `businessBrief` in scope and AC 5. The actual field is `businessNarrative` (consolidated per Amendment M, confirmed in Prisma schema).
+  - **Change**: Replaced all `businessBrief` references with `businessNarrative`.
+  - **Cascade**: None
+
+- **Issue 2**: Per-process reliability computation undefined (missing handoff)
+  - **Involved epics**: 10 (per-automation errorRate), 14 (displays per-process reliability %)
+  - BusinessProcess has no `reliability` field. Per-automation `errorRate` exists but no spec defines how to aggregate it per process.
+  - **Change**: Added AC 19a: per-process reliability computed on-read as average `(1 - errorRate)` across automations in the process.
+  - **Cascade**: None
+
+### 15 — Opportunities
+- **Issue**: Row display uses `businessCase` instead of `brief` (inconsistent domain language across epics)
+  - **Involved epics**: 13 (Dashboard uses `brief` for recommendation one-liner after pass 6 fix), 15 (should match)
+  - AC 5 said "businessCase (one line truncated)" for the row display. But `brief` is the one-sentence summary field; `businessCase` is the full reasoning shown in the slide-over panel. Spec 13 already uses `brief` for the Dashboard's Top Opportunities rows.
+  - **Change**: Updated AC 5 to use `brief` (Recommendation.brief) for row display.
+  - **Cascade**: Consistent with spec 13 AC 17
+
+### 16 — Detail
+No cross-epic issues found. All field references verified:
+- `businessNarrative` ✓ (matches spec 11 output, Prisma schema)
+- `systemsTouched` ✓ (will exist after spec 11 migration)
+- `upstreamIds`/`downstreamIds` ✓ (connection type derivation resolved in ind-review Q2)
+- `impact`, `detectability`, `technicalEvidence` as Json ✓
+- `stepName` + `processId` for process position ✓
+- Recommendation linking via `processId` ✓
+
+### 17 — Settings + Seed + Polish
+No cross-epic issues found. Sync progress tracking gap (AnalysisStatus vs sync-phase stages) already addressed in individual review.
+
+## Cross-Epic Consistency Verified (R2)
+
+| Concern | Epics involved | Status |
+|---------|---------------|--------|
+| Automation field names (businessNarrative, not businessBrief) | 11→13, 14, 16 | Now consistent |
+| Recommendation one-liner field (brief, not businessCase) | 11→13, 15 | Now consistent |
+| ConnectorConfig.lastSyncAt (not lastSyncedAt) | 10→12 | Now consistent |
+| BusinessProcess.steps Json structure | 11→14, 16 | Now defined in 11 |
+| CompanyProfile.systemLandscape Json structure | 11→13 | Now defined in 11 |
+| BusinessProcess.maturityLevel vocabulary | 11→14 | Now defined in 11 |
+| BusinessProcess.valueAtStake data source | 11→14 | Now in 11 migration |
+| Per-process reliability computation | 10→14 | Now defined in 14 |
+| Route paths (/, /processes, /opportunities, /automations/[id], /settings) | 12→13, 14, 15, 16, 17 | Consistent |
+| URL params (/opportunities?highlight={id}, ?process={id}) | 13, 14, 15, 16 | Consistent |
+| Governance dot computation (pure function) | 11→13, 14, 16 | Consistent |
+| AnalysisStatus enum (5 values) | 10→11→13, 17 | Consistent |
+| Design system components consumed correctly | 12→13, 14, 15, 16 | Consistent |
+| n8n client deploy methods | 10→15 | Consistent |
+| Delta banner data flow (previousSnapshot → deltaSummary) | 11→13 | Consistent |
+| Connected automations (upstreamIds/downstreamIds) | 11→16 | Consistent (heuristic type derivation) |
+| Deploy LLM call ownership | 15 (on-demand, separate from 11's pipeline) | Clear |
+| Epic 11 migration scope (trigger, triggerType, systemsTouched, valueAtStake) | 11→14, 16 | Consistent |
+
+## Cascading Changes
+- Epic 11 migration scope expanded: `valueAtStake` on BusinessProcess added alongside the existing trigger/triggerType/systemsTouched additions. This cascades from Epic 14's requirement but doesn't change Epic 14's spec.
+
+---
+
 ## Related
 
 - [Individual Epic Review](ind-epic-review.md)

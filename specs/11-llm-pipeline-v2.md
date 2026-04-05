@@ -21,6 +21,7 @@ Complete rewrite of the LLM pipeline to implement the v8 two-call architecture p
 - Input: full workflow JSON + aggregated execution stats
 - Output: businessNarrative, trigger, triggerType, systemsTouched, dataFlow, stepName, impact (reasoning + level + failureScenario + revenueConnection), detectability (reasoning + level + evidence), timeSavingsEstimate, revenueImpactEstimate, technicalEvidence
 - Stored on the Automation model
+- **Migration required:** `trigger` (String?), `triggerType` (String?), and `systemsTouched` (String[]) are not in the current schema (Epic 10 migration did not add them). This epic must add them via a new Prisma migration.
 
 **Workspace analysis (Call 2 — single):**
 - Single LLM call after all per-automation calls complete
@@ -28,7 +29,12 @@ Complete rewrite of the LLM pipeline to implement the v8 two-call architecture p
 - Input: all per-automation summaries + full workflow JSONs (compact) + execution overview + instance metadata (tags, credentials if available, users if available)
 - Per-automation summaries include the automation's database `id` and n8n `externalId` so the LLM can reference workflows by ID
 - Output populates: BusinessProcess records, Recommendation records (with impactEstimate badge), ProcessSuggestion records, CompanyProfile (systemLandscape, nextMoveText, nextMoveReasoning, processMetrics, aggregateEstimates, analyzedAt)
-- Lightweight nudge in prompt: "For each automated outcome, consider whether non-recipients also deserve communication."
+
+**Workspace call output structures (consumed by Epics 13-16):**
+- `BusinessProcess.steps` Json: array of `{ name: string, isAutomated: boolean, isGap: boolean, automationId?: string }` — ordered list of process steps. `isGap` entries have no automation and correspond to LLM-identified missing steps.
+- `BusinessProcess.maturityLevel` values: `"Prototype"` | `"Emerging"` | `"Developing"` | `"Production"` | `"Optimized"` — defined in the workspace prompt output schema.
+- `CompanyProfile.systemLandscape` Json: array of `{ name: string, workflowCount: number }` — external systems detected across all workflows.
+- **Migration required (same migration as trigger/triggerType/systemsTouched):** Add `valueAtStake` (String?) to BusinessProcess — LLM-generated estimate with reasoning per process (e.g., "~€3K/month at risk from 31% error rate on customer-facing workflows"). Referenced by Epic 14 (Process Map).
 
 **Connected automations resolution:**
 - Deterministic: parse `settings.errorWorkflow` and `settings.callerIds` from workflow JSON during sync → populate upstreamIds/downstreamIds
@@ -104,7 +110,7 @@ Complete rewrite of the LLM pipeline to implement the v8 two-call architecture p
 27. Unit tests for governance dot computation (all threshold combinations)
 28. Unit tests for delta generation (new workflows, removed workflows, metric changes, recommendation changes)
 29. Unit tests for connected automations resolution (deterministic + LLM merge)
-30. Unit tests for execution aggregation → LLM input formatting
+30. Unit tests for LLM input formatting (how execution stats from Epic 10's `computeExecutionStats` are assembled into the per-automation and workspace prompt payloads — execution aggregation itself is already tested in Epic 10)
 31. Integration test: full pipeline with mocked LLM responses (per-automation → workspace → DB population)
 32. Unit test: partial failure scenario (1 of 8 per-automation calls fail, pipeline continues)
 
@@ -129,7 +135,7 @@ Complete rewrite of the LLM pipeline to implement the v8 two-call architecture p
 
 ## Open Questions
 
-1. Should the workspace prompt include the lightweight nudge for complementary outcomes ("For each automated outcome, consider whether non-recipients also deserve communication"), or keep the prompt purely simple per v8 findings? (Recommendation: include it — one sentence, no structural overhead, addresses the known stochastic gap.)
+1. ~~Resolved: No nudge. The v8 architecture (Amendment O) proved that simple prompts + full data outperform any prompt engineering additions. No rubrics, no methods, no nudges. Output schema IS the instruction.~~
 2. For the CompanyProfile.processMetrics field: should this store the same data as what the Dashboard reads from BusinessProcess records (making it redundant), or should it store LLM-generated aggregate metrics that span processes? (Recommendation: store LLM-generated cross-process metrics — the per-process data comes from BusinessProcess records directly.)
 
 ---

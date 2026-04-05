@@ -22,6 +22,8 @@ Results incorporated:
 - 05.5-test-infrastructure-results.md
 - 06-portfolio-screen-results.md
 - 07-automation-detail-results.md
+- 08-workspace-snapshot-results.md
+- 10-schema-sync-results.md
 
 ---
 

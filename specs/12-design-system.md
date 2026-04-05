@@ -50,7 +50,7 @@ Dark advisory design system, shared UI components, sidebar conversion, and route
 - Active item: accent color text + subtle accent background
 - Inactive: secondary gray text
 - Expliq logo at top
-- "Synced X ago" or "Not synced" at bottom (reads from ConnectorConfig.lastSyncedAt or similar)
+- "Synced X ago" or "Not synced" at bottom (reads from ConnectorConfig.lastSyncAt or similar)
 
 **Route scaffolding:**
 - `/` → Dashboard (replaces existing Workspace Snapshot page)
@@ -130,7 +130,7 @@ Dark advisory design system, shared UI components, sidebar conversion, and route
 
 ## Open Questions
 
-1. Should the sidebar "Synced X ago" read from a `lastSyncedAt` field on ConnectorConfig (set in Epic 10), or from CompanyProfile.analyzedAt (set in Epic 11)? (Recommendation: ConnectorConfig.lastSyncedAt — available after sync regardless of LLM analysis status.)
+1. Should the sidebar "Synced X ago" read from a `lastSyncAt` field on ConnectorConfig (set in Epic 10), or from CompanyProfile.analyzedAt (set in Epic 11)? (Recommendation: ConnectorConfig.lastSyncAt — available after sync regardless of LLM analysis status.)
 
 ---
 

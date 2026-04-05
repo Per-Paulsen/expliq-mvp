@@ -38,11 +38,11 @@ export function SlideOverPanel({
         )}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          {title && <h2 className="text-lg font-semibold text-white">{title}</h2>}
+          {title && <h2 className="text-lg font-semibold text-foreground">{title}</h2>}
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto p-1 text-text-tertiary hover:text-white transition-colors"
+            className="ml-auto p-1 text-text-tertiary hover:text-foreground transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

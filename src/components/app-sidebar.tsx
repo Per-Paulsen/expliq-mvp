@@ -41,7 +41,7 @@ export function AppSidebar({ lastSyncAt }: { lastSyncAt?: Date | null }) {
   return (
     <Sidebar>
       <SidebarHeader>
-        <Link href="/" className="px-2 text-lg font-bold text-white hover:opacity-80">
+        <Link href="/" className="px-2 text-lg font-bold text-foreground hover:opacity-80">
           Expliq
         </Link>
       </SidebarHeader>

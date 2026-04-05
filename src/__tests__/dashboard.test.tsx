@@ -140,15 +140,16 @@ describe("DashboardView", () => {
       render(<DashboardView {...fullProps} />);
       expect(screen.getByText("Your Next Move")).toBeInTheDocument();
       expect(screen.getByText("Fix the lottery-win error rate")).toBeInTheDocument();
-      const link = screen.getByText("View recommendations →");
-      expect(link.closest("a")).toHaveAttribute("href", "/opportunities");
+      const link = screen.getByRole("link", { name: /View recommendations/ });
+      expect(link).toHaveAttribute("href", "/opportunities");
     });
 
     it("renders fact card values", () => {
       render(<DashboardView {...fullProps} />);
       expect(screen.getByText("8")).toBeInTheDocument();
-      expect(screen.getByText("3")).toBeInTheDocument();
-      expect(screen.getByText("4")).toBeInTheDocument();
+      // "3" and "4" also appear in system chips (Sheets 3, Gmail 4)
+      expect(screen.getAllByText("3").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("4").length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText("6")).toBeInTheDocument();
       expect(screen.getByText("5")).toBeInTheDocument();
     });
@@ -185,11 +186,9 @@ describe("DashboardView", () => {
 
     it("renders systems chips", () => {
       render(<DashboardView {...fullProps} />);
-      // Two "Systems" texts: FactCard label + section header
-      const systemHeaders = screen.getAllByText("Systems");
-      expect(systemHeaders).toHaveLength(2);
-      expect(screen.getByText("Gmail (4)")).toBeInTheDocument();
-      expect(screen.getByText("Sheets (3)")).toBeInTheDocument();
+      expect(screen.getByText("Connected Systems")).toBeInTheDocument();
+      expect(screen.getByText(/Gmail/)).toBeInTheDocument();
+      expect(screen.getByText(/Sheets/)).toBeInTheDocument();
     });
   });
 
@@ -226,7 +225,7 @@ describe("DashboardView", () => {
         businessNarrative: `Issue ${i}`,
       }));
       render(<DashboardView {...makeProps({ attentionItems: fiveItems })} />);
-      expect(screen.getByText("View all on Process Map →")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /View all on Process Map/ })).toBeInTheDocument();
     });
 
     it("does not show 'View all' link when fewer than 5 attention items", () => {

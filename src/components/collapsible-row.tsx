@@ -22,7 +22,7 @@ export function CollapsibleRow({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-4 py-3 cursor-pointer hover:bg-surface transition-colors"
+        className="flex items-center justify-between w-full px-4 py-3 cursor-pointer hover:bg-muted transition-colors"
       >
         <span className="flex-1">{header}</span>
         <ChevronRight

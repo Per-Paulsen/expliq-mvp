@@ -27,7 +27,7 @@ function DashboardEmpty() {
 function DashboardAnalyzing() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Dashboard</h1>
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <p className="text-sm text-text-secondary mb-6">
           Analyzing your automation landscape...
@@ -53,7 +53,7 @@ function DashboardAnalyzing() {
 function DashboardError() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Dashboard</h1>
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <p className="text-sm text-status-critical mb-2">Analysis failed</p>
         <p className="text-sm text-text-secondary mb-4">

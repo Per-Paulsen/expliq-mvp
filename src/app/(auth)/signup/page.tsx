@@ -54,14 +54,14 @@ export default function SignupPage() {
   return (
     <>
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold text-white">Create an Expliq account</h1>
+        <h1 className="text-2xl font-bold text-foreground">Create an Expliq account</h1>
         <p className="text-muted-foreground">
           Get started with Automation Intelligence
         </p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
+          <div className="bg-red-50 text-red-700 rounded-md p-3 text-sm">
             {error}
           </div>
         )}

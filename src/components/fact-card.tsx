@@ -16,7 +16,7 @@ export function FactCard({
       <div className="text-[11px] uppercase tracking-wider font-semibold text-text-secondary mb-1">
         {label}
       </div>
-      <div className="text-xl font-mono font-semibold text-white">{value}</div>
+      <div className="text-xl font-mono font-semibold text-foreground">{value}</div>
       {subtitle && (
         <div className="text-[11px] text-text-tertiary mt-0.5">{subtitle}</div>
       )}

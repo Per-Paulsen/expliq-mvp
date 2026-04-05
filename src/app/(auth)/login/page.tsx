@@ -39,14 +39,14 @@ export default function LoginPage() {
   return (
     <>
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold text-white">Sign in to Expliq</h1>
+        <h1 className="text-2xl font-bold text-foreground">Sign in to Expliq</h1>
         <p className="text-muted-foreground">
           Enter your credentials to access your workspace
         </p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
+          <div className="bg-red-50 text-red-700 rounded-md p-3 text-sm">
             {error}
           </div>
         )}

@@ -25,6 +25,10 @@ Results incorporated:
 - 08-workspace-snapshot-results.md
 - 10-schema-sync-results.md
 - 11-llm-pipeline-v2-results.md
+- 12-design-system-results.md
+- 08-workspace-snapshot-results.md
+- 10-schema-sync-results.md
+- 11-llm-pipeline-v2-results.md
 
 ---
 

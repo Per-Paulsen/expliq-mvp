@@ -47,7 +47,7 @@ Executive summary page answering "What needs my attention?" Following the McKins
 1. Page is a server component using `getRequiredSession()` to get workspaceId
 2. Queries: CompanyProfile, Automation (with governance dot), BusinessProcess, Recommendation (top 3) for the workspace
 3. Empty state rendered when CompanyProfile is null
-4. Analyzing state rendered when CompanyProfile.analysisStatus !== "complete"
+4. Analyzing state rendered when CompanyProfile.analysisStatus is "pending", "analyzing_workflows", or "analyzing_workspace". Error state rendered when analysisStatus is "failed" (message + "Re-sync" link to Settings).
 
 ### Delta Banner
 5. Rendered only when deltaSummary is non-null

@@ -533,6 +533,103 @@ All refinement markers updated with `11-llm-pipeline-v2-results.md`.
 
 ---
 
+# Individual Epic Review — 2026-04-05 (pass 8)
+
+## Summary
+- Specs reviewed: 09, 13, 14, 15, 16, 17
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 05.5, 06, 07, 08, 10, 11, 12
+- Specs skipped (already refined): none (all stale — missing 12-design-system-results.md plus prior gaps)
+- Specs modified: 09, 13, 14, 15, 16, 17
+- Specs clean: none
+
+## Post-Epic 12 Review
+
+Reviewed all 6 unbuilt specs against new results from epics 06, 07, 08, 10, 11, 12 (accumulated since last refinement pass). Verified all field references against current `prisma/schema.prisma`.
+
+## 09 — Production Hardening
+
+### Findings
+
+- **Status tag still "pending" despite being deferred** (inconsistent metadata)
+  - The open questions confirm the spec is shelved. The status tag should match.
+  - **Change**: Updated status tag from `pending` to `deferred`.
+
+### Changes applied
+
+- Changed `status/pending` → `status/deferred` in frontmatter
+
+## 13 — Dashboard
+
+### Findings
+
+- **AC 4 doesn't handle "failed" analysisStatus** (missing AC clarity)
+  - The AnalysisStatus enum includes `failed` (Epic 10 migration). AC 4 said `!== "complete"` which would show a skeleton for failed analyses — wrong UX. Failed should show an error message.
+  - **Change**: Updated AC 4 to explicitly list the analyzing states (pending, analyzing_workflows, analyzing_workspace) and specify error state for "failed."
+
+### Changes applied
+
+- Updated AC 4: distinguishes analyzing states from failed state (error message + "Re-sync" link)
+
+## 14 — Process Map
+
+### Findings
+
+- **Schema field name mismatch: "maturity" vs "maturityLevel"** (inconsistent domain language)
+  - The spec used "maturity badge" and "maturity badge" in scope and ACs. The actual Prisma field is `BusinessProcess.maturityLevel` (String?). Consumers need the correct field name.
+  - **Change**: Updated scope and AC 2 to reference `maturityLevel`.
+
+- **AC 2 coverage and reliability computation not explicit** (hidden scope)
+  - The scope says "coverage bar" and "reliability %" but doesn't specify how they're computed. Coverage and reliability are NOT stored fields on BusinessProcess. Coverage = automations.length / (automations.length + recommendations.length). Reliability is computed per AC 19a.
+  - **Change**: Added computation formulas to AC 2.
+
+- **BusinessProcess.steps Json structure undocumented** (ungrounded assumption)
+  - AC 8 relies on `isGap` property in steps entries but no schema or type definition specifies the expected Json structure.
+  - **Change**: Added expected structure `{ name: string, isGap: boolean }` to AC 8.
+
+### Changes applied
+
+- Updated scope and AC 2: "maturity" → "maturityLevel" field reference
+- Added coverage/reliability computation formulas to AC 2
+- Documented expected steps Json structure in AC 8
+
+## 15 — Opportunities
+
+### Findings
+
+- **AC 8 references "evidenceChain" but field is "evidence"** (inconsistent domain language)
+  - The Recommendation model has `evidence Json?` (not `evidenceChain`). The slide-over panel content description used "evidenceChain (bulleted)" which doesn't match the field name.
+  - **Change**: Updated AC 8 to reference `evidence Json` with clarification about expected sub-structure.
+
+### Changes applied
+
+- Updated AC 8: "evidenceChain" → "evidence (from Recommendation.evidence Json)"
+
+## 16 — Detail
+
+### Findings
+
+- **"total executions" referenced but no stored field** (ungrounded assumption)
+  - AC 24 (evidence section) listed "total executions" in the execution stats. The Automation model stores `runsPerWeek`, `errorRate`, `lastExecutedAt`, `avgDurationMs` — but NOT `totalExecutions`. This field doesn't exist in the schema.
+  - **Change**: Removed "total executions" from AC 24 and scope.
+
+### Changes applied
+
+- Removed "total executions" from execution stats list in scope and AC 24
+
+## 17 — Settings + Seed + Polish
+
+### Findings
+
+- **Sync-phase stages not individually trackable** (hidden scope creep)
+  - The spec listed 6 named stages but the `syncAndAnalyze` server action is a single call. The first 2 stages (fetching workflows, fetching execution data) are NOT individually observable from the client — the sync action completes entirely before analysis begins. Only analysis-phase stages are trackable via CompanyProfile.analysisStatus polling.
+  - **Change**: Clarified the two-phase tracking constraint: sync phase = single "Syncing..." state (not individually trackable), analysis phase = trackable via analysisStatus polling.
+
+### Changes applied
+
+- Rewrote sync progress description to explicitly separate sync-phase (not individually trackable) from analysis-phase (trackable via polling) with AnalysisStatus enum mapping
+
+---
+
 ## Related
 
 - [Cross-Epic Review](cross-epic-review.md)

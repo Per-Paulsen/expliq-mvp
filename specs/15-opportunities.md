@@ -71,7 +71,7 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 7. Click on row (not action button) opens slide-over panel
 
 ### Slide-Over Panel
-8. Renders: full businessCase, evidenceChain (bulleted), key assumptions (from Recommendation.evidence Json), honest framing (amber callout if non-null), implementationNotes, systems (SystemFlow from systemSource/systemDestination)
+8. Renders: full businessCase, evidence (bulleted list from Recommendation.evidence Json — may contain evidenceChain array and keyAssumptions array), honest framing (amber callout from Recommendation.honestFraming if non-null), implementationNotes, systems (SystemFlow from systemSource/systemDestination)
 9. Deploy button in panel for new_workflow recommendations
 10. Technical fix panel includes link to affected workflow Detail page
 11. Close on Escape, click-outside, X button

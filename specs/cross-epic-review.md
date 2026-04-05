@@ -873,6 +873,64 @@ None. All cross-epic relationships verified consistent with Epic 11's implementa
 
 ---
 
+# Cross-Epic Review — 2026-04-05 (pass 5, post-Epic 12)
+
+## Summary
+- Total specs reviewed: 17 (12 completed + 5 unbuilt + 1 deferred)
+- Completed epics (read-only): 01, 02, 03, 04, 05, 05.5, 06, 07, 08, 10, 11, 12
+- Specs modified: 16-detail, 17-settings-seed-polish
+- Specs clean: 09 (deferred), 13, 14, 15
+
+## Data Flow Verification
+
+Verified the full data production/consumption chain:
+
+| Producer | Data | Consumers | Status |
+|----------|------|-----------|--------|
+| Epic 10 | Automation (synced), ConnectorConfig, n8n deploy client | 11, 13-17 | ✓ Consistent |
+| Epic 11 | Automation (enriched), BusinessProcess, Recommendation, ProcessSuggestion, CompanyProfile, governance dot | 13-17 | ✓ Consistent |
+| Epic 12 | Dark theme, 10 shared components, route shells, sidebar | 13-17 | ✓ Consistent |
+| Epic 13 | Dashboard page (consumes CompanyProfile, Automation, BusinessProcess, Recommendation) | — | ✓ Clean |
+| Epic 14 | Process Map (consumes BusinessProcess, Automation, Recommendation) | — | ✓ Clean |
+| Epic 15 | Opportunities (consumes Recommendation, ProcessSuggestion, n8n client) | — | ✓ Clean |
+| Epic 16 | Detail (consumes Automation, BusinessProcess, Recommendation, connections) | — | Fixed: brief vs businessCase |
+| Epic 17 | Polish + seed (consumes all) | — | Fixed: R1 cleanup added |
+
+## Changes by Epic
+
+### 16 — Detail
+
+- **Issue**: Recommendation row field mismatch — uses `businessCase` instead of `brief` (schema drift / cross-epic inconsistency)
+  - **Involved epics**: 13 (uses `brief`), 15 (uses `brief`), 16 (used `businessCase`)
+  - **Change**: Updated scope and AC 13 to use `Recommendation.brief` (one-liner) instead of `businessCase` (full reasoning). The `businessCase` field is correctly used only in the Opportunities slide-over panel (Epic 15 AC 8).
+  - **Cascade**: None — Epics 13 and 15 were already correct.
+
+### 17 — Settings + Seed + Polish
+
+- **Issue**: R1 artifact cleanup not in scope (missing handoff)
+  - **Involved epics**: 10 (flagged R1 test files as risk), 11 (flagged R1 stubs as risk), 12 (flagged R1 components/utilities as risk)
+  - **Change**: Added "R1 artifact cleanup" scope section listing specific files to delete (9 components, 4 utility modules, 9 skipped test files, 2 stubbed action modules). Added 4 ACs (22-25) for verification.
+  - **Cascade**: None — this is cleanup of artifacts flagged as risks in Epics 10, 11, 12 results.
+
+## Cross-Epic Consistency Notes
+
+1. **`Recommendation.brief` vs `businessCase` convention established**: `brief` = one-liner for list rows (Dashboard, Process Map, Detail, Opportunities rows). `businessCase` = full reasoning for the slide-over panel (Opportunities only). All specs now consistent.
+
+2. **Governance dot derivation**: `computeGovernanceDot()` is a pure function taking errorRate, impact, detectability, isActive (derived from `status === 'active'`), isRemoved. Consumed by Epics 13 (attention items), 14 (workflow rows), 16 (header). All specs reference it consistently.
+
+3. **BusinessProcess.steps Json structure**: Defined in Epic 11 scope as `{ name: string, isAutomated: boolean, isGap: boolean, automationId?: string }`. Epic 14 (Process Map) consumes `isGap` for gap indicators. Consistent.
+
+4. **Recommendation.evidence Json structure**: Defined implicitly by LLM output (Epic 11). Consumed by Epic 15 (slide-over panel) and Epic 16 (evidence section). Structure depends on LLM response — consuming specs should handle the Json adaptively.
+
+5. **AnalysisStatus enum mapping**: `pending → analyzing_workflows → analyzing_workspace → complete | failed`. Consumed by Epic 13 (dashboard states), Epic 17 (sync progress UI). Epic 17 now correctly documents that sync-phase stages are NOT trackable via this enum.
+
+6. **R1 cleanup ownership**: Now explicitly assigned to Epic 17. Covers all artifacts flagged in Epic 10, 11, 12 results.
+
+## Cascading Changes
+None. Epic 16's `brief` fix was self-contained (13 and 15 were already correct). Epic 17's R1 cleanup was additive scope.
+
+---
+
 ## Related
 
 - [Individual Epic Review](ind-epic-review.md)

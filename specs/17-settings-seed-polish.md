@@ -19,7 +19,9 @@ Final polish, seed data, and loading states for demo readiness.
 - Replace basic progress indicator (from Epic 10) with step-by-step named stages
 - Stages: "Fetching workflows..." → "Fetching execution data..." → "Analyzing workflows..." → "Clustering processes..." → "Generating recommendations..." → "Complete"
 - Each stage shows a checkmark when done, current stage shows spinner/animation
-- Progress sources span two pipelines: sync-phase stages ("Fetching workflows", "Fetching execution data") are tracked by the sync action's progress (not by AnalysisStatus), while analysis-phase stages ("Analyzing workflows" → "Complete") map to CompanyProfile.analysisStatus (pending → analyzing_workflows → analyzing_workspace → complete). The UI must combine both sources.
+- Progress has two distinct phases with different tracking mechanisms:
+  - **Sync phase** ("Fetching workflows", "Fetching execution data"): The `syncAndAnalyze` server action runs as a single call. These stages are NOT individually trackable from the client — the sync action returns only when the sync portion completes and analysis begins. The UI may show these as a combined "Syncing..." state, or use optimistic stage display based on elapsed time.
+  - **Analysis phase** ("Analyzing workflows" → "Clustering processes" → "Generating recommendations" → "Complete"): Trackable via client-side polling of CompanyProfile.analysisStatus (maps: `analyzing_workflows` → "Analyzing workflows", `analyzing_workspace` → "Clustering processes / Generating recommendations", `complete` → "Complete", `failed` → error state). The pipeline updates this field progressively in the database.
 - Important for the demo: audience sees the intelligence being built in real time
 
 **Loading / skeleton states:**
@@ -43,6 +45,12 @@ Final polish, seed data, and loading states for demo readiness.
 - Dark theme already applied in Epic 12
 - Add: product tagline or brief description below the Expliq logo
 - Ensure error states (wrong password, etc.) render cleanly in dark theme
+
+**R1 artifact cleanup:**
+- Delete R1 components no longer imported by any R2 page: `snapshot-dashboard.tsx`, `portfolio-view.tsx`, `automation-detail-view.tsx`, `portfolio-automation-card.tsx`, `portfolio-filter-chips.tsx`, `portfolio-filter-section.tsx`, `portfolio-header.tsx`, `portfolio-active-filters-bar.tsx`, `portfolio-sort-bar.tsx`
+- Delete R1 utility modules no longer imported: `snapshot-metrics.ts`, `snapshot-types.ts`, `automation-detail-types.ts`, `portfolio-filters.ts`
+- Delete R1 skipped test files (9 files, 183 skipped tests): replace with R2 tests from Epics 13-16
+- Delete R1 stubbed action modules if no longer imported: `actions/automation.ts` (R1 version), `actions/llm.ts` (R1 version)
 
 **Remaining UX gaps:**
 - Any broken links, missing empty states, or visual inconsistencies caught during integration testing
@@ -82,16 +90,22 @@ Final polish, seed data, and loading states for demo readiness.
 20. Error states render correctly in dark theme
 21. Signup page consistent styling
 
+### R1 Cleanup
+22. No R1-only component files remain in `src/components/` (snapshot-dashboard, portfolio-*, automation-detail-view)
+23. No R1-only utility/type files remain in `src/lib/` (snapshot-metrics, snapshot-types, automation-detail-types, portfolio-filters)
+24. R1 skipped test files deleted and replaced by R2 test coverage from Epics 13-16
+25. No `describe.skip` blocks remain in the test suite
+
 ### Integration
-22. All cross-page navigation works end-to-end (Dashboard → Detail → Process Map → Opportunities → back)
-23. Deep-links work: `/opportunities?highlight={id}`, `/opportunities?process={id}`
-24. Sidebar "Synced X ago" updates correctly
-25. No console errors on any page with seed data loaded
+26. All cross-page navigation works end-to-end (Dashboard → Detail → Process Map → Opportunities → back)
+27. Deep-links work: `/opportunities?highlight={id}`, `/opportunities?process={id}`
+28. Sidebar "Synced X ago" updates correctly
+29. No console errors on any page with seed data loaded
 
 ### Tests
-26. Seed script test: script runs without errors, all models populated
-27. Smoke test: all 5 routes render with seed data without errors
-28. Navigation test: full demo flow (Dashboard → Process Map → Opportunities → Detail → back)
+30. Seed script test: script runs without errors, all models populated
+31. Smoke test: all 5 routes render with seed data without errors
+32. Navigation test: full demo flow (Dashboard → Process Map → Opportunities → Detail → back)
 
 ## Out of Scope
 

@@ -1,7 +1,7 @@
 ---
 tags:
   - type/spec
-  - status/pending
+  - status/deferred
   - epic/09
 ---
 

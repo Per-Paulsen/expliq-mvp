@@ -17,7 +17,7 @@ Process-centric view answering "What do I have?" Primary entity is the business 
 
 **Process rows (collapsed — top level):**
 - CollapsibleRow component per BusinessProcess
-- Columns: process name, summary (one line, truncated), maturity badge, coverage bar, reliability % (monospace), recommendation count (value at stake placement TBD — see open question 1)
+- Columns: process name, summary (one line, truncated), maturityLevel badge, coverage bar, reliability % (monospace), recommendation count (value at stake placement TBD — see open question 1)
 - Sorted by BusinessProcess.order
 - Click chevron to expand
 
@@ -51,7 +51,7 @@ Process-centric view answering "What do I have?" Primary entity is the business 
 
 ### Process Rows
 1. One CollapsibleRow per BusinessProcess, sorted by `order`
-2. Each row displays: name, summary (truncated to one line), maturity badge (maturity level names must match the LLM output schema defined in Epic 11's workspace call — e.g., Prototype/Emerging/Developing/Production/Optimized or whatever levels the prompt specifies), CoverageBar, reliability % (monospace), recommendation count
+2. Each row displays: name, summary (truncated to one line), maturityLevel badge (from BusinessProcess.maturityLevel — level names match the LLM output schema, e.g., Prototype/Emerging/Developing/Production/Optimized), CoverageBar (computed: automations.length / (automations.length + recommendations.length)), reliability % (computed on-read per AC 19a, monospace), recommendation count
 3. Expand/collapse on chevron click with smooth animation
 
 ### Workflow Rows
@@ -61,7 +61,7 @@ Process-centric view answering "What do I have?" Primary entity is the business 
 7. Rows aligned in columns, subtle border-bottom between rows
 
 ### Gap Indicators
-8. Gaps derived from BusinessProcess.steps Json entries where isGap is true
+8. Gaps derived from BusinessProcess.steps Json entries where `isGap` is true. The steps Json is an array of objects with at minimum `{ name: string, isGap: boolean }` — the LLM workspace call populates this structure.
 9. Gap indicators only visible when "Show gaps" toggle is ON
 10. Gap row shows: step name + "Gap" indicator + recommendation count for this process
 11. Gap click navigates to `/opportunities?process={processId}`

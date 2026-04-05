@@ -35,7 +35,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 
 **Recommendations for This Workflow:**
 - List of Recommendation records that reference this automation (via processId matching this automation's process, or direct scope reference)
-- Each row: TierBadge + name + businessCase one-liner + impactEstimate badge
+- Each row: TierBadge + name + brief (one-liner from Recommendation.brief) + impactEstimate badge
 - Displayed in-page (no navigation needed to see recommendations)
 - Click → `/opportunities?highlight={recommendationId}` (opens on Opportunities page)
 
@@ -53,7 +53,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 **"How We Know This" — Expandable Evidence:**
 - Collapsed by default with a disclosure triangle
 - Content:
-  - **Execution Stats**: runsPerWeek, errorRate %, lastExecutedAt, avgDurationMs, total executions — all monospace
+  - **Execution Stats**: runsPerWeek, errorRate %, lastExecutedAt, avgDurationMs — all monospace
   - **Error Handling**: technicalEvidence.errorHandling (retry settings, error workflow link, what's missing)
   - **Credentials**: technicalEvidence.credentials (system dependencies)
   - **Detectability**: detectability.reasoning + detectability.level + detectability.evidence
@@ -84,7 +84,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 
 ### Recommendations
 12. Lists recommendations linked to this automation's process (Recommendation where processId = automation's processId)
-13. Each row: TierBadge + name + businessCase + impactEstimate
+13. Each row: TierBadge + name + brief (from Recommendation.brief, not businessCase) + impactEstimate
 14. Click navigates to `/opportunities?highlight={id}`
 15. "No recommendations" message if none exist
 
@@ -101,7 +101,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 
 ### Evidence Section
 23. Collapsed by default, expandable on click
-24. Execution stats rendered in monospace (runsPerWeek, errorRate, lastExecutedAt, avgDurationMs)
+24. Execution stats rendered in monospace (runsPerWeek, errorRate, lastExecutedAt, avgDurationMs — all stored on Automation model)
 25. Error handling details from technicalEvidence.errorHandling
 26. Credentials listed from technicalEvidence.credentials
 27. Detectability reasoning + level + evidence displayed

@@ -10,7 +10,7 @@
 | Step | Action | Skill | Status |
 |------|--------|-------|--------|
 | 1 | Add Amendment T to `prd-2.0-decisions.md` — record design spike decisions | Manual edit | ✅ Done |
-| 2 | Update `specs/design-guidelines.md` — merge final decisions, mark theme/font decided | Manual edit | ☐ Pending |
+| 2 | Update `specs/design-guidelines.md` — merge final decisions, mark theme/font decided | Manual edit | ✅ Done |
 | 3 | Patch Epic 12 — switch globals.css to light, swap font, update shared components | `/patch` | ☐ Pending |
 | 4 | Patch Epic 13 — rebuild dashboard with approved card components | `/patch` | ☐ Pending |
 | 5 | Refine Epics 14-17 — update specs against new design direction | `/refine_all_ind` | ☐ Pending |

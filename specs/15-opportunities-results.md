@@ -124,6 +124,43 @@ Screenshots: `epic-15-deploy-button.png`, `epic-15-deploy-generating.png`, `epic
 
 ---
 
+## Post-commit: Deploy fixes — prompt, sanitization, graceful activation (2026-04-05)
+
+**Root causes of initial 400 errors:**
+1. LLM prompt too vague — didn't specify exact n8n API format, so LLM included read-only fields (`active`, `meta`, `tags`)
+2. No JSON sanitization — LLM output sent directly to n8n without stripping invalid fields
+3. Activation treated as required — fails when workflow references unconfigured credentials
+
+**Fixes:**
+- Detailed LLM prompt with exact JSON structure + RULES (only `name`, `nodes`, `connections`, `settings`)
+- Post-processing strips `active`, `id`, `meta`, `tags`, `createdAt`, `updatedAt`, `description`; ensures `settings` exists
+- Activation is best-effort — workflow created even if activation fails; UI shows "Activation skipped — configure credentials in n8n first"
+- n8n error responses now include response body for debugging
+
+**E2E result:** "HubSpot Lead Scoring Automation" deployed to `perpaulsen.app.n8n.cloud/workflow/fqT8TnddQpyRW5zA` — workflow created successfully, activation skipped (credentials needed).
+
+**Commit:** `784c7be` — `fix: deploy to n8n — improved prompt, sanitize JSON, graceful activation`
+
+Screenshot: `epic-15-deploy-success-final.png`
+
+---
+
+## Post-commit: Deploy for technical fix recommendations (2026-04-06)
+
+**Enhancement:** Deploy button now available for ALL recommendation types, not just new workflows.
+
+For fix/optimize/enhance types with an existing workflow (`automationId` set):
+- Fetches the existing workflow JSON from `Automation.rawWorkflowJson`
+- LLM prompt switches to "improve existing" mode: receives the full workflow and applies the recommended change
+- Deploys as a NEW workflow with "v2" suffix alongside the original — original stays untouched
+- Button shows "Deploy improved version" + "View current workflow →" link
+
+For new workflow types: behavior unchanged ("Deploy" button, creates from scratch).
+
+**Commit:** `2f658d5` — `feat: deploy improved versions for technical fix recommendations`
+
+---
+
 ## Related
 
 - [Spec](15-opportunities.md)

@@ -18,6 +18,13 @@ vi.mock("@/lib/session", () => ({
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     connectorConfig: { findFirst: vi.fn().mockResolvedValue(null) },
+    companyProfile: { findUnique: vi.fn().mockResolvedValue(null) },
+    automation: { findMany: vi.fn().mockResolvedValue([]) },
+    businessProcess: { findMany: vi.fn().mockResolvedValue([]) },
+    recommendation: {
+      findMany: vi.fn().mockResolvedValue([]),
+      count: vi.fn().mockResolvedValue(0),
+    },
   },
 }));
 
@@ -30,10 +37,13 @@ vi.mock("@/lib/actions/connector", () => ({
 
 describe("Route smoke tests", () => {
   describe("/ (Dashboard)", () => {
-    it("renders Dashboard heading", async () => {
+    it("renders empty state when no CompanyProfile", async () => {
       const { default: DashboardPage } = await import("@/app/(app)/page");
-      render(<DashboardPage />);
-      expect(screen.getByText("Dashboard")).toBeInTheDocument();
+      const element = await DashboardPage();
+      render(element);
+      expect(
+        screen.getByText("Connect your n8n instance in Settings to get started."),
+      ).toBeInTheDocument();
     });
   });
 

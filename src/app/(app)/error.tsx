@@ -8,14 +8,14 @@ export default function AppError({
   reset: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-12">
-      <h2 className="text-lg font-semibold">Something went wrong</h2>
-      <p className="text-muted-foreground text-sm">
-        {error.message || "Failed to load dashboard"}
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <p className="text-sm text-status-critical mb-2">Something went wrong</p>
+      <p className="text-sm text-text-secondary mb-4">
+        {error.message || "An unexpected error occurred."}
       </p>
       <button
         onClick={reset}
-        className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+        className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
       >
         Try again
       </button>

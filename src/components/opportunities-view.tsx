@@ -503,7 +503,9 @@ export function OpportunitiesView({
 
             {/* Actions */}
             <div className="pt-4 border-t border-border space-y-3">
-              {selectedRec.type === "new_workflow" && (
+              {(selectedRec.type === "new_workflow" ||
+                selectedRec.type === "new-automation" ||
+                selectedRec.type === "automate") && (
                 <button
                   type="button"
                   onClick={() => {
@@ -516,7 +518,10 @@ export function OpportunitiesView({
                 </button>
               )}
 
-              {selectedRec.type === "technical_fix" &&
+              {(selectedRec.type === "technical_fix" ||
+                selectedRec.type === "fix" ||
+                selectedRec.type === "optimize" ||
+                selectedRec.type === "enhance") &&
                 selectedRec.automationId && (
                   <Link
                     href={`/automations/${selectedRec.automationId}`}
@@ -526,7 +531,10 @@ export function OpportunitiesView({
                   </Link>
                 )}
 
-              {selectedRec.type === "technical_fix" &&
+              {(selectedRec.type === "technical_fix" ||
+                selectedRec.type === "fix" ||
+                selectedRec.type === "optimize" ||
+                selectedRec.type === "enhance") &&
                 !selectedRec.automationId && (
                   <Link
                     href="/processes"

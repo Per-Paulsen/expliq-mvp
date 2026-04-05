@@ -94,3 +94,33 @@ None.
 - [Brainstorming](13-dashboard-brainstorming.md)
 - [Epic 11: LLM Pipeline V2](11-llm-pipeline-v2.md) (data source)
 - [Epic 12: Design System](12-design-system.md) (components)
+
+---
+
+## Patch: Rebuild dashboard with v5 card components (2026-04-05)
+
+**What changed:** Replaced inline HTML in dashboard-view.tsx with 4 reusable card components (KpiCard, EstimateCard, UnifiedCard, ProcessCard) matching design spike demo v5. Extracted data preparation logic into a shared utility.
+
+**Files modified:**
+- `src/components/kpi-card.tsx` — NEW: label + mono value + delta with directional prefix (↑/↓)
+- `src/components/estimate-card.tsx` — NEW: confidence badge (reuses ConfidenceBadge) + "methodology →" button + colored value
+- `src/components/unified-card.tsx` — NEW: shared card for attention (severity dot + metric) and recommendation (Sparkles + TierBadge + confidence) items
+- `src/components/process-card.tsx` — NEW: maturity badge + big coverage bar (h-3) + 3-column metrics (reliability, at-risk, recommendations)
+- `src/lib/dashboard-data.ts` — NEW: `prepareDashboardData()` with 6 parallel Prisma queries + transformation helpers. Exported pure functions: `formatAttentionMetric()`, `resolveStepScope()`, `buildProcessCoverage()`, `generateStructuredDelta()`, `computeKpiDeltas()`
+- `src/components/dashboard-view.tsx` — REWRITE: all 7 sections use new card components. "Your Next Move" now embeds UnifiedCard + follow-up card + total impact. Facts bar uses 3 KpiCards + 2 EstimateCards. Attention/opportunities use UnifiedCards. Process coverage uses 2×2 ProcessCard grid.
+- `src/app/(app)/page.tsx` — SLIMMED (248→103 lines): delegates data prep to `prepareDashboardData()`, keeps only state machine (empty/analyzing/failed/complete)
+- `src/__tests__/dashboard.test.tsx` — REWRITE: 27 tests for new DashboardViewProps (deltaSegments, nextMoveRecommendations, kpiDeltas, expanded attention/opportunity/process fields)
+- `src/components/fact-card.tsx` — DELETED: unused, replaced by KpiCard
+
+**Why:** Dashboard was built with inline HTML before design guidelines were finalized. Design spike v5 approved a reusable card component architecture. This patch aligns the dashboard with the approved design and creates reusable components for Epics 14-15.
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (257 tests, 22 files) |
+| `npm run lint` | Pass (0 errors on changed files) |
+| `npm run build` | Pass (all routes compile) |
+| Real data pipeline | Pass (seed-real workspace, existing analysis data) |
+| E2E verification | Pass — all 7 sections render with real Fairtix data (screenshot: card-layout-patch-dashboard.png) |
+
+**Commit:** `e71dd1b` — `style: rebuild dashboard with v5 card components`

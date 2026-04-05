@@ -507,3 +507,29 @@ Everything else in the plan already matches demo v5:
 - ✅ Systems: styled chip badges with shadow-sm
 
 All 6 gaps above are now addressed and will be implemented. **Zero compromises, zero deferrals.**
+
+---
+
+## Implementation Applied (2026-04-05)
+
+**Commit:** `e71dd1b` — `style: rebuild dashboard with v5 card components`
+
+**Files modified:**
+- `src/components/kpi-card.tsx` — NEW: label + mono value + delta with directional prefix
+- `src/components/estimate-card.tsx` — NEW: confidence badge + methodology button + colored value
+- `src/components/unified-card.tsx` — NEW: shared attention/recommendation card with StatusDot/TierBadge/ConfidenceBadge
+- `src/components/process-card.tsx` — NEW: maturity badge + big coverage bar + 3-col metrics
+- `src/lib/dashboard-data.ts` — NEW: prepareDashboardData() + helper functions (formatAttentionMetric, resolveStepScope, buildProcessCoverage, generateStructuredDelta, computeKpiDeltas)
+- `src/components/dashboard-view.tsx` — REWRITE: 6 sections using new card components, matching demo v5
+- `src/app/(app)/page.tsx` — SLIMMED: 248→103 lines, delegates to prepareDashboardData()
+- `src/__tests__/dashboard.test.tsx` — REWRITE: 27 tests for new props and card structure
+- `src/components/fact-card.tsx` — DELETED: replaced by KpiCard
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (257 tests, 22 files) |
+| `npm run lint` | Pass (0 errors on changed files) |
+| `npm run build` | Pass (all routes compile) |
+| Real data pipeline | Pass (existing seed data, no re-sync needed) |
+| E2E verification | Pass — all 7 dashboard sections render with real Fairtix data (screenshot: card-layout-patch-dashboard.png) |

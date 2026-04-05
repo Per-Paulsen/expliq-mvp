@@ -979,6 +979,7 @@ For the demo and standard usage, Sonnet provides sufficient quality at manageabl
 ### Amendment T: Design spike — light theme + card-based layout (amends §15)
 
 > From design spike (2026-04-05). Full results in [`specs/design-spike.md`](specs/design-spike.md).
+> **Implementation reference:** [`specs/design-guidelines.md`](specs/design-guidelines.md) — authoritative for ALL visual decisions. Read this file before implementing any UI.
 
 Epic 12 implemented §15's dark advisory theme. After building Epic 13 (Dashboard) and reviewing with real data, the dark theme was rejected: text unreadable (9-11px body), no visual depth (flat sections), revenue/savings numbers invisible, "Your Next Move" was a paragraph instead of a structured card.
 

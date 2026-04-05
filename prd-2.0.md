@@ -149,11 +149,15 @@ Not building: governance toggle, technical improvements as separate feature, edi
 
 ## Design Reference
 
-**Design system:** Dark advisory theme — confident, restrained, data-forward. The mood is a consulting deliverable, not a SaaS app. Tables/lists for data, not cards. Color = meaning only (green/amber/red for status, accent for interactive). High-contrast typography on dark backgrounds. Monospace for all numbers.
+**Design system:** Light theme, card-based layout, Plus Jakarta Sans font. Confident, modern, data-forward. Cards for dashboard (scannable), tables for process map + priorities (comparable). Color = meaning only. Monospace for all numbers. Every estimate shows confidence + methodology.
 
-> **Full design system specification:** see `prd-2.0-decisions.md` section 15 — covers color palette, typography hierarchy, component patterns (tables vs cards), sidebar, loading states, confidence visual patterns, and sync UX.
+> **AUTHORITATIVE design reference:** [`specs/design-guidelines.md`](specs/design-guidelines.md) — read this file before implementing any UI. Covers theme, fonts, typography, card components, page layouts, sidebar, auth pages, empty/loading/error states.
+>
+> **Design decisions:** `prd-2.0-decisions.md` section 15 + Amendment T (design spike). §15 defined the original dark theme; Amendment T overrides it with the light theme based on the design spike (2026-04-05).
+>
+> **Design spike results:** [`specs/design-spike.md`](specs/design-spike.md) — 5 iterations with prototype at `src/app/(app)/demo/page.tsx`.
 
-**Figma Make file** `3bG7mlpucVffGMdoAFPcgc` — use for component CODE as starting point (adapt to dark theme + table patterns). Do NOT use for color palette, card layouts, screen structure, or information density — all superseded.
+**Figma Make file** `3bG7mlpucVffGMdoAFPcgc` — use for component MECHANICS (props, state, interactions). Do NOT use for color palette, card layouts, screen structure, or information density — all superseded by design guidelines.
 
 **How to access Figma via MCP:**
 
@@ -210,7 +214,9 @@ Next week. Industry experts, trainers, and mentors. Using the FairTix n8n instan
 | Document | What it contains | When to read |
 |----------|-----------------|-------------|
 | **This file** (`prd-2.0.md`) | Product vision, screen overview, data architecture summary | Start here |
-| `prd-2.0-decisions.md` | All 16 sections of detailed decisions (screens, navigation, entities, schema, prompts, scope) | For spec derivation — the detailed reference |
+| `prd-2.0-decisions.md` | All 16 sections of detailed decisions + Amendments A-T (screens, navigation, entities, schema, prompts, scope, design spike) | For spec derivation — the detailed reference |
+| `specs/design-guidelines.md` | **Authoritative visual design spec** — theme, fonts, card components, page layouts, sidebar, auth | Before implementing ANY UI |
+| `specs/design-spike.md` | Design spike iterations v1-v5 with prototype | For understanding WHY design decisions were made |
 | `prd-2.0-brainstorming.md` | 15 rounds of discussion with reasoning | When you need to understand WHY a decision was made |
 | `n8n-api-examples/README.md` | Directory index of all API schemas and real data | For understanding available data |
 | `n8n-api-examples/fairtix/reference/ANALYSIS-FINAL.md` | Target output quality — what Expliq should produce | For LLM prompt design and output validation |

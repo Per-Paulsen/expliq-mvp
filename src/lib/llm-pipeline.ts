@@ -186,6 +186,10 @@ function getModel(): string {
   return process.env.OPENROUTER_MODEL || "anthropic/claude-sonnet-4";
 }
 
+function getPerAutomationModel(): string {
+  return process.env.OPENROUTER_PER_AUTOMATION_MODEL || "anthropic/claude-haiku-4-5-20251001";
+}
+
 function getClient(): OpenAI {
   return new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
@@ -231,7 +235,7 @@ export async function analyzeAutomation(
   automation: AutomationInput,
 ): Promise<PerAutomationResult> {
   const client = getClient();
-  const model = getModel();
+  const model = getPerAutomationModel();
 
   const userMessage = JSON.stringify({
     name: automation.name,

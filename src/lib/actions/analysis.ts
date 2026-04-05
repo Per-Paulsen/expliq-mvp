@@ -182,21 +182,40 @@ export async function runAnalysisPipeline(
       data: { analysisStatus: "analyzing_workflows" },
     });
 
-    // Step 5: Load all non-removed automations and set each to pending
+    // Step 5: Load all non-removed automations
     const automations = await prisma.automation.findMany({
       where: { workspaceId, isRemoved: false },
     });
 
-    for (const automation of automations) {
+    // Split into changed vs unchanged — skip LLM for unchanged automations
+    // An automation needs re-analysis if:
+    //   - it has never been analyzed (businessNarrative is null), OR
+    //   - its workflow was updated since the last analysis (updatedAt > last analyzedAt)
+    const lastAnalyzedAt = companyProfile?.analyzedAt;
+    const needsAnalysis = automations.filter(
+      (a) =>
+        !a.businessNarrative ||
+        !lastAnalyzedAt ||
+        a.updatedAt > lastAnalyzedAt,
+    );
+    const unchanged = automations.filter(
+      (a) =>
+        a.businessNarrative &&
+        lastAnalyzedAt &&
+        a.updatedAt <= lastAnalyzedAt,
+    );
+
+    // Set changed automations to pending
+    for (const automation of needsAnalysis) {
       await prisma.automation.update({
         where: { id: automation.id },
         data: { analysisStatus: "pending" },
       });
     }
 
-    // Step 6: Run per-automation LLM calls in parallel with failure isolation
+    // Step 6: Run per-automation LLM calls ONLY for changed automations (using Haiku)
     const perAutomationResults = await Promise.allSettled(
-      automations.map(async (automation) => {
+      needsAnalysis.map(async (automation) => {
         const input: AutomationInput = {
           id: automation.id,
           externalId: automation.externalId,
@@ -219,8 +238,30 @@ export async function runAnalysisPipeline(
       }),
     );
 
-    // Step 7-8: Update automations with results or mark as failed
-    const successful: PerAutomationSuccess[] = [];
+    // Step 7-8: Update changed automations with results or mark as failed
+    // Also carry forward unchanged automations as successful (reuse existing analysis)
+    const successful: PerAutomationSuccess[] = [
+      // Unchanged automations — reuse existing analysis
+      ...unchanged.map((a) => ({
+        automationId: a.id,
+        externalId: a.externalId,
+        name: a.name ?? "Untitled",
+        result: {
+          reasoning: "",
+          businessNarrative: a.businessNarrative ?? "",
+          trigger: a.trigger ?? "",
+          triggerType: a.triggerType ?? "other",
+          systemsTouched: a.systemsTouched,
+          dataFlow: a.dataFlow ?? "",
+          stepName: a.stepName ?? "",
+          impact: a.impact,
+          detectability: a.detectability,
+          timeSavingsEstimate: a.timeSavingsEstimate ?? "",
+          revenueImpactEstimate: a.revenueImpactEstimate ?? "",
+          technicalEvidence: a.technicalEvidence,
+        } as unknown as PerAutomationResult,
+      })),
+    ];
 
     for (let i = 0; i < perAutomationResults.length; i++) {
       const settled = perAutomationResults[i];

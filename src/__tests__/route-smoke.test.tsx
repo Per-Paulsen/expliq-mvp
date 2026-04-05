@@ -20,7 +20,7 @@ vi.mock("@/lib/prisma", () => ({
     connectorConfig: { findFirst: vi.fn().mockResolvedValue(null) },
     companyProfile: { findUnique: vi.fn().mockResolvedValue(null) },
     automation: { findMany: vi.fn().mockResolvedValue([]) },
-    businessProcess: { findMany: vi.fn().mockResolvedValue([]) },
+    businessProcess: { findMany: vi.fn().mockResolvedValue([]), count: vi.fn().mockResolvedValue(0) },
     recommendation: {
       findMany: vi.fn().mockResolvedValue([]),
       count: vi.fn().mockResolvedValue(0),
@@ -48,12 +48,15 @@ describe("Route smoke tests", () => {
   });
 
   describe("/processes (Process Map)", () => {
-    it("renders Process Map heading", async () => {
+    it("renders empty state when no processes", async () => {
       const { default: ProcessMapPage } = await import(
         "@/app/(app)/processes/page"
       );
-      render(<ProcessMapPage />);
-      expect(screen.getByText("Process Map")).toBeInTheDocument();
+      const element = await ProcessMapPage();
+      render(element);
+      expect(
+        screen.getByText("No processes discovered yet. Sync your n8n instance to get started."),
+      ).toBeInTheDocument();
     });
   });
 

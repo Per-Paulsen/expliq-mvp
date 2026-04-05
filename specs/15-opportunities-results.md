@@ -161,6 +161,96 @@ For new workflow types: behavior unchanged ("Deploy" button, creates from scratc
 
 ---
 
+## Post-commit: Slide-over → inline collapsible detail (2026-04-06)
+
+**Problem:** The slide-over panel felt disconnected from the card list. User requested inline collapsible detail matching the Process Map pattern.
+
+**Change:** Replaced the SlideOverPanel with inline expand/collapse on card click. Each recommendation card now expands below its header to show structured detail content:
+
+- **Business Case** — full-width prose section
+- **Evidence** — LLM's evidence chain reasoning
+- **Honest Framing** — amber callout box (only for investigate/explore with uncertainty)
+- **Implementation** — left column, specific technical guidance
+- **Systems** — right column, system pills with arrow (e.g., "External system → HubSpot")
+- **Impact** — bold monospace teal metric
+- **Actions** — bottom-anchored: "Deploy" / "Deploy improved version" + "View current workflow →"
+
+Chevron rotates on expand, card shadow elevates. Deep-link (`?highlight=`) now also auto-expands the highlighted card. Only one card expanded at a time.
+
+**Commit:** `373fee2` — `style: replace slide-over with inline collapsible detail for recommendations`
+
+---
+
+## Post-commit: Duplicate process name fix (2026-04-06)
+
+**Problem:** Every recommendation card showed the process name twice — "Lead Management · Lead Management" — because `affectedScope` and `processName` were identical values.
+
+**Fix:** UI now suppresses `scope` when it equals `processName`, showing just "Lead Management" once. Applied to both the Opportunities page and the Dashboard's Top Opportunities cards.
+
+**Commit:** `35cdf95` — `fix: deduplicate process name in recommendation cards`
+
+---
+
+## Post-commit: LLM pipeline robustness — tier, FK, process linking, scope (2026-04-06)
+
+**Problems discovered during re-sync verification:**
+
+1. **Wrong tier values:** LLM outputted `immediate`, `high`, `medium`, `low` instead of `act now`, `investigate`, `explore` — the prompt gave no guidance on valid values
+2. **automationId FK crash:** LLM hallucinated automation IDs that don't exist → Prisma FK constraint violation crashed the entire analysis pipeline
+3. **All detail fields null:** Previous recommendations were generated before the prompt included fields like `evidenceChain`, `honestFraming`, `implementationNotes`, `systemSource`, `systemDestination`
+4. **processId always null:** Pipeline matched `affectedScope` to process names via exact match, but the LLM used different phrasing (e.g., "Lead Generation & Qualification process" vs "Lead Management")
+5. **affectedScope = process name:** LLM defaulted to process name for scope, providing no differentiation
+
+**Fixes applied:**
+
+| Fix | File | What changed |
+|-----|------|-------------|
+| Tier constraint | `llm-pipeline.ts` | Prompt now specifies `"tier": "act now \| investigate \| explore"` |
+| Tier normalization | `opportunities-data.ts` | Maps LLM variants: `immediate/critical/high` → `act-now`, `medium` → `investigate`, `low` → `explore` |
+| Tier sorting | `analysis.ts` | `TIER_ORDER` expanded to handle all LLM tier variants |
+| FK validation | `analysis.ts` | `automationId` validated against `validAutomationIds` Set before DB insert — invalid IDs silently dropped |
+| Process linking | `analysis.ts` | Added partial match fallback (checks if process name is contained in scope or vice versa) + derivation from `automationId`'s process |
+| Scope guidance | `llm-pipeline.ts` | Prompt now specifies: "for technical fixes: the specific workflow name. For new automations: the process name or '3 workflows affected'" |
+
+**Verification (full re-sync with Fairtix):**
+
+After re-sync, 12 recommendations generated with:
+- Correct tiers: 5 ACT NOW, 4 INVESTIGATE, 3 EXPLORE
+- `automationId` populated on 4 technical fix recommendations (validated against real IDs)
+- `affectedScope` now specific: "HubSpot Lead Scoring Automation", "AI-Powered Lead Distribution System", "5 lead qualification workflows"
+- All detail fields populated: businessCase, evidence, honestFraming, implementationNotes on all recs
+- Systems populated where applicable (e.g., "External system → HubSpot")
+- 3 ProcessSuggestions with child recommendations
+- No FK violations, no pipeline crashes
+
+**Expanded detail verified:** "Fix Lead Scoring Webhook Path Configuration" shows full structured detail:
+- Business Case referencing specific workflow and webhook path
+- Evidence citing specific node ID and configuration value
+- Honest Framing amber callout
+- Implementation notes with concrete fix instructions
+- System pills (External system → HubSpot)
+- "Deploy improved version" + "View current workflow →" actions
+
+**Commit:** `dd121e6` — `fix: robust tier normalization, FK validation, process linking, scope guidance`
+
+Screenshots: `epic-15-final-collapsed.png`, `epic-15-final-expanded-detail.png`
+
+---
+
+## All Epic 15 Commits
+
+| Commit | Description |
+|--------|-------------|
+| `673adf0` | `feat: implement epic 15 — opportunities` — initial implementation |
+| `b26b406` | `fix: broaden recommendation type checks for deploy/detail actions` |
+| `784c7be` | `fix: deploy to n8n — improved prompt, sanitize JSON, graceful activation` |
+| `2f658d5` | `feat: deploy improved versions for technical fix recommendations` |
+| `373fee2` | `style: replace slide-over with inline collapsible detail for recommendations` |
+| `35cdf95` | `fix: deduplicate process name in recommendation cards` |
+| `dd121e6` | `fix: robust tier normalization, FK validation, process linking, scope guidance` |
+
+---
+
 ## Related
 
 - [Spec](15-opportunities.md)

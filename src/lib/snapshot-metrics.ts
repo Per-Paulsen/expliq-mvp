@@ -1,3 +1,5 @@
+// TODO: Epic 10 — R1 snapshot metrics trimmed. R2 dashboard will compute
+// process-centric metrics from CompanyProfile.
 import type { SnapshotAutomation, SnapshotMetrics } from "@/lib/snapshot-types";
 
 export function computeSnapshotMetrics(
@@ -5,8 +7,6 @@ export function computeSnapshotMetrics(
 ): SnapshotMetrics {
   let highImpactCount = 0;
   let highRiskCount = 0;
-  let missingOwnersCount = 0;
-  let overdueReviewsCount = 0;
 
   for (const a of automations) {
     if (a.impactLevel === "critical" || a.impactLevel === "high") {
@@ -15,20 +15,12 @@ export function computeSnapshotMetrics(
     if (a.riskLevel === "high") {
       highRiskCount++;
     }
-    if (a.owner === null) {
-      missingOwnersCount++;
-    }
-    if (a.signals.overdueReview) {
-      overdueReviewsCount++;
-    }
   }
 
   return {
     totalAutomations: automations.length,
     highImpactCount,
     highRiskCount,
-    missingOwnersCount,
-    overdueReviewsCount,
   };
 }
 
@@ -49,11 +41,10 @@ export function getRecentlyChanged(
     );
 }
 
+/** @deprecated R1 multi-system relied on systemsTouched — removed in Epic 10 */
 export function getMultiSystemAutomations(
-  automations: SnapshotAutomation[],
-  minSystems = 3
+  _automations: SnapshotAutomation[],
+  _minSystems = 3
 ): SnapshotAutomation[] {
-  return automations
-    .filter((a) => a.systemsTouched.length >= minSystems)
-    .sort((a, b) => b.systemsTouched.length - a.systemsTouched.length);
+  return [];
 }

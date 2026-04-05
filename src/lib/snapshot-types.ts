@@ -1,18 +1,15 @@
+// TODO: Epic 10 — R1 snapshot types trimmed. R2 dashboard will define new types.
 import type { GovernanceSignals, RiskLevel, SystemExposure, OwnerExposure } from "@/lib/risk-engine";
 
 export interface SnapshotMetrics {
   totalAutomations: number;
   highImpactCount: number;
   highRiskCount: number;
-  missingOwnersCount: number;
-  overdueReviewsCount: number;
 }
 
 export interface SnapshotAutomation {
   id: string;
   name: string | null;
-  owner: string | null;
-  systemsTouched: string[];
   impactLevel: string | null;
   riskLevel: RiskLevel;
   signals: GovernanceSignals;

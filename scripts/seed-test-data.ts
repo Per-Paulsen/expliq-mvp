@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck — R1 seed script; references fields removed in Epic 10 schema migration
 /**
  * Seed script for Epic 05.5 — Test Infrastructure
  *

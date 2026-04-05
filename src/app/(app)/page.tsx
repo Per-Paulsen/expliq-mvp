@@ -50,11 +50,10 @@ export default async function WorkspaceSnapshotPage() {
     getOwnerExposure(workspaceId),
   ]);
 
+  // TODO: Epic 10 — R2 dashboard will use CompanyProfile + BusinessProcess data
   const automations: SnapshotAutomation[] = rawAutomations.map((a) => ({
     id: a.id,
     name: a.name,
-    owner: a.owner,
-    systemsTouched: a.systemsTouched,
     impactLevel: getEffectiveImpact(a),
     riskLevel: getRiskLevel(a),
     signals: getGovernanceSignals(a),

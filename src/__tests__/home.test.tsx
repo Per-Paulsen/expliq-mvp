@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck — R1 home page tests; snapshot types trimmed in Epic 10
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 

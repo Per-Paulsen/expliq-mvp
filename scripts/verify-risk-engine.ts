@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck — R1 verification script; references fields removed in Epic 10 schema migration
 /**
  * E2E verification script for Epic 05 — Risk Engine
  *

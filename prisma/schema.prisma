@@ -26,10 +26,12 @@ enum AutomationStatus {
   removed
 }
 
-enum StatusOverride {
-  active
-  inactive
-  deprecated
+enum AnalysisStatus {
+  pending
+  analyzing_workflows
+  analyzing_workspace
+  complete
+  failed
 }
 
 // ── Models ─────────────────────────────────────────────
@@ -39,9 +41,13 @@ model Workspace {
   name      String
   createdAt DateTime @default(now())
 
-  users            User[]
-  connectorConfigs ConnectorConfig[]
-  automations      Automation[]
+  users              User[]
+  connectorConfigs   ConnectorConfig[]
+  automations        Automation[]
+  businessProcesses  BusinessProcess[]
+  recommendations    Recommendation[]
+  processSuggestions ProcessSuggestion[]
+  companyProfile     CompanyProfile?
 }
 
 model User {
@@ -62,41 +68,130 @@ model ConnectorConfig {
   instanceUrl     String
   apiKeyEncrypted String
   lastSyncAt      DateTime?
+  selectedTags    String[]
+  discoveryData   Json?
 
   workspace Workspace @relation(fields: [workspaceId], references: [id])
 }
 
 model Automation {
-  id                       String            @id @default(cuid())
-  workspaceId              String
-  externalId               String
-  platform                 String
-  rawWorkflowJson          Json
-  name                     String?
-  description              String?
-  trigger                  String?
-  triggerType              String?
-  coreLogic                String?
-  systemsTouched           String[]
-  dataTypes                String[]
-  businessContext          String?
-  sideEffects              String[]
-  impactProposal           ImpactLevel?
-  impactReasoning          String?
-  impactOverride           ImpactLevel?
-  owner                    String?
-  reviewCadenceDays        Int               @default(30)
-  lastReviewDate           DateTime?
-  automationLastUpdated    DateTime?
-  documentationLastUpdated DateTime?
-  status                   AutomationStatus
-  statusOverride           StatusOverride?
-  createdAt                DateTime          @default(now())
-  updatedAt                DateTime          @updatedAt
+  id                    String           @id @default(cuid())
+  workspaceId           String
+  externalId            String
+  platform              String
+  rawWorkflowJson       Json
+  name                  String?
+  automationLastUpdated DateTime?
+  status                AutomationStatus
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  // R2 LLM analysis fields
+  businessNarrative     String?
+  dataFlow              String?
+  impact                Json?
+  detectability         Json?
+  timeSavingsEstimate   String?
+  revenueImpactEstimate String?
+  technicalEvidence     Json?
+
+  // R2 process mapping fields
+  stepName              String?
+  processId             String?
+  runsPerWeek           Float?
+  errorRate             Float?
+  lastExecutedAt        DateTime?
+  avgDurationMs         Float?
+  upstreamIds           String[]
+  downstreamIds         String[]
+
+  // R2 status fields
+  analysisStatus        AnalysisStatus?
+  isRemoved             Boolean          @default(false)
+
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  workspace Workspace        @relation(fields: [workspaceId], references: [id])
+  process   BusinessProcess? @relation(fields: [processId], references: [id])
 
   @@unique([workspaceId, externalId])
+}
+
+model BusinessProcess {
+  id            String   @id @default(cuid())
+  workspaceId   String
+  name          String
+  summary       String?
+  maturityLevel String?
+  steps         Json?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id])
+  automations     Automation[]
+  recommendations Recommendation[]
+}
+
+model Recommendation {
+  id                  String   @id @default(cuid())
+  workspaceId         String
+  processId           String?
+  processSuggestionId String?
+  type                String
+  tier                String
+  stepName            String?
+  name                String
+  brief               String?
+  businessCase        String?
+  evidence            Json?
+  confidence          String?
+  honestFraming       String?
+  implementationNotes String?
+  suggestedPlatform   String?
+  systemSource        String?
+  systemDestination   String?
+  deployableJson      Json?
+  impactEstimate      String?
+  priorityOrder       Int      @default(0)
+  affectedScope       String?
+  createdAt           DateTime @default(now())
+
+  workspace         Workspace          @relation(fields: [workspaceId], references: [id])
+  process           BusinessProcess?   @relation(fields: [processId], references: [id])
+  processSuggestion ProcessSuggestion? @relation(fields: [processSuggestionId], references: [id])
+}
+
+model ProcessSuggestion {
+  id               String   @id @default(cuid())
+  workspaceId      String
+  name             String
+  description      String?
+  basedOn          String?
+  businessCase     String?
+  connectedSystems String[]
+  createdAt        DateTime @default(now())
+
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id])
+  recommendations Recommendation[]
+}
+
+model CompanyProfile {
+  id                 String         @id @default(cuid())
+  workspaceId        String         @unique
+  systemLandscape    Json?
+  nextMoveText       String?
+  nextMoveReasoning  String?
+  processMetrics     Json?
+  benchmarks         Json?
+  insights           Json?
+  aggregateEstimates Json?
+  analyzedAt         DateTime?
+  analysisStatus     AnalysisStatus @default(pending)
+  previousSnapshot   Json?
+  deltaSummary       String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
 }
 
 model Account {

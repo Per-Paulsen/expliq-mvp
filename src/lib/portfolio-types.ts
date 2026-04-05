@@ -1,3 +1,5 @@
+// TODO: Epic 10 — R1 portfolio types trimmed. R2 portfolio/dashboard views
+// will define new types based on process-centric data model.
 import type { GovernanceSignals } from "@/lib/risk-engine";
 
 export type { GovernanceSignals };
@@ -5,16 +7,12 @@ export type { GovernanceSignals };
 export interface PortfolioAutomation {
   id: string;
   name: string | null;
-  description: string | null;
   platform: string;
   status: string;
-  owner: string | null;
-  systemsTouched: string[];
   impactLevel: string | null;
   riskLevel: "high" | "medium" | "low";
   signals: GovernanceSignals;
   automationLastUpdated: string | null;
-  documentationLastUpdated: string | null;
 }
 
 export interface PortfolioFilters {
@@ -25,7 +23,7 @@ export interface PortfolioFilters {
   attention: string[];
   impact: string[];
   risk: string[];
-  sort: "automationLastUpdated" | "documentationLastUpdated" | "name";
+  sort: "automationLastUpdated" | "name";
   order: "asc" | "desc";
   updatedAfter: string | null;
   minSystems: number | null;

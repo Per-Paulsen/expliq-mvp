@@ -1,47 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   saveConnectorConfig,
-  testConnection,
-  syncWorkflows,
+  verifyAndDiscover,
+  updateSelectedTags,
+  syncAndAnalyze,
+  type TagPreview,
+  type SyncSummary,
 } from "@/lib/actions/connector";
-import { processUnprocessedAutomations } from "@/lib/actions/llm";
-
-interface SyncSummary {
-  created: number;
-  updated: number;
-  unchanged: number;
-  removed: number;
-  errors: string[];
-}
 
 interface SettingsFormProps {
   existingUrl?: string;
   hasApiKey: boolean;
   lastSyncAt: string | null;
+  discoveryData?: {
+    tags: TagPreview[];
+    totalWorkflows: number;
+  } | null;
+  selectedTags?: string[];
 }
 
 export function SettingsForm({
   existingUrl,
   hasApiKey,
   lastSyncAt,
+  discoveryData: initialDiscoveryData,
+  selectedTags: initialSelectedTags,
 }: SettingsFormProps) {
   const [instanceUrl, setInstanceUrl] = useState(existingUrl ?? "");
   const [apiKey, setApiKey] = useState("");
 
   const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [processing, setProcessing] = useState(false);
 
   const [saveResult, setSaveResult] = useState<{
     success?: boolean;
     error?: string;
   } | null>(null);
-  const [testResult, setTestResult] = useState<{
+  const [verifyResult, setVerifyResult] = useState<{
     success?: boolean;
     error?: string;
   } | null>(null);
@@ -50,13 +51,40 @@ export function SettingsForm({
     error?: string;
     summary?: SyncSummary;
   } | null>(null);
-  const [processResult, setProcessResult] = useState<{
-    success?: boolean;
-    error?: string;
-    summary?: { total: number; processed: number; errors: string[] };
-  } | null>(null);
 
   const [configSaved, setConfigSaved] = useState(hasApiKey);
+
+  // Discovery data state — initialized from server props
+  const [discoveryData, setDiscoveryData] = useState<{
+    tags: TagPreview[];
+    totalWorkflows: number;
+  } | null>(initialDiscoveryData ?? null);
+
+  // Selected tags state — initialized from server props or all tags if discovery data exists
+  // When selectedTags is explicitly provided (even empty), respect it.
+  // Only auto-select all tags when selectedTags is undefined (no prior selection persisted).
+  const [selectedTagNames, setSelectedTagNames] = useState<string[]>(() => {
+    if (initialSelectedTags !== undefined) {
+      return initialSelectedTags;
+    }
+    if (initialDiscoveryData?.tags) {
+      return initialDiscoveryData.tags.map((t) =>
+        t.id === null ? "__untagged__" : t.name
+      );
+    }
+    return [];
+  });
+
+  // Computed selected workflow count
+  const selectedWorkflowCount = useMemo(() => {
+    if (!discoveryData) return 0;
+    return discoveryData.tags
+      .filter((t) => {
+        const key = t.id === null ? "__untagged__" : t.name;
+        return selectedTagNames.includes(key);
+      })
+      .reduce((sum, t) => sum + t.workflowCount, 0);
+  }, [discoveryData, selectedTagNames]);
 
   async function handleSave() {
     setSaving(true);
@@ -73,60 +101,82 @@ export function SettingsForm({
     } else {
       setSaveResult({ success: true });
       setConfigSaved(true);
+      // Clear discovery data since credentials changed
+      setDiscoveryData(null);
+      setSelectedTagNames([]);
     }
 
     setSaving(false);
   }
 
-  async function handleTest() {
-    setTesting(true);
-    setTestResult(null);
+  async function handleVerify() {
+    setVerifying(true);
+    setVerifyResult(null);
 
-    const formData = new FormData();
-    formData.append("instanceUrl", instanceUrl);
-    formData.append("apiKey", apiKey);
-
-    const result = await testConnection(formData);
+    const result = await verifyAndDiscover();
 
     if ("error" in result) {
-      setTestResult({ error: result.error });
+      setVerifyResult({ error: result.error });
     } else {
-      setTestResult({ success: true });
+      setVerifyResult({ success: true });
+      // Update discovery data from result
+      const tags = result.tags ?? [];
+      const totalWorkflows = result.totalWorkflows ?? 0;
+      setDiscoveryData({ tags, totalWorkflows });
+      // Default: all tags selected
+      const allTagKeys = tags.map((t: TagPreview) =>
+        t.id === null ? "__untagged__" : t.name
+      );
+      setSelectedTagNames(allTagKeys);
+      // Persist the default selection
+      await updateSelectedTags(allTagKeys);
     }
 
-    setTesting(false);
+    setVerifying(false);
+  }
+
+  function handleTagToggle(tagKey: string, checked: boolean) {
+    const next = checked
+      ? [...selectedTagNames, tagKey]
+      : selectedTagNames.filter((k) => k !== tagKey);
+    setSelectedTagNames(next);
+    updateSelectedTags(next);
+  }
+
+  function handleSelectAll() {
+    if (!discoveryData) return;
+    const allKeys = discoveryData.tags.map((t) =>
+      t.id === null ? "__untagged__" : t.name
+    );
+    setSelectedTagNames(allKeys);
+    updateSelectedTags(allKeys);
+  }
+
+  function handleDeselectAll() {
+    setSelectedTagNames([]);
+    updateSelectedTags([]);
   }
 
   async function handleSync() {
     setSyncing(true);
     setSyncResult(null);
-    setProcessResult(null);
 
-    const result = await syncWorkflows();
+    const result = await syncAndAnalyze();
 
     if ("error" in result) {
       setSyncResult({ error: result.error });
-      setSyncing(false);
-      return;
+    } else {
+      setSyncResult({ success: true, summary: result.summary });
     }
 
-    setSyncResult({ success: true, summary: result.summary });
     setSyncing(false);
-
-    setProcessing(true);
-    try {
-      const llmResult = await processUnprocessedAutomations();
-      setProcessResult({ success: true, summary: llmResult.summary });
-    } catch {
-      setProcessResult({ error: "LLM processing failed unexpectedly" });
-    }
-    setProcessing(false);
   }
 
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold">Settings</h1>
 
+      {/* Section 1: Connection */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">n8n Connection</h2>
 
@@ -163,8 +213,12 @@ export function SettingsForm({
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save"}
           </Button>
-          <Button variant="outline" onClick={handleTest} disabled={testing}>
-            {testing ? "Testing..." : "Test Connection"}
+          <Button
+            variant="outline"
+            onClick={handleVerify}
+            disabled={verifying || !configSaved}
+          >
+            {verifying ? "Verifying..." : "Verify Connection"}
           </Button>
         </div>
 
@@ -178,21 +232,90 @@ export function SettingsForm({
             Connection settings saved.
           </div>
         )}
-        {testResult?.error && (
+        {verifyResult?.error && (
           <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
-            {testResult.error}
+            {verifyResult.error}
           </div>
         )}
-        {testResult?.success && (
+        {verifyResult?.success && (
           <div className="bg-green-500/10 text-green-700 rounded-md p-3 text-sm">
-            Connection successful!
+            Connection verified successfully!
           </div>
         )}
       </section>
 
-      {configSaved && (
+      {/* Section 2: Tag Selection — visible after successful discovery */}
+      {discoveryData && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold">Sync</h2>
+          <h2 className="text-lg font-semibold">Tag Selection</h2>
+
+          <p className="text-sm">
+            <strong>{discoveryData.totalWorkflows} workflows found</strong> in
+            your n8n instance
+          </p>
+
+          <div className="flex gap-3 text-sm">
+            <button
+              type="button"
+              className="text-primary underline-offset-4 hover:underline"
+              onClick={handleSelectAll}
+            >
+              Select all
+            </button>
+            <button
+              type="button"
+              className="text-primary underline-offset-4 hover:underline"
+              onClick={handleDeselectAll}
+            >
+              Deselect all
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {discoveryData.tags.map((tag) => {
+              const key = tag.id === null ? "__untagged__" : tag.name;
+              const isChecked = selectedTagNames.includes(key);
+              return (
+                <div key={key} className="flex items-start gap-3">
+                  <Checkbox
+                    id={`tag-${key}`}
+                    checked={isChecked}
+                    onCheckedChange={(checked) =>
+                      handleTagToggle(key, checked as boolean)
+                    }
+                    className="mt-0.5"
+                  />
+                  <div className="space-y-0.5">
+                    <label
+                      htmlFor={`tag-${key}`}
+                      className="text-sm font-medium leading-none cursor-pointer"
+                    >
+                      {tag.name} ({tag.workflowCount})
+                    </label>
+                    {tag.workflowNames.length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {tag.workflowNames.join(", ")}
+                        {tag.workflowCount > tag.workflowNames.length &&
+                          ", ..."}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="text-sm">
+            <strong>{selectedWorkflowCount} workflows selected</strong> for
+            analysis
+          </p>
+        </section>
+      )}
+
+      {/* Section 3: Sync & Analyze — visible when tags are selected */}
+      {discoveryData && selectedTagNames.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold">Sync & Analyze</h2>
 
           <p className="text-sm text-muted-foreground">
             {lastSyncAt
@@ -200,8 +323,8 @@ export function SettingsForm({
               : "Never synced"}
           </p>
 
-          <Button onClick={handleSync} disabled={syncing || processing}>
-            {syncing ? "Syncing..." : "Sync Now"}
+          <Button onClick={handleSync} disabled={syncing}>
+            {syncing ? "Syncing..." : "Sync & Analyze"}
           </Button>
 
           {syncResult?.error && (
@@ -211,7 +334,7 @@ export function SettingsForm({
           )}
 
           {syncResult?.success && syncResult.summary && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="bg-green-500/10 text-green-700 rounded-md p-3 text-sm">
                 Sync completed successfully.
               </div>
@@ -251,37 +374,32 @@ export function SettingsForm({
                   </ul>
                 </div>
               )}
-            </div>
-          )}
-
-          {processing && (
-            <div className="text-sm text-muted-foreground">
-              Processing automations with AI...
-            </div>
-          )}
-
-          {processResult?.error && (
-            <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
-              {processResult.error}
-            </div>
-          )}
-
-          {processResult?.success && processResult.summary && (
-            <div className="space-y-2">
-              <div className="bg-green-500/10 text-green-700 rounded-md p-3 text-sm">
-                Processed {processResult.summary.processed} of{" "}
-                {processResult.summary.total} automations.
+              <div className="text-xs text-muted-foreground space-x-3">
+                <span>
+                  Credentials:{" "}
+                  {syncResult.summary.enrichment.credentials
+                    ? "available"
+                    : "unavailable"}
+                </span>
+                <span>
+                  Users:{" "}
+                  {syncResult.summary.enrichment.users
+                    ? "available"
+                    : "unavailable"}
+                </span>
+                <span>
+                  Projects:{" "}
+                  {syncResult.summary.enrichment.projects
+                    ? "available"
+                    : "unavailable"}
+                </span>
+                <span>
+                  Variables:{" "}
+                  {syncResult.summary.enrichment.variables
+                    ? "available"
+                    : "unavailable"}
+                </span>
               </div>
-              {processResult.summary.errors.length > 0 && (
-                <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
-                  <p className="font-medium">Processing errors:</p>
-                  <ul className="mt-1 list-inside list-disc">
-                    {processResult.summary.errors.map((err, i) => (
-                      <li key={i}>{err}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           )}
         </section>

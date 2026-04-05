@@ -6,6 +6,7 @@ import type {
 } from "@/lib/portfolio-types";
 import { ATTENTION_SIGNAL_MAP, ATTENTION_LABELS } from "@/lib/portfolio-types";
 
+// TODO: Epic 10 — R2 portfolio will have different filter dimensions
 export function computeGlobalCounts(
   automations: PortfolioAutomation[]
 ): GlobalCounts {
@@ -17,14 +18,7 @@ export function computeGlobalCounts(
   const risk = new Map<string, number>();
 
   for (const a of automations) {
-    for (const s of a.systemsTouched) {
-      systems.set(s, (systems.get(s) ?? 0) + 1);
-    }
-
     platforms.set(a.platform, (platforms.get(a.platform) ?? 0) + 1);
-
-    const ownerKey = a.owner ?? "No owner";
-    owners.set(ownerKey, (owners.get(ownerKey) ?? 0) + 1);
 
     for (const [canonicalKey, signalField] of Object.entries(
       ATTENTION_SIGNAL_MAP
@@ -50,21 +44,17 @@ export function filterAutomations(
 ): PortfolioAutomation[] {
   let result = automations;
 
-  // Search: case-insensitive partial match on name OR description
+  // Search: case-insensitive partial match on name
   if (filters.search) {
     const q = filters.search.toLowerCase();
     result = result.filter(
-      (a) =>
-        (a.name && a.name.toLowerCase().includes(q)) ||
-        (a.description && a.description.toLowerCase().includes(q))
+      (a) => a.name && a.name.toLowerCase().includes(q)
     );
   }
 
+  // TODO: Epic 10 — systems filter no-op until R2 adds system data back
   // Systems: automation has ANY selected system
-  if (filters.systems.length > 0) {
-    const set = new Set(filters.systems);
-    result = result.filter((a) => a.systemsTouched.some((s) => set.has(s)));
-  }
+  // if (filters.systems.length > 0) { ... }
 
   // Platforms
   if (filters.platforms.length > 0) {
@@ -72,13 +62,9 @@ export function filterAutomations(
     result = result.filter((a) => set.has(a.platform));
   }
 
+  // TODO: Epic 10 — owners filter no-op until R2 adds owner concept back
   // Owners: _none sentinel matches null
-  if (filters.owners.length > 0) {
-    result = result.filter((a) => {
-      if (a.owner === null) return filters.owners.includes("_none");
-      return filters.owners.includes(a.owner);
-    });
-  }
+  // if (filters.owners.length > 0) { ... }
 
   // Attention: automation has ANY selected governance signal active
   if (filters.attention.length > 0) {
@@ -116,12 +102,7 @@ export function filterAutomations(
     }
   }
 
-  // minSystems
-  if (filters.minSystems !== null) {
-    result = result.filter(
-      (a) => a.systemsTouched.length >= filters.minSystems!
-    );
-  }
+  // TODO: Epic 10 — minSystems filter no-op until R2 adds system data back
 
   return result;
 }
@@ -194,7 +175,6 @@ export function parseFiltersFromParams(
     risk: params.getAll("risk"),
     sort:
       sort === "automationLastUpdated" ||
-      sort === "documentationLastUpdated" ||
       sort === "name"
         ? sort
         : DEFAULT_FILTERS.sort,

@@ -23,20 +23,16 @@ export default async function AutomationsPage() {
     }),
   ]);
 
+  // TODO: Epic 10 — R2 portfolio view will populate richer fields
   const automations: PortfolioAutomation[] = rawAutomations.map((a) => ({
     id: a.id,
     name: a.name,
-    description: a.description,
     platform: a.platform,
     status: getEffectiveStatus(a),
-    owner: a.owner,
-    systemsTouched: a.systemsTouched,
     impactLevel: getEffectiveImpact(a),
     riskLevel: getRiskLevel(a),
     signals: getGovernanceSignals(a),
     automationLastUpdated: a.automationLastUpdated?.toISOString() ?? null,
-    documentationLastUpdated:
-      a.documentationLastUpdated?.toISOString() ?? null,
   }));
 
   return (

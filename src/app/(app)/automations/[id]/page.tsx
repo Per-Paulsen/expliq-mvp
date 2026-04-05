@@ -33,34 +33,18 @@ export default async function AutomationDetailPage({
     notFound();
   }
 
+  // TODO: Epic 10 — R2 detail view will populate richer fields from new schema
   const detail: AutomationDetail = {
     id: automation.id,
     name: automation.name,
-    description: automation.description,
     platform: automation.platform,
     status: automation.status,
-    statusOverride: automation.statusOverride,
     effectiveStatus: getEffectiveStatus(automation),
-    owner: automation.owner,
-    systemsTouched: automation.systemsTouched,
-    trigger: automation.trigger,
-    triggerType: automation.triggerType,
-    coreLogic: automation.coreLogic,
-    dataTypes: automation.dataTypes,
-    sideEffects: automation.sideEffects,
-    businessContext: automation.businessContext,
-    impactProposal: automation.impactProposal,
-    impactOverride: automation.impactOverride,
     effectiveImpact: getEffectiveImpact(automation),
-    impactReasoning: automation.impactReasoning,
     riskLevel: getRiskLevel(automation),
     signals: getGovernanceSignals(automation),
-    reviewCadenceDays: automation.reviewCadenceDays,
-    lastReviewDate: automation.lastReviewDate?.toISOString() ?? null,
     automationLastUpdated:
       automation.automationLastUpdated?.toISOString() ?? null,
-    documentationLastUpdated:
-      automation.documentationLastUpdated?.toISOString() ?? null,
     externalId: automation.externalId,
     n8nWorkflowUrl: connectorConfig
       ? `${connectorConfig.instanceUrl}/workflow/${automation.externalId}`

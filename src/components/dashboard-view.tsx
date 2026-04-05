@@ -293,7 +293,11 @@ export function DashboardView(props: DashboardViewProps) {
                         | "benchmark-based"
                         | "ai-suggested") ?? undefined
                     }
-                    scope={opp.scope ?? undefined}
+                    scope={
+                      opp.scope && opp.scope !== opp.processName
+                        ? opp.scope
+                        : undefined
+                    }
                     process={opp.processName ?? ""}
                   />
                 </Link>

@@ -467,7 +467,12 @@ export function OpportunitiesView({
                   | "benchmark-based"
                   | "ai-suggested") ?? undefined
               }
-              scope={rec.affectedScope ?? undefined}
+              scope={
+                rec.affectedScope &&
+                rec.affectedScope !== rec.processName
+                  ? rec.affectedScope
+                  : undefined
+              }
               process={rec.processName ?? ""}
               className="border-0 shadow-none rounded-none"
             />

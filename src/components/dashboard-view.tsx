@@ -2,14 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { X, Bot, ArrowRight, Sparkles } from "lucide-react";
-import { StatusDot } from "@/components/status-dot";
-import { TierBadge } from "@/components/tier-badge";
-import { CoverageBar } from "@/components/coverage-bar";
+import { X, Bot, Activity, ArrowRight, ChevronRight } from "lucide-react";
+import { KpiCard } from "@/components/kpi-card";
+import { EstimateCard } from "@/components/estimate-card";
+import { UnifiedCard } from "@/components/unified-card";
+import { ProcessCard } from "@/components/process-card";
+import type {
+  DeltaSegment,
+  NextMoveRecommendation,
+  AttentionItem,
+  OpportunityItem,
+  ProcessCoverageItem,
+  KpiDeltas,
+} from "@/lib/dashboard-data";
 
 export interface DashboardViewProps {
   deltaSummary: string | null;
-  nextMoveText: string | null;
+  deltaSegments: DeltaSegment[];
+  nextMoveRecommendations: NextMoveRecommendation[];
+  totalOpportunityValue: string | null;
   workflowCount: number;
   processCount: number;
   systemCount: number;
@@ -19,147 +30,191 @@ export interface DashboardViewProps {
     totalTimeSavings?: string;
     totalValueAtRisk?: string;
   } | null;
-  attentionItems: Array<{
-    id: string;
-    name: string;
-    governanceDot: "healthy" | "attention" | "critical";
-    businessNarrative: string;
-  }>;
-  topOpportunities: Array<{
-    id: string;
-    name: string;
-    brief: string;
-    tier: "act-now" | "investigate" | "explore";
-    impactEstimate: string;
-  }>;
-  processCoverage: Array<{
-    id: string;
-    name: string;
-    automatedSteps: number;
-    totalSteps: number;
-    coveragePercentage: number;
-    reliability: number | null;
-    recommendationCount: number;
-  }>;
+  kpiDeltas: KpiDeltas;
+  attentionItems: AttentionItem[];
+  topOpportunities: OpportunityItem[];
+  processCoverage: ProcessCoverageItem[];
   systemLandscape: Array<{
     name: string;
     workflowCount: number;
   }>;
 }
 
+const segmentColor: Record<DeltaSegment["type"], string> = {
+  neutral: "text-foreground",
+  positive: "text-status-healthy",
+  negative: "text-status-attention",
+  info: "text-primary",
+};
+
 export function DashboardView(props: DashboardViewProps) {
   const [deltaDismissed, setDeltaDismissed] = useState(false);
 
+  const showDelta =
+    !deltaDismissed &&
+    (props.deltaSegments.length > 0 || props.deltaSummary);
+
+  const firstRec = props.nextMoveRecommendations[0] ?? null;
+  const secondRec = props.nextMoveRecommendations[1] ?? null;
+
   return (
-    <div className="space-y-10 max-w-6xl">
+    <div className="space-y-6 max-w-6xl">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
-        <p className="text-base text-text-tertiary mt-1">Automation Intelligence</p>
+        <h1 className="text-3xl font-bold text-foreground tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-base text-text-tertiary mt-1">
+          Automation Intelligence
+        </p>
       </div>
 
       {/* 1. Delta Banner */}
-      {props.deltaSummary && !deltaDismissed && (
-        <div className="border-l-[3px] border-primary bg-surface rounded-r-md px-6 py-5 relative">
-          <p className="text-sm uppercase tracking-wider font-semibold text-primary mb-2">
-            Since last analysis
-          </p>
-          <p className="text-lg text-foreground leading-relaxed pr-10">
-            {props.deltaSummary}
-          </p>
+      {showDelta && (
+        <div className="bg-surface rounded-xl border border-primary/20 shadow-sm p-4 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Activity className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">
+              Since last analysis
+            </p>
+            {props.deltaSegments.length > 0 ? (
+              <p className="text-base text-foreground">
+                {props.deltaSegments.map((seg, i) => {
+                  const isNumeric = /^[+\-]?\d/.test(seg.text);
+                  return (
+                    <span
+                      key={i}
+                      className={`${segmentColor[seg.type]}${isNumeric ? " font-bold font-mono" : " font-medium"}`}
+                    >
+                      {i > 0 ? " " : ""}
+                      {seg.text}
+                    </span>
+                  );
+                })}
+              </p>
+            ) : (
+              <p className="text-base text-foreground">{props.deltaSummary}</p>
+            )}
+          </div>
           <button
             onClick={() => setDeltaDismissed(true)}
-            className="absolute top-5 right-5 text-text-tertiary hover:text-primary transition-colors"
+            className="text-text-tertiary hover:text-foreground transition"
             aria-label="Dismiss"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {/* 2. Your Next Move */}
-      {props.nextMoveText && (
-        <div className="border-l-[3px] border-primary bg-surface rounded-r-md px-6 py-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center shrink-0">
-              <Bot className="w-4.5 h-4.5 text-white" />
+      {firstRec && (
+        <div className="border-l-[3px] border-primary bg-primary/[0.04] rounded-r-xl px-6 py-5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+              <Bot className="w-4 h-4 text-white" />
             </div>
-            <span className="text-sm uppercase tracking-wider font-semibold text-primary">
+            <span className="text-sm font-semibold text-primary uppercase tracking-wider">
               Your Next Move
             </span>
           </div>
-          <p className="text-lg text-foreground leading-relaxed mb-4">
-            {props.nextMoveText}
-          </p>
-          <Link
-            href="/opportunities"
-            className="inline-flex items-center gap-2 text-base text-primary hover:underline font-medium"
-          >
-            View recommendations <ArrowRight className="w-4 h-4" />
-          </Link>
+
+          <UnifiedCard
+            type="recommendation"
+            tier={firstRec.tier}
+            name={firstRec.name}
+            description={firstRec.brief}
+            metric={firstRec.impactEstimate}
+            confidence={
+              (firstRec.confidence?.toLowerCase().replace(/\s+/g, "-") as
+                | "data-driven"
+                | "benchmark-based"
+                | "ai-suggested") ?? undefined
+            }
+            scope={firstRec.scope ?? undefined}
+            process={firstRec.processName ?? ""}
+          />
+
+          {secondRec && (
+            <Link
+              href={`/opportunities?highlight=${secondRec.id}`}
+              className="rounded-lg border border-border bg-surface-raised p-4 flex items-center gap-4 mt-3 hover:border-text-tertiary/50 transition"
+            >
+              <span className="text-sm font-medium text-text-tertiary shrink-0">
+                Then
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-semibold text-foreground">
+                  {secondRec.name}
+                </p>
+                <p className="text-sm text-text-secondary">{secondRec.brief}</p>
+              </div>
+              <span className="text-base font-bold font-mono text-primary shrink-0">
+                {secondRec.impactEstimate}
+              </span>
+              <ChevronRight className="w-4 h-4 text-text-tertiary shrink-0" />
+            </Link>
+          )}
+
+          {props.totalOpportunityValue && (
+            <p className="text-sm text-text-tertiary mt-3">
+              <span className="font-bold font-mono text-foreground">
+                {props.nextMoveRecommendations.length}
+              </span>{" "}
+              moves, total impact:{" "}
+              <span className="font-bold font-mono text-primary">
+                {props.totalOpportunityValue}
+              </span>
+            </p>
+          )}
         </div>
       )}
 
-      {/* 3. Portfolio Summary */}
-      <div className="rounded-md border border-border bg-surface px-6 py-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <div>
-              <span className="text-sm text-text-secondary uppercase tracking-wider font-medium">Workflows</span>
-              <span className="block text-3xl font-mono font-bold text-foreground mt-0.5">{props.workflowCount}</span>
-            </div>
-            <div className="w-px h-12 bg-border" />
-            <div>
-              <span className="text-sm text-text-secondary uppercase tracking-wider font-medium">Processes</span>
-              <span className="block text-3xl font-mono font-bold text-foreground mt-0.5">{props.processCount}</span>
-            </div>
-            <div className="w-px h-12 bg-border" />
-            <div>
-              <span className="text-sm text-text-secondary uppercase tracking-wider font-medium">Systems</span>
-              <span className="block text-3xl font-mono font-bold text-foreground mt-0.5">{props.systemCount}</span>
-            </div>
-            <div className="w-px h-12 bg-border" />
-            <div>
-              <span className="text-sm text-text-secondary uppercase tracking-wider font-medium">Active</span>
-              <span className="block text-3xl font-mono font-bold text-foreground mt-0.5">{props.activeCount}</span>
-            </div>
-            <div className="w-px h-12 bg-border" />
-            <div>
-              <span className="text-sm text-text-secondary uppercase tracking-wider font-medium">Recommendations</span>
-              <span className="block text-3xl font-mono font-bold text-primary mt-0.5">{props.recommendationCount}</span>
-            </div>
-          </div>
-          {props.aggregateEstimates && (
-            <div className="flex items-center gap-8 pl-8 border-l border-border">
-              {props.aggregateEstimates.totalTimeSavings && (
-                <div className="text-right">
-                  <span className="block text-2xl font-mono font-bold text-primary">
-                    {props.aggregateEstimates.totalTimeSavings}
-                  </span>
-                  <span className="text-sm text-text-secondary">time savings across all processes</span>
-                </div>
-              )}
-              {props.aggregateEstimates.totalValueAtRisk && (
-                <div className="text-right">
-                  <span className="block text-2xl font-mono font-bold text-status-attention">
-                    {props.aggregateEstimates.totalValueAtRisk}
-                  </span>
-                  <span className="text-sm text-text-secondary">revenue at risk across all processes</span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+      {/* 3. Facts Bar */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <KpiCard
+          label="Workflows"
+          value={String(props.workflowCount)}
+          delta={props.kpiDeltas.workflows?.delta}
+          deltaType={props.kpiDeltas.workflows?.deltaType}
+        />
+        <KpiCard
+          label="Processes"
+          value={String(props.processCount)}
+          delta={props.kpiDeltas.processes?.delta}
+          deltaType={props.kpiDeltas.processes?.deltaType}
+        />
+        <KpiCard
+          label="Active"
+          value={String(props.activeCount)}
+          delta={props.kpiDeltas.active.delta}
+          deltaType={props.kpiDeltas.active.deltaType}
+        />
+        <EstimateCard
+          label="Time Saved"
+          value={props.aggregateEstimates?.totalTimeSavings ?? "\u2014"}
+          explanation="Manual effort replaced by existing automations across all processes"
+          confidence="benchmark-based"
+          deltaType="positive"
+        />
+        <EstimateCard
+          label="At Risk"
+          value={props.aggregateEstimates?.totalValueAtRisk ?? "\u2014"}
+          explanation="Revenue exposure from current error rates, gaps, and unmonitored workflows"
+          confidence="ai-suggested"
+          deltaType="negative"
+        />
       </div>
 
-      {/* 4. Two-column: Attention + Opportunities */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      {/* 4. Attention + Opportunities */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left: Attention */}
         <div>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm uppercase tracking-wider font-semibold text-text-secondary">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
               Needs Attention
-            </h2>
+            </h3>
             {props.attentionItems.length > 0 && (
               <span className="text-sm font-mono font-semibold text-status-attention">
                 {props.attentionItems.length} items
@@ -167,37 +222,35 @@ export function DashboardView(props: DashboardViewProps) {
             )}
           </div>
           {props.attentionItems.length === 0 ? (
-            <p className="text-base text-text-tertiary py-8">No issues detected</p>
+            <p className="text-base text-text-tertiary py-8">
+              No issues detected
+            </p>
           ) : (
             <div className="space-y-3">
               {props.attentionItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={`/automations/${item.id}`}
-                  className="group block rounded-md border border-border bg-surface px-5 py-4 hover:border-border transition"
-                >
-                  <div className="flex items-start gap-3">
-                    <StatusDot
-                      status={item.governanceDot}
-                      className="mt-2 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-base font-medium text-foreground group-hover:text-primary transition">
-                        {item.name}
-                      </div>
-                      <div className="text-base text-text-secondary mt-1 line-clamp-2 leading-relaxed">
-                        {item.businessNarrative}
-                      </div>
-                    </div>
-                  </div>
+                <Link key={item.id} href={`/automations/${item.id}`}>
+                  <UnifiedCard
+                    type="attention"
+                    severity={
+                      item.governanceDot === "critical"
+                        ? "critical"
+                        : "attention"
+                    }
+                    name={item.name}
+                    description={item.businessNarrative}
+                    metric={item.metric ?? "Needs review"}
+                    scope={item.scope ?? undefined}
+                    process={item.processName ?? ""}
+                  />
                 </Link>
               ))}
               {props.attentionItems.length >= 5 && (
                 <Link
                   href="/processes"
-                  className="inline-flex items-center gap-2 text-base text-primary hover:underline mt-2 font-medium"
+                  className="inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline mt-3"
                 >
-                  View all on Process Map <ArrowRight className="w-4 h-4" />
+                  View all on Process Map{" "}
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               )}
             </div>
@@ -206,13 +259,13 @@ export function DashboardView(props: DashboardViewProps) {
 
         {/* Right: Top Opportunities */}
         <div>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm uppercase tracking-wider font-semibold text-text-secondary">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
               Top Opportunities
-            </h2>
+            </h3>
             <Link
               href="/opportunities"
-              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium"
+              className="text-sm text-primary font-medium hover:underline inline-flex items-center gap-1"
             >
               View all <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -227,26 +280,22 @@ export function DashboardView(props: DashboardViewProps) {
                 <Link
                   key={opp.id}
                   href={`/opportunities?highlight=${opp.id}`}
-                  className="group block rounded-md border border-dashed border-primary/30 bg-primary/5 px-5 py-4 hover:border-primary transition"
                 >
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <Sparkles className="w-4 h-4 text-primary shrink-0" />
-                    <span className="text-base font-medium text-foreground group-hover:text-primary transition truncate">
-                      {opp.name}
-                    </span>
-                    <span className="flex-1" />
-                    <TierBadge tier={opp.tier} />
-                  </div>
-                  <p className="text-base text-text-secondary mb-3 leading-relaxed line-clamp-2">
-                    {opp.brief}
-                  </p>
-                  {opp.impactEstimate && (
-                    <div className="pt-3 border-t border-border">
-                      <span className="font-mono text-lg font-bold text-primary">
-                        {opp.impactEstimate}
-                      </span>
-                    </div>
-                  )}
+                  <UnifiedCard
+                    type="recommendation"
+                    tier={opp.tier}
+                    name={opp.name}
+                    description={opp.brief}
+                    metric={opp.impactEstimate}
+                    confidence={
+                      (opp.confidence?.toLowerCase().replace(/\s+/g, "-") as
+                        | "data-driven"
+                        | "benchmark-based"
+                        | "ai-suggested") ?? undefined
+                    }
+                    scope={opp.scope ?? undefined}
+                    process={opp.processName ?? ""}
+                  />
                 </Link>
               ))}
             </div>
@@ -257,67 +306,47 @@ export function DashboardView(props: DashboardViewProps) {
       {/* 5. Process Coverage */}
       {props.processCoverage.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm uppercase tracking-wider font-semibold text-text-secondary">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
               Process Coverage
-            </h2>
+            </h3>
             <Link
               href="/processes"
-              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium"
+              className="text-sm text-primary font-medium hover:underline inline-flex items-center gap-1"
             >
               Open Process Map <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="rounded-md border border-border bg-surface overflow-hidden">
-            {/* Header */}
-            <div className="grid grid-cols-[1fr_280px_140px_140px] gap-4 px-6 py-3 text-sm uppercase tracking-wider font-semibold text-text-tertiary border-b border-border">
-              <span>Process</span>
-              <span>Coverage</span>
-              <span>Reliability</span>
-              <span className="text-right">Recommendations</span>
-            </div>
-            {/* Rows */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {props.processCoverage.map((p) => (
-              <Link
-                key={p.id}
-                href="/processes"
-                className="grid grid-cols-[1fr_280px_140px_140px] gap-4 px-6 py-4 border-b border-border last:border-b-0 hover:bg-surface-raised transition-colors items-center"
-              >
-                <span className="text-base text-foreground font-medium truncate">
-                  {p.name}
-                </span>
-                <div className="flex items-center gap-3">
-                  <span className="text-base font-mono text-text-secondary whitespace-nowrap">
-                    {p.automatedSteps} of {p.totalSteps}
-                  </span>
-                  <CoverageBar
-                    percentage={p.coveragePercentage}
-                    className="flex-1"
-                  />
-                </div>
-                <span className="text-base font-mono font-semibold text-text-secondary">
-                  {p.reliability !== null ? `${p.reliability}%` : "—"}
-                </span>
-                <span className="text-base font-mono text-primary text-right font-bold">
-                  {p.recommendationCount}
-                </span>
+              <Link key={p.id} href="/processes">
+                <ProcessCard
+                  name={p.name}
+                  maturityLevel={p.maturityLevel}
+                  automatedSteps={p.automatedSteps}
+                  totalSteps={p.totalSteps}
+                  coverage={p.coveragePercentage}
+                  reliability={p.reliability}
+                  recommendations={p.recommendationCount}
+                  valueAtStake={p.valueAtStake}
+                />
               </Link>
             ))}
           </div>
         </div>
       )}
 
-      {/* 6. Systems Compact */}
+      {/* 6. Connected Systems */}
       {props.systemLandscape.length > 0 && (
         <div>
-          <h2 className="text-sm uppercase tracking-wider font-semibold text-text-secondary mb-5">
+          <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-3">
             Connected Systems
-          </h2>
-          <div className="flex flex-wrap gap-3">
+          </h3>
+          <div className="flex flex-wrap gap-2.5">
             {props.systemLandscape.map((sys) => (
               <span
                 key={sys.name}
-                className="px-4 py-2.5 bg-surface border border-border rounded-md text-base text-text-secondary"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-surface border border-border rounded-lg text-sm text-text-secondary shadow-sm"
               >
                 {sys.name}{" "}
                 <span className="font-mono font-bold text-foreground">

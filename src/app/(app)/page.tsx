@@ -1,7 +1,6 @@
 import { getRequiredSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { computeGovernanceDot } from "@/lib/risk-engine";
-import type { GovernanceDotInput } from "@/lib/risk-engine";
+import { prepareDashboardData } from "@/lib/dashboard-data";
 import { DashboardView } from "@/components/dashboard-view";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
@@ -76,6 +75,7 @@ export default async function DashboardPage() {
 
   const companyProfile = await prisma.companyProfile.findUnique({
     where: { workspaceId },
+    select: { analysisStatus: true },
   });
 
   // Empty state
@@ -97,152 +97,7 @@ export default async function DashboardPage() {
     return <DashboardError />;
   }
 
-  // Full dashboard — fetch remaining data
-  const [automations, processes, topRecommendations, totalRecommendations] =
-    await Promise.all([
-      prisma.automation.findMany({
-        where: { workspaceId, isRemoved: false },
-        select: {
-          id: true,
-          name: true,
-          status: true,
-          businessNarrative: true,
-          errorRate: true,
-          impact: true,
-          detectability: true,
-          lastExecutedAt: true,
-          rawWorkflowJson: true,
-          processId: true,
-        },
-      }),
-      prisma.businessProcess.findMany({
-        where: { workspaceId },
-        orderBy: { order: "asc" },
-        include: {
-          _count: { select: { recommendations: true } },
-        },
-      }),
-      prisma.recommendation.findMany({
-        where: { workspaceId },
-        orderBy: { priorityOrder: "asc" },
-        take: 3,
-        select: {
-          id: true,
-          name: true,
-          brief: true,
-          tier: true,
-          impactEstimate: true,
-        },
-      }),
-      prisma.recommendation.count({ where: { workspaceId } }),
-    ]);
-
-  // Compute governance dots
-  const automationsWithDots = automations.map((a) => ({
-    id: a.id,
-    name: a.name ?? "Untitled",
-    businessNarrative: a.businessNarrative ?? "",
-    processId: a.processId,
-    status: a.status,
-    errorRate: a.errorRate,
-    governanceDot: computeGovernanceDot({
-      errorRate: a.errorRate,
-      isActive: a.status === "active",
-      impact: a.impact as GovernanceDotInput["impact"],
-      detectability: a.detectability as GovernanceDotInput["detectability"],
-      lastExecutedAt: a.lastExecutedAt,
-      rawWorkflowJson: a.rawWorkflowJson,
-    }),
-  }));
-
-  // Attention items (critical or attention, cap at 5)
-  const attentionItems = automationsWithDots
-    .filter(
-      (a) =>
-        a.governanceDot === "critical" || a.governanceDot === "attention",
-    )
-    .sort((a, b) => {
-      const priority = { critical: 0, attention: 1, healthy: 2 };
-      return priority[a.governanceDot] - priority[b.governanceDot];
-    })
-    .slice(0, 5);
-
-  // Process coverage
-  const processCoverage = processes.map((p) => {
-    const stepsJson = p.steps as Array<{
-      name: string;
-      isGap: boolean;
-      isAutomated: boolean;
-    }> | null;
-    const totalSteps = stepsJson?.length ?? 0;
-    const automatedSteps = stepsJson?.filter((s) => !s.isGap).length ?? 0;
-    const percentage =
-      totalSteps > 0
-        ? Math.round((automatedSteps / totalSteps) * 100)
-        : 0;
-
-    const processAutos = automationsWithDots.filter(
-      (a) => a.processId === p.id,
-    );
-    const withErrorRate = processAutos.filter((a) => a.errorRate !== null);
-    const reliability =
-      withErrorRate.length > 0
-        ? Math.round(
-            (withErrorRate.reduce(
-              (sum, a) => sum + (1 - (a.errorRate ?? 0)),
-              0,
-            ) /
-              withErrorRate.length) *
-              100,
-          )
-        : null;
-
-    return {
-      id: p.id,
-      name: p.name,
-      automatedSteps,
-      totalSteps,
-      coveragePercentage: percentage,
-      reliability,
-      recommendationCount: p._count.recommendations,
-    };
-  });
-
-  const systemLandscape =
-    (companyProfile.systemLandscape as Array<{
-      name: string;
-      workflowCount: number;
-    }>) ?? [];
-  const aggregateEstimates = companyProfile.aggregateEstimates as {
-    totalTimeSavings?: string;
-    totalValueAtRisk?: string;
-  } | null;
-
-  return (
-    <DashboardView
-      deltaSummary={companyProfile.deltaSummary}
-      nextMoveText={companyProfile.nextMoveText}
-      workflowCount={automations.length}
-      processCount={processes.length}
-      systemCount={systemLandscape.length}
-      activeCount={automations.filter((a) => a.status === "active").length}
-      recommendationCount={totalRecommendations}
-      aggregateEstimates={aggregateEstimates}
-      attentionItems={attentionItems.map((a) => ({
-        id: a.id,
-        name: a.name,
-        governanceDot: a.governanceDot,
-        businessNarrative: a.businessNarrative,
-      }))}
-      topOpportunities={topRecommendations.map((r) => ({
-        id: r.id,
-        name: r.name,
-        brief: r.brief ?? "",
-        tier: r.tier as "act-now" | "investigate" | "explore",
-        impactEstimate: r.impactEstimate ?? "",
-      }))}
-      processCoverage={processCoverage}
-      systemLandscape={systemLandscape}
-    />
-  );
+  // Full dashboard
+  const data = await prepareDashboardData(workspaceId);
+  return <DashboardView {...data} />;
 }

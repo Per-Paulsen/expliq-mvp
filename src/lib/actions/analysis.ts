@@ -320,6 +320,8 @@ export async function runAnalysisPipeline(
             detectability: result.detectability as unknown as Prisma.InputJsonValue,
             timeSavingsEstimate: result.timeSavingsEstimate,
             revenueImpactEstimate: result.revenueImpactEstimate,
+            timeSavingsConfidence: result.timeSavingsConfidence,
+            revenueConfidence: result.revenueConfidence,
             technicalEvidence: result.technicalEvidence as unknown as Prisma.InputJsonValue,
             analysisStatus: "complete",
           },

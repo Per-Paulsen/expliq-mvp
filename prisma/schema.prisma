@@ -91,6 +91,8 @@ model Automation {
   detectability         Json?
   timeSavingsEstimate   String?
   revenueImpactEstimate String?
+  timeSavingsConfidence String?
+  revenueConfidence     String?
   technicalEvidence     Json?
   trigger               String?
   triggerType           String?

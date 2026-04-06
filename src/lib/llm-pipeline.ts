@@ -46,6 +46,8 @@ export interface PerAutomationResult {
   detectability: PerAutomationDetectability;
   timeSavingsEstimate: string;
   revenueImpactEstimate: string;
+  timeSavingsConfidence: string;
+  revenueConfidence: string;
   technicalEvidence: PerAutomationTechnicalEvidence;
 }
 
@@ -237,6 +239,8 @@ Schema:
   },
   "timeSavingsEstimate": "string — range with reasoning and confidence label",
   "revenueImpactEstimate": "string — range with reasoning, or N/A",
+  "timeSavingsConfidence": "data-driven | benchmark-based | ai-suggested",
+  "revenueConfidence": "data-driven | benchmark-based | ai-suggested",
   "technicalEvidence": {
     "errorHandling": "string",
     "credentials": ["string"],

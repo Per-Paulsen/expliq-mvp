@@ -146,6 +146,8 @@ function makePerAutomationResult(name: string): PerAutomationResult {
     },
     timeSavingsEstimate: "5-10 hours/week",
     revenueImpactEstimate: "$10k-50k/month",
+    timeSavingsConfidence: "benchmark-based",
+    revenueConfidence: "ai-suggested",
     technicalEvidence: {
       errorHandling: "Try-catch",
       credentials: ["slack-api"],

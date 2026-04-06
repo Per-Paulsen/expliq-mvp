@@ -113,6 +113,10 @@ vi.mock("@/lib/execution-stats", () => ({
   computeExecutionStats: mockComputeExecutionStats,
 }));
 
+vi.mock('next/server', () => ({
+  after: vi.fn((fn: () => Promise<void>) => fn()),
+}));
+
 vi.mock("@/lib/actions/analysis", () => ({
   runAnalysisPipeline: vi.fn().mockResolvedValue({ success: true }),
 }));

@@ -327,6 +327,10 @@ export async function runAnalysisPipeline(
           },
         });
       } else {
+        console.error(
+          `Per-automation analysis failed for ${automation.name} (${automation.externalId}):`,
+          settled.reason
+        );
         await prisma.automation.update({
           where: { id: automation.id },
           data: { analysisStatus: "failed" },

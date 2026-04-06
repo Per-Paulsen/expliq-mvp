@@ -7,6 +7,7 @@ import { createN8nClient, type N8nWorkflow } from "@/lib/n8n-client";
 import { computeExecutionStats } from "@/lib/execution-stats";
 import { Prisma } from "@/generated/prisma/client";
 import { runAnalysisPipeline } from "@/lib/actions/analysis";
+import { after } from "next/server";
 
 // ── Types ──────────────────────────────────────────────
 
@@ -386,9 +387,13 @@ export async function syncAndAnalyze() {
     },
   };
 
-  // Phase 3: Fire-and-forget — analysis runs in background, client polls for progress
-  runAnalysisPipeline(workspaceId).catch((err) => {
-    console.error("Analysis pipeline failed:", err);
+  // Phase 3: Background analysis — after() keeps the function alive on Vercel
+  after(async () => {
+    try {
+      await runAnalysisPipeline(workspaceId);
+    } catch (err) {
+      console.error("Analysis pipeline failed:", err);
+    }
   });
 
   return { success: true, summary };

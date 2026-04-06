@@ -3,6 +3,8 @@ import { getRequiredSession } from "@/lib/session";
 import { SettingsForm } from "@/components/settings-form";
 import type { TagPreview } from "@/lib/actions/connector";
 
+export const maxDuration = 300;
+
 export default async function SettingsPage() {
   const session = await getRequiredSession();
   const workspaceId = session.user.workspaceId;

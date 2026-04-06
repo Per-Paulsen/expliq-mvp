@@ -88,3 +88,24 @@ However, we should verify that importing `after` from `next/server` doesn't caus
 The patch description also mentions concerns about `maxDuration = 300` not being enough for very large workspaces. Should this patch address that?
 
 **Claude's recommendation:** No. This patch fixes the immediate fire-and-forget kill. Scaling beyond 300s (phase-splitting, queues, etc.) is a separate architectural concern. Keep this patch focused on the 3-file fix.
+
+---
+
+## Implementation Applied (2026-04-06)
+
+**Commit:** `beed038` — `fix: use after() for analysis pipeline reliability on Vercel`
+
+**Files modified:**
+- `src/lib/actions/connector.ts` — Replaced fire-and-forget `.catch()` with `after()` from `next/server`; added import
+- `src/app/(app)/settings/page.tsx` — Added `export const maxDuration = 300` route segment config
+- `src/lib/actions/analysis.ts` — Added `console.error` with automation name/externalId for failed per-automation calls
+- `src/__tests__/connector-actions.test.ts` — Added `vi.mock('next/server')` making `after()` execute immediately in tests
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (306 tests, 1 flaky timeout on re-run passed) |
+| `npm run lint` | Pass (1 pre-existing error in opportunities-view.tsx) |
+| `npm run build` | Pass |
+| Real data pipeline | Pass (Sync & Analyze against perpaulsen.app.n8n.cloud — 1 created, 14 unchanged) |
+| E2E verification | Pass — Dashboard: 6 processes, 15 workflows. Process Map: all 6 processes with coverage bars. |

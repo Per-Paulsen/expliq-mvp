@@ -174,9 +174,44 @@ export interface WorkspaceResult {
 export function stripJsonFences(text: string): string {
   const trimmed = text.trim();
   if (trimmed.startsWith("```")) {
-    return trimmed.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+    const stripped = trimmed.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+    return extractJsonObject(stripped);
   }
-  return trimmed;
+  return extractJsonObject(trimmed);
+}
+
+/**
+ * Extract the outermost JSON object from text that may contain
+ * trailing content (e.g., Haiku appends markdown summaries after the JSON).
+ */
+function extractJsonObject(text: string): string {
+  const start = text.indexOf("{");
+  if (start === -1) return text;
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (ch === "\\" && inString) {
+      escape = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return text; // fallback: return as-is if no balanced braces found
 }
 
 export async function retryWithBackoff<T>(

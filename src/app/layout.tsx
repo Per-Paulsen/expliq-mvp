@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="en"
       className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="antialiased overflow-x-hidden">
+      <body className="antialiased overflow-x-hidden bg-background">
         <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>

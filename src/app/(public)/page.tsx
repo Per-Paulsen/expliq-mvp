@@ -2,26 +2,26 @@ import Link from "next/link";
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col items-center px-4 py-12">
+    <div className="flex flex-col items-center px-6">
       {/* Text block */}
-      <div className="flex flex-col items-center text-center max-w-[480px] space-y-3">
-        <h1 className="text-4xl font-bold text-foreground">Expliq</h1>
-        <p className="text-lg font-semibold text-primary">
+      <div className="flex flex-col items-center text-center max-w-[640px] space-y-2">
+        <h1 className="text-5xl md:text-6xl font-bold text-foreground">Expliq</h1>
+        <p className="text-xl md:text-2xl font-semibold text-primary">
           Automation Intelligence
         </p>
-        <p className="text-base text-text-secondary">
+        <p className="text-lg text-text-secondary">
           See what&apos;s working, what&apos;s broken, and what to build next.
         </p>
         <Link
           href="/login"
-          className="mt-4 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-medium h-9 px-6 transition-all hover:bg-primary/80"
+          className="!mt-4 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground text-base font-medium h-11 px-8 transition-all hover:bg-primary/80"
         >
           Try it out
         </Link>
       </div>
 
       {/* Workflow graphic */}
-      <div className="mt-10 w-full max-w-[700px]">
+      <div className="mt-6 w-full max-w-5xl">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 880 480"

@@ -201,7 +201,7 @@ function getModel(): string {
 }
 
 function getPerAutomationModel(): string {
-  return process.env.OPENROUTER_PER_AUTOMATION_MODEL || "anthropic/claude-haiku-4-5-20251001";
+  return process.env.OPENROUTER_PER_AUTOMATION_MODEL || "anthropic/claude-haiku-4-5";
 }
 
 function getClient(): OpenAI {

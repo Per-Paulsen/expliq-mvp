@@ -446,7 +446,7 @@ async function main() {
     data: {
       workspaceId,
       analysisStatus: "complete",
-      nextMoveText: `Your lead capture workflow "${topWorkflowNames[0]}" has a 31% error rate and no monitoring — this is your highest-risk automation. Fix error handling there first, then investigate automating the manual lead scoring step to close the gap in your Lead Management process. Together, these two actions could recover ~€2K/mo in pipeline value.`,
+      nextMoveText: `Fix "${topWorkflowNames[0]}" — 31% error rate, no monitoring. Then automate manual lead scoring in Lead Management. Two moves, ~€2K/mo recovered.`,
       nextMoveReasoning: "Prioritized by combining error rate severity (31% on a critical workflow) with the largest automation gap (manual lead scoring) in the highest-value process.",
       systemLandscape: systemLandscape as Prisma.InputJsonValue,
       aggregateEstimates: {

@@ -225,17 +225,20 @@ export async function runAnalysisPipeline(
     //   - it has never been analyzed (businessNarrative is null), OR
     //   - its workflow was updated since the last analysis (updatedAt > last analyzedAt)
     const lastAnalyzedAt = companyProfile?.analyzedAt;
+    // Use automationLastUpdated (n8n workflow change timestamp) not updatedAt (Prisma auto-updated on every sync)
     const needsAnalysis = automations.filter(
       (a) =>
         !a.businessNarrative ||
         !lastAnalyzedAt ||
-        a.updatedAt > lastAnalyzedAt,
+        !a.automationLastUpdated ||
+        a.automationLastUpdated > lastAnalyzedAt,
     );
     const unchanged = automations.filter(
       (a) =>
         a.businessNarrative &&
         lastAnalyzedAt &&
-        a.updatedAt <= lastAnalyzedAt,
+        a.automationLastUpdated &&
+        a.automationLastUpdated <= lastAnalyzedAt,
     );
 
     // Set changed automations to pending
@@ -287,8 +290,8 @@ export async function runAnalysisPipeline(
           systemsTouched: a.systemsTouched,
           dataFlow: a.dataFlow ?? "",
           stepName: a.stepName ?? "",
-          impact: a.impact,
-          detectability: a.detectability,
+          impact: (a.impact as Record<string, string> | null) ?? { level: "low", failureScenario: "", revenueConnection: "" },
+          detectability: (a.detectability as Record<string, string> | null) ?? { level: "silent", reasoning: "", evidence: "" },
           timeSavingsEstimate: a.timeSavingsEstimate ?? "",
           revenueImpactEstimate: a.revenueImpactEstimate ?? "",
           technicalEvidence: a.technicalEvidence,
@@ -298,7 +301,7 @@ export async function runAnalysisPipeline(
 
     for (let i = 0; i < perAutomationResults.length; i++) {
       const settled = perAutomationResults[i];
-      const automation = automations[i];
+      const automation = needsAnalysis[i];
 
       if (settled.status === "fulfilled") {
         const { result } = settled.value;

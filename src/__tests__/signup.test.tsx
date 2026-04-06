@@ -19,9 +19,11 @@ vi.mock("@/lib/actions/auth", () => ({
 import SignupPage from "@/app/(auth)/signup/page";
 
 describe("SignupPage", () => {
-  it('renders the "Create an Expliq account" heading', () => {
+  it('renders the "Create account" heading and Expliq branding', () => {
     render(<SignupPage />);
-    expect(screen.getByText("Create an Expliq account")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Create account", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Expliq", level: 2 })).toBeInTheDocument();
+    expect(screen.getByText("Automation Intelligence Platform")).toBeInTheDocument();
   });
 
   it("renders email, password, and confirm password input fields", () => {

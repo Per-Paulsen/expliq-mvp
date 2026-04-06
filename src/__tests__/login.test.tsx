@@ -15,9 +15,11 @@ vi.mock("next/navigation", () => ({
 import LoginPage from "@/app/(auth)/login/page";
 
 describe("LoginPage", () => {
-  it('renders the "Sign in to Expliq" heading', () => {
+  it('renders the "Sign in" heading and Expliq branding', () => {
     render(<LoginPage />);
-    expect(screen.getByText("Sign in to Expliq")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sign in", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Expliq", level: 2 })).toBeInTheDocument();
+    expect(screen.getByText("Automation Intelligence Platform")).toBeInTheDocument();
   });
 
   it("renders email and password input fields", () => {

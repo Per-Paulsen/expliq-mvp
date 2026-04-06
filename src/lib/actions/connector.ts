@@ -386,11 +386,19 @@ export async function syncAndAnalyze() {
     },
   };
 
-  // Phase 3: Run LLM analysis pipeline after sync
-  const analysisResult = await runAnalysisPipeline(workspaceId);
-  if ("error" in analysisResult) {
-    summary.errors.push(analysisResult.error);
-  }
+  // Phase 3: Fire-and-forget — analysis runs in background, client polls for progress
+  runAnalysisPipeline(workspaceId).catch((err) => {
+    console.error("Analysis pipeline failed:", err);
+  });
 
   return { success: true, summary };
+}
+
+export async function getAnalysisStatus(): Promise<{ status: string | null }> {
+  const session = await getRequiredSession();
+  const profile = await prisma.companyProfile.findUnique({
+    where: { workspaceId: session.user.workspaceId },
+    select: { analysisStatus: true },
+  });
+  return { status: profile?.analysisStatus ?? null };
 }

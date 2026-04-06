@@ -33,6 +33,7 @@ vi.mock("@/lib/actions/connector", () => ({
   verifyAndDiscover: vi.fn(),
   updateSelectedTags: vi.fn(),
   syncAndAnalyze: vi.fn(),
+  getAnalysisStatus: vi.fn().mockResolvedValue({ status: null }),
 }));
 
 vi.mock("@/lib/detail-data", () => ({

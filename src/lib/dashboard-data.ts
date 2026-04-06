@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { computeGovernanceDot } from "@/lib/risk-engine";
 import type { GovernanceDotInput } from "@/lib/risk-engine";
 import type { Snapshot } from "@/lib/delta-generation";
+import { normalizeTier } from "@/lib/opportunities-data";
 
 // ── Types ───────────────────────────────────────────────
 
@@ -549,7 +550,7 @@ export async function prepareDashboardData(
     id: r.id,
     name: r.name,
     brief: r.brief ?? "",
-    tier: r.tier as "act-now" | "investigate" | "explore",
+    tier: normalizeTier(r.tier),
     impactEstimate: r.impactEstimate ?? "",
     confidence: r.confidence ?? null,
     scope: r.affectedScope ?? null,
@@ -562,7 +563,7 @@ export async function prepareDashboardData(
       id: r.id,
       name: r.name,
       brief: r.brief ?? "",
-      tier: r.tier as "act-now" | "investigate" | "explore",
+      tier: normalizeTier(r.tier),
       impactEstimate: r.impactEstimate ?? "",
       confidence: r.confidence ?? null,
       scope: r.affectedScope ?? null,

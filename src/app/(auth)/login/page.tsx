@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
+import { AlertMessage } from "@/components/alert-message";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,20 +40,18 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold text-foreground">Sign in to Expliq</h1>
-        <p className="text-muted-foreground">
-          Enter your credentials to access your workspace
-        </p>
+      <div className="text-center space-y-1">
+        <h2 className="text-xl font-bold text-foreground">Expliq</h2>
+        <p className="text-sm text-text-tertiary">Automation Intelligence Platform</p>
+      </div>
+      <div className="space-y-1 text-center">
+        <h1 className="text-2xl font-bold text-foreground">Sign in</h1>
+        <p className="text-sm text-text-secondary">Enter your credentials to access your workspace</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 text-red-700 rounded-md p-3 text-sm">
-            {error}
-          </div>
-        )}
+        {error && <div id="login-error"><AlertMessage variant="error">{error}</AlertMessage></div>}
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">
+          <label htmlFor="email" className="text-sm font-medium text-[#374151]">
             Email
           </label>
           <Input
@@ -59,26 +59,31 @@ export default function LoginPage() {
             name="email"
             type="email"
             required
+            autoComplete="email"
+            disabled={loading}
+            aria-describedby={error ? "login-error" : undefined}
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">
+          <label htmlFor="password" className="text-sm font-medium text-[#374151]">
             Password
           </label>
-          <Input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
             required
+            autoComplete="current-password"
+            disabled={loading}
+            aria-describedby={error ? "login-error" : undefined}
           />
         </div>
-        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-primary underline">
+        <Link href="/signup" className="text-primary hover:underline">
           Sign up
         </Link>
       </p>

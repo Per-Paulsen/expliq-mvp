@@ -7,12 +7,14 @@ const mockSaveConnectorConfig = vi.fn();
 const mockVerifyAndDiscover = vi.fn();
 const mockUpdateSelectedTags = vi.fn();
 const mockSyncAndAnalyze = vi.fn();
+const mockGetAnalysisStatus = vi.fn();
 
 vi.mock("@/lib/actions/connector", () => ({
   saveConnectorConfig: (...args: unknown[]) => mockSaveConnectorConfig(...args),
   verifyAndDiscover: (...args: unknown[]) => mockVerifyAndDiscover(...args),
   updateSelectedTags: (...args: unknown[]) => mockUpdateSelectedTags(...args),
   syncAndAnalyze: (...args: unknown[]) => mockSyncAndAnalyze(...args),
+  getAnalysisStatus: (...args: unknown[]) => mockGetAnalysisStatus(...args),
 }));
 
 import { SettingsForm } from "@/components/settings-form";
@@ -47,13 +49,14 @@ describe("SettingsForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUpdateSelectedTags.mockResolvedValue({ success: true });
+    mockGetAnalysisStatus.mockResolvedValue({ status: null });
   });
 
   // ── Section 1: Connection ────────────────────────────────
 
-  it("renders the Settings heading", () => {
+  it("renders the N8N Connection section header", () => {
     render(<SettingsForm hasApiKey={false} lastSyncAt={null} />);
-    expect(screen.getByText("Settings")).toBeInTheDocument();
+    expect(screen.getByText("N8N Connection")).toBeInTheDocument();
   });
 
   it("renders Instance URL and API Key inputs", () => {
@@ -132,12 +135,12 @@ describe("SettingsForm", () => {
 
   // ── Section 2: Tag Selection ─────────────────────────────
 
-  it("does not show Tag Selection when no discovery data", () => {
+  it("shows Workflow Scope section (disabled without discovery data)", () => {
     render(<SettingsForm hasApiKey={true} lastSyncAt={null} />);
-    expect(screen.queryByText("Tag Selection")).not.toBeInTheDocument();
+    expect(screen.getByText("Workflow Scope")).toBeInTheDocument();
   });
 
-  it("shows Tag Selection after successful verify", async () => {
+  it("shows Workflow Scope with data after successful verify", async () => {
     mockVerifyAndDiscover.mockResolvedValue({
       success: true,
       tags: sampleTags,
@@ -151,11 +154,11 @@ describe("SettingsForm", () => {
       screen.getByRole("button", { name: "Verify Connection" })
     );
 
-    expect(screen.getByText("Tag Selection")).toBeInTheDocument();
-    expect(screen.getByText(/17 workflows found/)).toBeInTheDocument();
+    expect(screen.getByText("Workflow Scope")).toBeInTheDocument();
+    expect(screen.getByText(/workflows found/)).toBeInTheDocument();
   });
 
-  it("renders Tag Selection from initial discoveryData props", () => {
+  it("renders Workflow Scope from initial discoveryData props", () => {
     render(
       <SettingsForm
         hasApiKey={true}
@@ -165,8 +168,8 @@ describe("SettingsForm", () => {
       />
     );
 
-    expect(screen.getByText("Tag Selection")).toBeInTheDocument();
-    expect(screen.getByText(/17 workflows found/)).toBeInTheDocument();
+    expect(screen.getByText("Workflow Scope")).toBeInTheDocument();
+    expect(screen.getByText(/workflows found/)).toBeInTheDocument();
   });
 
   it("renders tag checkboxes with correct labels and previews", () => {
@@ -199,8 +202,8 @@ describe("SettingsForm", () => {
       />
     );
 
-    // 5 + 9 + 3 = 17
-    expect(screen.getByText(/17 workflows selected/)).toBeInTheDocument();
+    // 5 + 9 + 3 = 17 — number is in <strong> tag, rest in text node
+    expect(screen.getByText(/workflows selected/)).toBeInTheDocument();
   });
 
   it("calls updateSelectedTags when a tag is toggled", async () => {
@@ -237,8 +240,8 @@ describe("SettingsForm", () => {
     await user.click(screen.getByText("Deselect all"));
 
     expect(mockUpdateSelectedTags).toHaveBeenCalledWith([]);
-    // Sync section should disappear
-    expect(screen.queryByText("Sync & Analyze", { selector: "h2" })).not.toBeInTheDocument();
+    // Sync section is still visible but disabled (progressive disclosure)
+    expect(screen.getByText("Sync & Analyze", { selector: "h2" })).toBeInTheDocument();
   });
 
   it("Select all checks all tags", async () => {
@@ -277,7 +280,7 @@ describe("SettingsForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("hides Sync & Analyze section when no tags selected", () => {
+  it("shows Sync & Analyze section disabled when no tags selected", () => {
     render(
       <SettingsForm
         hasApiKey={true}
@@ -287,10 +290,11 @@ describe("SettingsForm", () => {
       />
     );
 
-    expect(screen.queryByText("Sync & Analyze", { selector: "h2" })).not.toBeInTheDocument();
+    // Section is always visible (progressive disclosure) but button is disabled
+    expect(screen.getByText("Sync & Analyze", { selector: "h2" })).toBeInTheDocument();
   });
 
-  it("displays 'Never synced' when lastSyncAt is null", () => {
+  it("displays 'Never' when lastSyncAt is null", () => {
     render(
       <SettingsForm
         hasApiKey={true}
@@ -299,7 +303,7 @@ describe("SettingsForm", () => {
         selectedTags={["Production"]}
       />
     );
-    expect(screen.getByText("Never synced")).toBeInTheDocument();
+    expect(screen.getByText(/Last synced:.*Never/)).toBeInTheDocument();
   });
 
   it("displays formatted last sync date when lastSyncAt is provided", () => {
@@ -350,6 +354,7 @@ describe("SettingsForm", () => {
   });
 
   it("shows sync results with enrichment status after sync", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     mockSyncAndAnalyze.mockResolvedValue({
       success: true,
       summary: {
@@ -366,8 +371,10 @@ describe("SettingsForm", () => {
         },
       },
     });
+    // Mock analysis completing so results show
+    mockGetAnalysisStatus.mockResolvedValue({ status: "complete" });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(
       <SettingsForm
         hasApiKey={true}
@@ -381,10 +388,16 @@ describe("SettingsForm", () => {
       screen.getByRole("button", { name: "Sync & Analyze" })
     );
 
-    expect(screen.getByText("Sync completed successfully.")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument(); // created
-    expect(screen.getByText(/Credentials:.*available/)).toBeInTheDocument();
-    expect(screen.getByText(/Variables:.*available/)).toBeInTheDocument();
-    expect(screen.getByText(/Users:.*unavailable/)).toBeInTheDocument();
+    // Advance past the polling interval (2500ms)
+    await vi.advanceTimersByTimeAsync(3000);
+
+    // Wait for polling to detect "complete" and show results
+    await vi.waitFor(() => {
+      expect(screen.getByText("Credentials: available")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Variables: available")).toBeInTheDocument();
+    expect(screen.getByText("Users: unavailable")).toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 });

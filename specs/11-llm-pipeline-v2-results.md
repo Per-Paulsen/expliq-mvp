@@ -105,3 +105,43 @@ All fields populated with business-meaningful content, technical specificity (no
 - [Spec](11-llm-pipeline-v2.md)
 - [Brainstorming](11-llm-pipeline-v2-brainstorming.md)
 - [Epic 10: Schema + Extended Sync](10-schema-sync.md) (prerequisite)
+
+---
+
+## Patch: confidence fields
+
+**Commit:** `341319a` — `feat: add per-automation confidence fields to LLM pipeline`
+
+### What Changed
+
+Added `timeSavingsConfidence` and `revenueConfidence` as separate nullable fields to the Automation model and per-automation LLM pipeline. These store the confidence label (`data-driven | benchmark-based | ai-suggested`) as a discrete field, complementing the existing estimate strings that embed the label in free text.
+
+### Why
+
+The cross-epic review (2026-04-06) identified that Epic 16 (Detail page) needs ConfidenceBadge components for the Business Case Card. ConfidenceBadge expects a structured confidence value as a prop. Without separate fields, the UI would need to parse confidence from estimate text — fragile and unreliable. This follows the same pattern as `Recommendation.confidence` which is already a separate field.
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `prisma/schema.prisma` | Added `timeSavingsConfidence String?` and `revenueConfidence String?` |
+| `prisma/migrations/20260406005638_add_confidence_fields/migration.sql` | New migration |
+| `src/lib/llm-pipeline.ts` | Added to `PerAutomationResult` interface + prompt schema |
+| `src/lib/actions/analysis.ts` | Added to Prisma update call |
+| `src/__tests__/analysis-pipeline.test.ts` | Updated mock helper |
+
+### Verification Results
+
+| Check | Result |
+|-------|--------|
+| `npm run test` (278 tests) | Pass |
+| `npm run lint` | No new errors |
+| `npm run build` | Pass |
+| Prisma migration | Applied |
+| DB verification | Fields exist, queryable, null for pre-migration data |
+
+### Notes
+
+- Estimate strings unchanged — confidence label stays embedded in text AND is a separate field (option A from brainstorming)
+- Existing automations get `null` until re-analyzed on next Sync & Analyze
+- Skip-unchanged optimization (Epic 15) means unchanged automations won't get confidence fields until their workflow changes — acceptable, UI handles null gracefully

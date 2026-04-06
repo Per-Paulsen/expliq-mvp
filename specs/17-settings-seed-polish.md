@@ -26,8 +26,8 @@ Final polish, seed data, and loading states for demo readiness.
 
 **Loading / skeleton states:**
 - Dashboard: skeleton layout already implemented in Epic 13 (DashboardAnalyzing component in page.tsx) — polish styling if needed
-- Process Map: skeleton or "Analysis in progress..." message
-- Opportunities: skeleton or "Generating recommendations..." message
+- Process Map: skeleton already implemented in Epic 14 (ProcessMapAnalyzing component in page.tsx) — polish styling if needed
+- Opportunities: analyzing/failed/complete states already implemented in Epic 15 (page.tsx handles all analysisStatus values) — polish styling if needed
 - Detail: per-automation data may be available before workspace analysis completes — show available sections, skeleton for process/recommendation sections
 
 **R2 seed script:**
@@ -54,6 +54,7 @@ Final polish, seed data, and loading states for demo readiness.
 
 **Remaining UX gaps:**
 - Any broken links, missing empty states, or visual inconsistencies caught during integration testing
+- **Known normalization gap:** `dashboard-data.ts` casts `Recommendation.tier` directly without normalization (lines ~552/565). TierBadge crashes on raw DB values like `"act now"`. Must apply `normalizeTier()` pattern from `opportunities-data.ts`. Same risk exists for ConfidenceBadge anywhere confidence values are passed without `.toLowerCase().replace(/\s+/g, "-")`.
 - Sidebar "Synced X ago" shows actual relative time
 - All page transitions smooth (no flash of unstyled content)
 

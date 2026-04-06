@@ -98,28 +98,32 @@ Your job:
 - `npm run lint` — no lint errors
 - `npm run build` — no type errors
 
-##### E2E verification
+##### Real data pipeline + E2E verification
 
-If the patch changes runtime behavior (not just refactoring or style), verify it works end-to-end:
-
-**UI changes:** Use Playwright to confirm the change works in the browser.
+After automated checks pass, verify the full stack with real data from the Fairtix n8n instance. This is **mandatory for every patch** — it catches data shape mismatches between LLM output and UI expectations.
 
 **Pre-flight:**
 - Kill port 3000 before starting: `npx kill-port 3000`
 - **NEVER** kill all `node.exe` (`taskkill /IM node.exe /F`) — this kills the Playwright MCP server
 - If the dev server fails to compile, clean the cache (`rm -rf .next`) and retry once
 
-**Steps:**
+**Steps (single browser session):**
 1. Start the dev server (`npm run dev`) in the background
 2. Load Playwright tools via `ToolSearch` (query: `+playwright navigate`)
-3. Navigate and verify the change works as expected
-4. **Always close the browser when done** — call `mcp__plugin_playwright_playwright__browser_close`
+3. **Run the real pipeline:**
+   a. Navigate to `http://localhost:3000/login`
+   b. Log in as `seed-real@expliq.dev` / `SeedTest123!`
+   c. Navigate to `/settings`
+   d. Click "Sync & Analyze" and wait for completion (this runs the full n8n sync + LLM analysis pipeline against the real Fairtix instance)
+4. **Verify UI with real data:**
+   a. Navigate to the pages affected by the patch
+   b. Confirm the UI renders correctly with real pipeline data
+   c. Take screenshots for the results file
+5. **Always close the browser when done** — call `mcp__plugin_playwright_playwright__browser_close`
 
 **Cleanup (always):**
 1. Close the browser: `mcp__plugin_playwright_playwright__browser_close`
 2. Kill the dev server: `npx kill-port 3000`
-
-**Backend/logic changes:** Run existing verification scripts or the seed script to confirm the change works against real services.
 
 #### Bug Fixing
 - If tests fail → fix until they pass
@@ -155,7 +159,8 @@ Append a `## Implementation Applied` section to `specs/patches/{slug}-brainstorm
 | `npm run test` | Pass/Fail (N tests) |
 | `npm run lint` | Pass/Fail |
 | `npm run build` | Pass/Fail |
-| E2E verification | <method + result, or "N/A"> |
+| Real data pipeline | Pass/Fail (Sync & Analyze against Fairtix n8n) |
+| E2E verification | <method + result> |
 ```
 
 **2. Epic results file — append patch section.**
@@ -180,7 +185,8 @@ Append a patch section to `specs/{epic}-results.md`. The results file is **appen
 | `npm run test` | Pass/Fail (N tests) |
 | `npm run lint` | Pass/Fail |
 | `npm run build` | Pass/Fail |
-| E2E verification | <method + result, or "N/A — no runtime behavior change"> |
+| Real data pipeline | Pass/Fail (Sync & Analyze against Fairtix n8n) |
+| E2E verification | <method + result> |
 
 **Commit:** `<hash>` — `<message>`
 ```

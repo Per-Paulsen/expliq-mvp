@@ -30,6 +30,19 @@ For each remaining spec, derive the brainstorming file path (e.g., `specs/04-llm
   - **Marker absent** → spec needs refinement.
   - **Marker present** → extract the filenames listed under `Results incorporated:` and compare against the current set of `specs/*-results.md` files. If every current results file appears in the list, skip the spec. If any current results file is missing from the list (or the marker has no `Results incorporated:` section at all), the spec is **stale** and needs re-refinement.
 
+## Team-Assisted Investigation
+
+You are the team lead. You read all inputs, determine which specs need review, and apply edits — but you **delegate codebase investigation to team members using TeamCreate**.
+
+For each spec that needs review, create a team member whose job is to verify the spec's assumptions against the actual codebase. Team members should:
+- Read the spec and the new results file(s) that triggered this review
+- Trace every field reference, component prop contract, and data flow in the spec against current source code
+- Check that component APIs match what the spec assumes (e.g., expected prop values, fallback behavior)
+- Check that data layer functions provide the normalization/transformation the spec expects
+- Report findings with file paths, line numbers, and code snippets
+
+You may launch multiple team members in parallel (one per spec, or grouped logically). Once they report back, you synthesize findings and apply edits to specs, brainstorming files, and the review file yourself.
+
 ## Phase 1 — Review & Apply
 
 For each unrefined spec **in numeric order**, perform a thorough within-epic review. These are the same checks that `/refine` performs:

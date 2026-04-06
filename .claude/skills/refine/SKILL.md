@@ -18,6 +18,19 @@ Do NOT read `specs/brainstorming.md` — its decisions are already incorporated 
 
 Before starting, derive the results file path from the spec path (e.g., `specs/04-llm-pipeline.md` → `specs/04-llm-pipeline-results.md`). If the results file exists, **stop immediately** — this epic is already built. Tell the user in chat that refinement is not applicable to completed epics and suggest they check the results file instead.
 
+## Team-Assisted Investigation
+
+You are the team lead. You read the spec, discussion file, and results files — but you **delegate codebase investigation to a team member using TeamCreate** before responding.
+
+Create a team member whose job is to verify the spec's assumptions against the actual codebase. The team member should:
+- Read the spec and any new results files
+- Trace every field reference, component prop contract, and data flow in the spec against current source code
+- Check that component APIs match what the spec assumes (e.g., expected prop values, fallback behavior)
+- Check that data layer functions provide the normalization/transformation the spec expects
+- Report findings with file paths, line numbers, and code snippets
+
+Once the team member reports back, you synthesize findings and write responses to the discussion file yourself.
+
 ## Phase 1 — Review & Respond
 
 Read the spec and the discussion file. Respond to everything the user has written in the discussion file.

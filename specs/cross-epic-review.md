@@ -1365,6 +1365,174 @@ Specs are ready for implementation.
 
 ---
 
+# Cross-Epic Review — 2026-04-05 (post Epic 14)
+
+> Trigger: Epic 14 (Process Map) completed. Remaining unbuilt specs: 09 (deferred), 15, 16, 17.
+
+## Summary
+- Total specs reviewed: 17 (4 unbuilt + 13 completed read-only for context)
+- Specs modified: 15
+- Specs clean: 09, 16, 17
+
+## Data Flow Verification
+
+Verified all cross-epic data flows involving the unbuilt specs:
+
+| Flow | Producer | Consumer | Status |
+|------|----------|----------|--------|
+| Gap cards → Opportunities filter | Epic 14 (`/opportunities?process={id}`) | Epic 15 (AC 31-33) | Aligned |
+| Dashboard → Opportunities highlight | Epic 13 (`/opportunities?highlight={id}`) | Epic 15 (AC 29-30) | Aligned |
+| Process Map → Detail | Epic 14 (`/automations/[id]` links) | Epic 16 (route handler) | Aligned |
+| Detail → Process Map | Epic 16 (`/processes` back nav) | Epic 14 (live page) | Aligned |
+| Detail → Opportunities | Epic 16 (`/opportunities?highlight={id}`) | Epic 15 (AC 29-30) | Aligned |
+| Recommendation.evidence Json | Epic 11 (LLM pipeline stores `{ chain: string }`) | Epic 15 (AC 8) | **Fixed** — spec said array, actual is string |
+| Automation.technicalEvidence Json | Epic 11 (LLM pipeline populates) | Epic 16 (AC 23-29) | Aligned |
+| impact.failureScenario / revenueConnection | Epic 11 (PerAutomationImpact) | Epic 16 (AC 8-10) | Aligned |
+| Shared utilities (dashboard-data.ts) | Epic 13 | Epic 14 (done), Epic 16 (AC refs) | Aligned |
+| Loading states (Process Map) | Epic 14 (ProcessMapAnalyzing) | Epic 17 (AC 7) | Noted as done |
+
+## Changes by Epic
+
+### 09 — Production Hardening
+- No changes. Deferred — no cross-epic impact.
+
+### 15 — Opportunities
+
+- **Issue**: AC 8 evidence sub-structure incorrect (implementation drift)
+  - **Involved epics**: 11 (LLM pipeline), 15 (slide-over panel)
+  - The spec said `evidence Json — may contain evidenceChain array and keyAssumptions array`. The actual stored structure (from `src/lib/actions/analysis.ts` line 407-409) is `{ chain: string }` — the LLM's `evidenceChain` output is a plain string, not an array, and no `keyAssumptions` field exists.
+  - **Change**: Updated AC 8 to reflect actual structure: `{ chain: string }` — render as body text or bulleted if multi-line.
+
+- **Note**: Open Question 3 (`NEEDS CONFIRMATION`) still pending from pass 6 — how technical_fix recommendations link to specific automations (no `automationId` FK on Recommendation). Three options proposed: (a) first automation in process, (b) match by affectedScope, (c) link to Process Map. This is a design decision that needs user input before Epic 15 implementation.
+
+### 16 — Detail
+- No changes. All referenced fields verified against current schema and LLM pipeline:
+  - `technicalEvidence.{errorHandling, credentials, complexity, keyFindings}` — confirmed in `PerAutomationTechnicalEvidence` interface
+  - `impact.{failureScenario, revenueConnection}` — confirmed in `PerAutomationImpact` interface
+  - `detectability.{reasoning, level, evidence}` — confirmed in `PerAutomationDetectability` interface
+  - Back navigation to `/processes` targets live page
+
+### 17 — Settings + Seed + Polish
+- No changes. Process Map loading state already noted as implemented in ind-epic review (pass 9). R1 cleanup counts unchanged (9 files, 183 skipped tests).
+
+## Cascading Changes
+- **Epic 15 OQ 3 resolution → Epic 16 AC 12 update**: Adding `automationId` FK to Recommendation (Epic 15 scope) enables Epic 16 to query recommendations by both `automationId` and `processId`. Updated Epic 16 AC 12 to use both.
+
+## Confirmations Applied
+
+**Epic 15 OQ 3 — technical_fix recommendation linking** → Resolved: Add `automationId String?` FK to Recommendation model. LLM workspace prompt updated to output `automationId`. Analysis pipeline stores it. Technical_fix recommendations link directly to `/automations/{automationId}`. Nullable for process-level recommendations.
+
+Changes applied:
+- Epic 15: Added schema migration scope (automationId + LLM prompt + pipeline), updated AC 10 with direct link, resolved OQ 3
+- Epic 16: Updated AC 12 to query by automationId (direct) + processId (process-level)
+
+Specs are ready for implementation.
+
+---
+
+# Cross-Epic Review — 2026-04-06 (post Epic 15)
+
+> Trigger: Epic 15 (Opportunities) completed. Remaining unbuilt specs: 09 (deferred), 16, 17.
+> Method: Team-assisted investigation — two Explore agents verified data paths against actual codebase.
+
+## Summary
+- Total specs reviewed: 17 (3 unbuilt + 14 completed read-only for context)
+- Specs modified: 16
+- Specs clean: 09, 17
+
+## Investigation Method
+
+Spawned two parallel investigation agents:
+- **epic16-investigator**: Verified all Automation model fields, Json sub-structure interfaces, component APIs (StatusDot, SystemFlow, ConfidenceBadge, TierBadge, ImpactBadge), dashboard-data.ts utilities, connected automations storage, Recommendation model, existing Detail page stub.
+- **epic17-investigator**: Verified R1 file existence (all 15 files still present), skipped test count (14 skip statements across 9 files), tier/confidence normalization patterns across all pages, navigation link hrefs, loading states per page, settings sync implementation, sidebar "Synced X ago" implementation.
+
+## Data Flow Verification
+
+| Flow | Producer | Consumer | Status |
+|------|----------|----------|--------|
+| Per-automation enriched fields | Epic 11 (LLM pipeline) | Epic 16 (all sections) | ✓ All fields verified in schema + interfaces |
+| Recommendation → Detail page | Epic 15 (automationId FK) | Epic 16 (AC 12) | ✓ automationId + processId query works |
+| Detail → Opportunities highlight | Epic 16 (`/opportunities?highlight={id}`) | Epic 15 (auto-expand on highlight) | ✓ Inline collapsible auto-expands |
+| Detail → Process Map | Epic 16 (`/processes` back nav) | Epic 14 (live page) | ✓ Route exists |
+| Shared utilities | Epic 13 (dashboard-data.ts) | Epic 16 (resolveStepScope, formatAttentionMetric) | ✓ Both functions exist with correct signatures |
+| Tier normalization | Epic 15 (normalizeTier in opportunities-data.ts) | Epic 16 (AC 13), Epic 17 (dashboard fix) | ✓ Function exists; dashboard-data.ts still missing it |
+| Confidence normalization | Epic 15 (ad-hoc in view layer) | Epic 16 (AC 9-10) | **Issue** — per-automation has no confidence field |
+| Loading states | Epics 13, 14, 15 (page.tsx handlers) | Epic 17 (AC 6-8) | ✓ All 3 pages handle analysisStatus |
+| R1 files | Epics 01-08 (created) | Epic 17 (cleanup) | ✓ All 15 files still present |
+
+## Changes by Epic
+
+### 09 — Production Hardening
+- No changes. Deferred — no cross-epic impact.
+
+### 16 — Detail
+
+- **Issue 1**: Out-of-scope reference to "slide-over" is stale (implementation drift)
+  - **Involved epics**: 15 (replaced slide-over with inline collapsible)
+  - **Change**: Updated "slide-over is on Opportunities page" → "inline collapsible is on Opportunities page"
+
+- **Issue 2**: Phase line says "parallel with 13/14/15" but spec depends on Epic 13 utilities and Epic 15 normalization (inconsistent spec)
+  - **Involved epics**: 13 (dashboard-data.ts), 15 (normalizeTier)
+  - **Change**: Updated phase to "after Epics 11-15". Added Epic 15 to dependencies.
+
+- **Issue 3**: ConfidenceBadge for per-automation estimates has no data source (forward dependency gap)
+  - **Involved epics**: 11 (LLM pipeline, completed), 16 (Detail page, unbuilt)
+  - AC 9-10 render ConfidenceBadge for `timeSavingsEstimate` and `revenueImpactEstimate`. But the Automation model has NO separate confidence field — these are plain `String?` fields with confidence embedded in text (e.g., `"2-5 hours/week (benchmark-based)"`). The `Recommendation` model has `confidence: String?` but `Automation` does not. The per-automation LLM output interfaces (`PerAutomationImpact`, `PerAutomationDetectability`, `PerAutomationTechnicalEvidence`) have no confidence field either.
+  - `NEEDS CONFIRMATION` — added as open question 3 on Epic 16. Options: (A) parse from string, (B) drop badge for per-auto estimates, (C) add fields to LLM output.
+
+### 17 — Settings + Seed + Polish
+- No changes needed. All cross-epic concerns already addressed:
+  - R1 files confirmed still present (15 files) — cleanup scope valid
+  - Skipped tests: 14 skip statements across 9 files — scope valid (183 = total test cases inside skip blocks)
+  - Dashboard tier normalization gap already in scope (ind-review pass 10)
+  - Loading states for Dashboard/ProcessMap/Opportunities confirmed implemented — scope correctly notes "polish styling if needed"
+  - Settings sync progress UI: confirmed `syncAndAnalyze()` has no progress callback — polling `analysisStatus` is the only mechanism, matching spec's two-phase tracking design
+  - Sidebar "Synced X ago" confirmed working via `formatTimeAgo()` helper
+
+## Cascading Changes
+- None. The Epic 16 changes are self-contained.
+
+## Brainstorming
+
+1 design decision needs your input before it can be applied to the spec. Please answer below.
+
+---
+
+### Epic 16 — Detail
+
+#### Q1: ConfidenceBadge for per-automation estimates
+
+AC 9-10 show ConfidenceBadge for Time Savings and Revenue Connection. But the Automation model has no separate `confidence` field for these estimates. The data looks like:
+
+```
+timeSavingsEstimate: "2-5 hours/week (benchmark-based)"
+revenueImpactEstimate: "€300-500 per incident (ai-suggested)"
+```
+
+The confidence label is embedded in the text. Meanwhile, the `Recommendation` model has `confidence: String?` as a separate field — that's what Dashboard and Opportunities pages use.
+
+**Options:**
+
+**(A) Parse confidence from the estimate string** — regex for known labels in parentheses (e.g., `/\((data-driven|benchmark-based|ai-suggested)\)/i`). Shows badge when found, skips when not. Fragile — depends on LLM always including confidence in parentheses.
+
+**(B) Drop ConfidenceBadge for per-automation estimates** — show the estimate text as-is. The confidence info is already visible in the text. Simplest approach. No parsing risk.
+
+**(C) Add separate confidence fields to per-automation LLM output** — add `timeSavingsConfidence` and `revenueConfidence` to the LLM per-automation prompt schema and store on Automation model. Most accurate but requires a pipeline patch (Epic 11 is completed) + schema migration.
+
+**Recommendation:** (B) — the estimate strings already contain confidence labels inline. A separate ConfidenceBadge is redundant and parsing is fragile. Update AC 9-10 to drop ConfidenceBadge and render the full estimate text with styling instead.
+
+Your answer: C — add separate fields. In-text info is never enough (same reasoning behind the card-based design system).
+
+## Confirmations Applied
+
+**Epic 16 OQ 3 — ConfidenceBadge for per-automation estimates** → (C) Add separate confidence fields.
+
+Changes applied:
+- **Epic 16 spec**: Updated scope (Business Case Card) and AC 9-10 to reference separate confidence fields (`timeSavingsConfidence`, `revenueConfidence`) on the Automation model. Removed normalization-from-string note. Resolved OQ 3.
+- **Epic 16 spec**: Added note that a pipeline patch is needed before Epic 16 — add `timeSavingsConfidence String?` and `revenueConfidence String?` to Automation model + per-automation LLM output schema.
+
+---
+
 ## Related
 
 - [Individual Epic Review](ind-epic-review.md)

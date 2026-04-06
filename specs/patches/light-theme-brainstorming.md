@@ -185,4 +185,33 @@ Total: ~14 files. No new files, no deleted files. All existing tests should pass
 
 **Risk:** Low. The semantic token approach means most components auto-adapt. The remaining work is replacing hardcoded `text-white` with `text-foreground`/`text-text-primary`/`text-text-secondary`.
 
-im fine as long as the new style is usde. 
+im fine as long as the new style is usde.
+
+---
+
+## Implementation Applied (2026-04-05)
+
+**Commit:** `3886245` — `style: switch from dark to light theme per Amendment T`
+
+**Files modified:**
+- `src/app/globals.css` — Replaced all `:root` dark theme values with light theme (#f5f5f7 bg, #111827 text, #ffffff cards, #e5e7eb borders). Light sidebar (#ffffff). Updated font variable references to Plus Jakarta Sans / JetBrains Mono.
+- `src/app/layout.tsx` — Replaced DM_Sans/DM_Mono with Plus_Jakarta_Sans/JetBrains_Mono. Removed `className="dark"` from `<html>`.
+- `src/components/dashboard-view.tsx` — Replaced ~26 hardcoded dark-theme classes (`text-white`, `text-white/*`, `border-white/*`, `bg-white/*`, `hover:text-white`) with semantic tokens (`text-foreground`, `text-text-secondary`, `border-border`, `hover:text-primary`).
+- `src/components/coverage-bar.tsx` — `text-white` → `text-foreground`
+- `src/components/fact-card.tsx` — `text-white` → `text-foreground`
+- `src/components/app-sidebar.tsx` — `text-white` → `text-foreground` (sidebar now light)
+- `src/components/slide-over-panel.tsx` — `text-white` / `hover:text-white` → `text-foreground` / `hover:text-foreground`
+- `src/components/collapsible-row.tsx` — `hover:bg-surface` → `hover:bg-muted` (visible hover on white bg)
+- `src/app/(app)/page.tsx` — `text-white` → `text-foreground` on DashboardAnalyzing/DashboardError headings
+- `src/app/(auth)/layout.tsx` — Added white card wrapper (`bg-white shadow-md rounded-xl p-8`)
+- `src/app/(auth)/login/page.tsx` — `text-white` → `text-foreground`, error state → `bg-red-50 text-red-700`
+- `src/app/(auth)/signup/page.tsx` — Same as login
+- `src/__tests__/dashboard.test.tsx` — Fixed 4 tests for updated component structure (ArrowRight icons, split system chips, "Connected Systems" header)
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (252 tests, 183 skipped R1) |
+| `npm run lint` | Pass (no new errors, pre-existing only) |
+| `npm run build` | Pass |
+| E2E verification | Pass — login (light bg, white card, teal CTA), dashboard (all 6 sections, light theme), settings (light forms, teal buttons) |

@@ -701,6 +701,141 @@ Reviewed all 6 unbuilt specs against new results from epics 06, 07, 08, 10, 11, 
 
 ---
 
+# Individual Epic Review — 2026-04-05 (pass 9)
+
+> Trigger: Epic 14 Process Map completed. All remaining specs (09, 15, 16, 17) were stale — missing `14-process-map-results.md` from their refinement markers.
+
+## Summary
+
+- Specs reviewed: 09, 15, 16, 17
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 05.5, 06, 07, 08, 10, 11, 12, 13, 14
+- Specs skipped (already refined): none (all 4 remaining specs were stale)
+- Specs modified: 15, 17
+- Specs clean: 09, 16
+
+## 09 — Production Hardening
+
+### Findings
+- No changes needed. Spec is deferred (`status/deferred`). Epic 14 has no impact on a deferred spec.
+
+### Changes applied
+- None — spec clean.
+
+## 15 — Opportunities
+
+### Findings
+- **AC 3 border styles don't match UnifiedCard component** (inconsistent domain language): Spec said "dashed amber (Investigate), none (Explore)." The actual UnifiedCard component (built in Epic 13 card-layout patch) uses solid `border-l-[3px]` for all types: green (act-now), amber (investigate), gray (explore). No dashed or missing borders.
+  - **Change**: Updated AC 3 to match UnifiedCard's actual solid border behavior.
+
+- **Stale Related section note contradicts scope** (inconsistent domain language): Related section had a NOTE saying "use same data fields as UnifiedCard but in table-row layout, not the stacked card component." This contradicts the scope ("UnifiedCard (type=recommendation) per recommendation") and design guidelines §5 ("UnifiedCard (recommendation type) per recommendation"). Stale note from before the card-layout patch.
+  - **Change**: Removed contradictory note from Related section.
+
+- **Process filter verified** (no change needed): Epic 14 gap cards link to `/opportunities?process={processId}`. AC 31-33 already cover this filter. Aligned.
+
+### Changes applied
+- Updated AC 3: border styles corrected to solid green/amber/gray per UnifiedCard component
+- Removed stale "table-row layout" note from Related section
+
+## 16 — Detail
+
+### Findings
+- No new issues. Reviewed against Epic 14 results:
+  - "← Back to Process Map" link (AC 30) targets `/processes` which is now live and verified.
+  - Process position clickable → `/processes` is consistent with the live Process Map.
+  - `resolveStepScope()` and `formatAttentionMetric()` reuse from dashboard-data.ts (added in pass 3) is consistent with Epic 14's usage of the same utilities.
+
+### Changes applied
+- None — spec clean.
+
+## 17 — Settings + Seed + Polish
+
+### Findings
+- **Process Map loading state already implemented** (oversized slice): Scope said "Process Map: skeleton or 'Analysis in progress...' message" — but Epic 14 already built `ProcessMapAnalyzing` component in `page.tsx` with skeleton layout and "Analyzing your automation landscape..." message.
+  - **Change**: Updated to note the loading state is already implemented, same pattern as Dashboard.
+
+### Changes applied
+- Updated Process Map loading state: noted as already implemented in Epic 14 (ProcessMapAnalyzing)
+
+---
+
+# Individual Epic Review — 2026-04-06 (pass 10)
+
+> Trigger: Epic 15 Opportunities completed. All remaining specs (09, 16, 17) were stale — missing `15-opportunities-results.md` from their refinement markers.
+
+## Summary
+
+- Specs reviewed: 09, 16, 17
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 05.5, 06, 07, 08, 10, 11, 12, 13, 14, 15
+- Specs skipped (already refined): none (all 3 remaining specs were stale)
+- Specs modified: 16, 17
+- Specs clean: 09
+
+## Epic 15 — Key Changes Reviewed
+
+Epic 15 had 11 commits with significant pipeline and UI changes:
+- **automationId migration**: `automationId String?` added to Recommendation model, FK-validated against real IDs in pipeline
+- **Tier normalization**: LLM outputs `"act now"`, `"immediate"`, `"high"` etc. Normalized to `"act-now" | "investigate" | "explore"` in `opportunities-data.ts`. TierBadge has **no fallback** — crashes on raw values.
+- **Confidence normalization**: ConfidenceBadge expects `"data-driven" | "benchmark-based" | "ai-suggested"`. Also **no fallback**. Other views apply ad-hoc normalization (`.toLowerCase().replace(/\s+/g, "-")`).
+- **processName linking**: LLM outputs `processName` per recommendation; pipeline creates new BusinessProcess records for unmatched names.
+- **Inline collapsible**: Replaced slide-over with inline expand/collapse. Deep-link `?highlight=` auto-expands.
+- **Deploy for all types**: Deploy button available for new workflow + fix/optimize/enhance types.
+- **Performance**: Skip-unchanged automations (checks `automationLastUpdated`), Haiku for per-automation calls, previous analysis context for workspace LLM.
+- **Known issues**: Process name instability across re-syncs; skip-unchanged misses execution stat changes.
+
+## 09 ��� Production Hardening
+
+### Findings
+- No changes needed. Spec is deferred (`status/deferred`). Epic 15 has no impact on a deferred spec.
+
+### Changes applied
+- None — spec clean.
+
+## 16 — Detail
+
+### Findings
+
+- **TierBadge will crash on raw DB tier values** (ungrounded assumption)
+  - AC 13 renders TierBadge per recommendation. The TierBadge component expects `"act-now" | "investigate" | "explore"` with NO fallback — it uses direct object key lookup (`tierStyles[tier]`, `tierLabels[tier]`). The DB stores LLM output values like `"act now"` (with space), `"immediate"`, `"high"`. Epic 15's `opportunities-data.ts` normalizes these via `normalizeTier()`, but the Detail page has no data layer and would pass raw values.
+  - **Change**: Added normalization note to AC 13 — must reuse or extract `normalizeTier()` from `opportunities-data.ts`.
+
+- **ConfidenceBadge will crash on raw confidence values** (ungrounded assumption)
+  - AC 9-10 render ConfidenceBadge for time savings and revenue connection. ConfidenceBadge expects `"data-driven" | "benchmark-based" | "ai-suggested"` with NO fallback (`levelStyles[level]` direct lookup). LLM may output `"data driven"` (with space), `"high"`, `"medium"`, etc. Epic 15's opportunities-view.tsx and dashboard-view.tsx apply ad-hoc normalization (`.toLowerCase().replace(/\s+/g, "-")`). Detail page needs the same.
+  - **Change**: Added normalization note to scope (Business Case Card) and referenced in AC 9-10.
+
+- **No issues with other Epic 15 changes**:
+  - AC 12 already specifies `automationId` match (direct) as primary recommendation linkage — consistent with Epic 15's migration.
+  - AC 14 navigates to `/opportunities?highlight={id}` — still correct with inline collapsible (highlight auto-expands).
+  - Process Position (AC 16-17) reads from `Automation.processId` which is set by pipeline independently of Epic 15's recommendation-level `processName` linking.
+  - Deploy actions live on Opportunities page; Detail page correctly navigates there via AC 14.
+
+### Changes applied
+- Added tier normalization note to AC 13 (reference `normalizeTier()` from `opportunities-data.ts`)
+- Added confidence normalization note to scope (Business Case Card section)
+- Added normalization cross-reference to AC 9 and AC 10
+
+## 17 — Settings + Seed + Polish
+
+### Findings
+
+- **Opportunities loading state already implemented** (oversized slice)
+  - Scope said "Opportunities: skeleton or 'Generating recommendations...' message" — but Epic 15 already built the Opportunities page.tsx to handle all `analysisStatus` values (empty/analyzing/failed/complete states). Same pattern as Dashboard (Epic 13) and Process Map (Epic 14) loading states previously noted.
+  - **Change**: Updated scope to note Opportunities loading state is already implemented in Epic 15.
+
+- **Dashboard tier normalization gap — latent crash bug** (hidden scope creep)
+  - `dashboard-data.ts` (lines ~552, 565) casts `Recommendation.tier` directly as `"act-now" | "investigate" | "explore"` WITHOUT calling `normalizeTier()`. If the DB contains LLM output like `"act now"` (with space) or `"immediate"`, TierBadge will crash. Same risk exists for ConfidenceBadge. This is a pre-existing bug surfaced by Epic 15's normalization discovery.
+  - **Change**: Added to "Remaining UX gaps" scope section as a known normalization gap to fix.
+
+- **No issues with other Epic 15 changes**:
+  - Seed data (AC 10-15): Deterministic seed uses hardcoded values — not affected by pipeline changes. Should include `automationId` on some recommendations but this is an implementation detail, not a spec gap.
+  - Sync progress (AC 1-5): Performance optimizations (skip-unchanged, Haiku) don't change the `analysisStatus` enum progression. Progress UI still valid.
+  - Deep-links (AC 27): `/opportunities?highlight={id}` and `/opportunities?process={id}` verified working in Epic 15.
+
+### Changes applied
+- Updated Opportunities loading state: noted as already implemented in Epic 15
+- Added dashboard-data.ts tier/confidence normalization gap to "Remaining UX gaps" scope section
+
+---
+
 ## Related
 
 - [Cross-Epic Review](cross-epic-review.md)

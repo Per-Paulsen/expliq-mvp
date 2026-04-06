@@ -48,30 +48,40 @@ Your job:
 - `npm run lint` — no lint errors
 - `npm run build` — no type errors
 
-#### E2E verification
+#### Real data pipeline + E2E verification
+
+After automated checks pass, verify the full stack with real data from the Fairtix n8n instance. This is **mandatory for every epic** — it catches data shape mismatches between LLM output and UI expectations.
 
 Choose the verification method based on what the epic builds:
 
 **A) Epic has UI changes** (new pages, modified components, visual output):
-Use Playwright for browser verification.
+Use Playwright for browser verification with real pipeline data.
 
 **B) Epic is backend-only** (services, utilities, data logic, no UI):
 Write a permanent verification script that tests the logic against real database data.
 
-Both methods may be combined when appropriate (e.g., a backend epic whose output will be consumed by future UI epics — verify the logic via script, optionally also confirm the app still loads via Playwright).
+Both methods may be combined when appropriate.
 
-##### Playwright browser verification
+##### Playwright browser verification (with real pipeline)
 
 **Pre-flight:**
 - Kill port 3000 before starting: `npx kill-port 3000`
 - **NEVER** kill all `node.exe` (`taskkill /IM node.exe /F`) — this kills the Playwright MCP server
 - If the dev server fails to compile (Turbopack panic, CSS errors), clean the cache (`rm -rf .next`) and retry once
 
-**Steps:**
+**Steps (single browser session):**
 1. Start the dev server (`npm run dev`) in the background
 2. Load Playwright tools via `ToolSearch` (query: `+playwright navigate`)
-3. Navigate, interact, and verify UI matches spec requirements
-4. **Always close the browser when done** — call `mcp__plugin_playwright_playwright__browser_close` after all browser checks complete (whether pass or fail)
+3. **Run the real pipeline:**
+   a. Navigate to `http://localhost:3000/login`
+   b. Log in as `seed-real@expliq.dev` / `SeedTest123!`
+   c. Navigate to `/settings`
+   d. Click "Sync & Analyze" and wait for completion (this runs the full n8n sync + LLM analysis pipeline against the real Fairtix instance)
+4. **Verify UI with real data:**
+   a. Navigate to the pages affected by the epic
+   b. Confirm the UI renders correctly with real pipeline data and matches spec requirements
+   c. Take screenshots for the results file
+5. **Always close the browser when done** — call `mcp__plugin_playwright_playwright__browser_close` after all browser checks complete (whether pass or fail)
 
 **Cleanup (always, whether verification passed or failed):**
 1. Close the browser: `mcp__plugin_playwright_playwright__browser_close`

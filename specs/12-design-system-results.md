@@ -126,6 +126,39 @@ None.
 
 ---
 
+## Patch: Switch from dark to light theme (2026-04-05)
+
+**What changed:** Replaced the dark advisory theme with a light theme per Amendment T and `specs/design-guidelines.md`. Background #f5f5f7, white cards, dark text #111827, light sidebar. Fonts changed from DM Sans/Mono to Plus Jakarta Sans/JetBrains Mono.
+
+**Files modified:**
+- `src/app/globals.css` — All `:root` CSS custom properties switched to light theme values
+- `src/app/layout.tsx` — Plus Jakarta Sans + JetBrains Mono fonts, removed `dark` class
+- `src/components/dashboard-view.tsx` — ~26 hardcoded dark-theme classes → semantic tokens
+- `src/components/coverage-bar.tsx` — `text-white` → `text-foreground`
+- `src/components/fact-card.tsx` — `text-white` → `text-foreground`
+- `src/components/app-sidebar.tsx` — `text-white` → `text-foreground` (light sidebar)
+- `src/components/slide-over-panel.tsx` — `text-white` → `text-foreground`
+- `src/components/collapsible-row.tsx` — `hover:bg-surface` → `hover:bg-muted`
+- `src/app/(app)/page.tsx` — Inline state component headings updated
+- `src/app/(auth)/layout.tsx` — Added white card wrapper with shadow
+- `src/app/(auth)/login/page.tsx` — Light theme heading + error state
+- `src/app/(auth)/signup/page.tsx` — Same as login
+- `src/__tests__/dashboard.test.tsx` — Fixed 4 tests for updated component structure
+
+**Why:** Amendment T rejected the dark theme after reviewing the dashboard with real data — text unreadable at small sizes, no visual depth, revenue/savings numbers invisible. Design spike (5 iterations) validated light theme with card-based layout.
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (252 tests) |
+| `npm run lint` | Pass (no new errors) |
+| `npm run build` | Pass |
+| E2E verification | Pass — login, dashboard, settings all verified with Playwright |
+
+**Commit:** `3886245` — `style: switch from dark to light theme per Amendment T`
+
+---
+
 ## Related
 
 - [Spec](12-design-system.md)

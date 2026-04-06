@@ -8,8 +8,9 @@ tags:
 # Epic 16 — Detail
 
 > Upstream: [PRD 2.0](../prd-2.0.md) | [Decisions §6](../prd-2.0-decisions.md) | [Brainstorming](brainstorming.md)
-> Phase: 3 (after Epics 11 + 12, parallel with 13/14/15)
-> Dependencies: Epic 11 (LLM data), Epic 12 (design system + route shell), Epic 13 (dashboard-data.ts utilities for step scope, metric formatting)
+> Phase: 3 (after Epics 11-15)
+> Dependencies: Epic 11 (LLM data), Epic 12 (design system + route shell), Epic 13 (dashboard-data.ts utilities for step scope, metric formatting), Epic 15 (normalizeTier utility, recommendation patterns)
+> Prerequisites: Pipeline patch needed — add `timeSavingsConfidence String?` and `revenueConfidence String?` to Automation model + per-automation LLM output schema (values: `data-driven`, `benchmark-based`, `ai-suggested`). Schema migration + prompt update on completed Epic 11.
 
 ## Scope
 
@@ -31,7 +32,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
   - **Failure Impact**: impact.failureScenario — cascading consequences in plain language
   - **Time Savings**: timeSavingsEstimate — range with reasoning and confidence label
   - **Revenue Connection**: impact.revenueConnection + revenueImpactEstimate — revenue impact with reasoning and confidence label
-- Each column has a section header + body text. Confidence labels shown as ConfidenceBadge inline.
+- Each column has a section header + body text. Confidence labels shown as ConfidenceBadge inline, sourced from separate `timeSavingsConfidence` and `revenueConfidence` fields on the Automation model (added via pipeline patch — see prerequisites below). Normalize before passing to ConfidenceBadge (`.toLowerCase().replace(/\s+/g, "-")`).
 
 **Recommendations for This Workflow:**
 - List of Recommendation records that reference this automation (via processId matching this automation's process, or direct scope reference)
@@ -78,13 +79,13 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 ### Business Case Card
 7. Three-column layout: Failure Impact, Time Savings, Revenue Connection
 8. Failure Impact shows impact.failureScenario text
-9. Time Savings shows timeSavingsEstimate with ConfidenceBadge
-10. Revenue Connection shows impact.revenueConnection + revenueImpactEstimate with ConfidenceBadge
+9. Time Savings shows timeSavingsEstimate with ConfidenceBadge from `Automation.timeSavingsConfidence` (normalized per scope note)
+10. Revenue Connection shows impact.revenueConnection + revenueImpactEstimate with ConfidenceBadge from `Automation.revenueConfidence` (normalized per scope note)
 11. "N/A" displayed gracefully when a field is not applicable
 
 ### Recommendations
-12. Lists recommendations linked to this automation's process (Recommendation where processId = automation's processId)
-13. Each row: TierBadge + name + brief (from Recommendation.brief, not businessCase) + impactEstimate
+12. Lists recommendations linked to this automation: first by `automationId` match (direct), then by `processId` match (process-level). Deduplicated — a recommendation matching both appears once.
+13. Each row: TierBadge + name + brief (from Recommendation.brief, not businessCase) + impactEstimate. **Note:** Tier values in the DB are stored as LLM output (e.g., `"act now"` with space). Must normalize before passing to TierBadge (`"act-now" | "investigate" | "explore"`) — reuse or extract `normalizeTier()` from `opportunities-data.ts`. TierBadge has no fallback and will crash on raw values.
 14. Click navigates to `/opportunities?highlight={id}`
 15. "No recommendations" message if none exist
 
@@ -123,7 +124,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 ## Out of Scope
 
 - Editing any fields (all LLM-generated, read-only)
-- Recommendation detail (slide-over is on Opportunities page)
+- Recommendation detail (inline collapsible is on Opportunities page)
 - Workflow node visualization / flow diagram
 - "Open in n8n" link (could be added as a small enhancement — constructable from instance URL + externalId — but not spec'd)
 - Version history / change tracking
@@ -141,6 +142,7 @@ Per-automation deep dive answering "Tell me everything about this one." Existing
 
 1. Should we include an "Open in n8n" link in the header? It's trivially constructable (`{instanceUrl}/workflow/{externalId}`) and high-value. (Recommendation: yes, include it — low effort, immediate user value for cross-referencing.)
 2. ~~Resolved: Connection type labels derived heuristically. The Detail page checks `rawWorkflowJson`: if a connected ID matches `settings.errorWorkflow` → "error handler", if matched via `settings.callerIds` → "sub-workflow", otherwise → "logical." No schema change needed.~~
+3. ~~Resolved: (C) Add separate `timeSavingsConfidence` and `revenueConfidence` fields to Automation model + per-automation LLM output. Requires pipeline patch before Epic 16. In-text confidence is insufficient — visual badges needed for the card-based design system.~~
 
 ---
 

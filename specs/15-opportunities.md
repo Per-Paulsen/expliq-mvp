@@ -15,6 +15,12 @@ tags:
 
 All recommendations ranked by business impact, answering "What should I do?" Includes the deploy feature — from recommendation to running workflow in one click.
 
+**Schema migration (prerequisite):**
+- Add `automationId String?` to Recommendation model with FK relation to Automation
+- Update LLM workspace prompt: add `automationId` (optional) to recommendation output schema — the LLM already receives automation IDs in its input summaries, so it echoes back which automation each recommendation targets
+- Update analysis pipeline (`src/lib/actions/analysis.ts`): store `automationId` from LLM response when creating Recommendation records
+- Re-run analysis on existing data to populate the new field (or populate on next sync)
+
 **Recommendation cards grouped by tier:**
 - Three tier sections with section headers: "ACT NOW" (green accent), "INVESTIGATE" (amber accent), "EXPLORE" (gray accent)
 - Within each tier, **UnifiedCard (type=recommendation)** per recommendation — same card component as Dashboard "Top Opportunities"
@@ -63,7 +69,7 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 ### Tier Sections
 1. Three sections rendered: Act Now, Investigate, Explore — each with styled section header
 2. Recommendations sorted by priorityOrder within each tier
-3. Left border accent: solid green (Act Now), dashed amber (Investigate), none (Explore)
+3. Left border accent via UnifiedCard component: solid green (Act Now), solid amber (Investigate), solid gray (Explore) — all 3px left border per UnifiedCard implementation
 4. Empty tiers hidden (if no Act Now recommendations, that section doesn't render)
 
 ### Recommendation Cards
@@ -72,9 +78,9 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 7. Click on card opens slide-over panel
 
 ### Slide-Over Panel
-8. Renders: full businessCase, evidence (bulleted list from Recommendation.evidence Json — may contain evidenceChain array and keyAssumptions array), honest framing (amber callout from Recommendation.honestFraming if non-null), implementationNotes, systems (SystemFlow from systemSource/systemDestination)
+8. Renders: full businessCase, evidence (from Recommendation.evidence Json — stored as `{ chain: string }` where `chain` is the LLM's evidence reasoning; render as body text or bulleted if multi-line), honest framing (amber callout from Recommendation.honestFraming if non-null), implementationNotes, systems (SystemFlow from systemSource/systemDestination)
 9. Deploy button in panel for new_workflow recommendations
-10. Technical fix panel includes link to affected workflow Detail page
+10. Technical fix panel includes link to affected workflow Detail page via `Recommendation.automationId` → `/automations/{automationId}`. If `automationId` is null, link to Process Map filtered by process instead.
 11. Close on Escape, click-outside, X button
 
 ### Process Suggestions
@@ -142,7 +148,7 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 
 1. Should the deploy LLM call use the same model as the analysis pipeline (Sonnet default), or always use a specific model optimized for code generation? (Recommendation: same model via OPENROUTER_MODEL — keep it simple, Sonnet generates adequate n8n JSON.)
 2. Should the "Deploy to n8n" button also trigger a re-sync after deployment, so the new workflow appears in the analysis? (Recommendation: no — show a message "Re-sync to see this workflow in your analysis" with a link to Settings. Automatic re-sync after deploy is a future enhancement.)
-3. `NEEDS CONFIRMATION` — AC 6 says technical_fix recommendations have a "→" link to Detail page, and AC 10 says the slide-over panel links to the affected workflow. But the Recommendation model has no `automationId` FK — only `processId`. How should the target automation be determined? Options: (a) link to the first automation in the recommendation's process, (b) match by `affectedScope` text against automation names, (c) link to the Process Map filtered by process instead of a specific Detail page. Recommendation: (a) — link to the first automation in the process; most technical_fix recommendations target the primary workflow in the process.
+3. ~~Resolved: Add `automationId String?` FK to Recommendation model via Prisma migration. Update the LLM workspace prompt's recommendation output schema to include `automationId` (the LLM already receives automation IDs in its input). Store in analysis pipeline. Technical_fix recommendations link directly to `/automations/{automationId}`. Field is nullable — process-level recommendations (e.g., "add a new workflow") won't have one.~~
 
 ---
 
@@ -151,6 +157,6 @@ All recommendations ranked by business impact, answering "What should I do?" Inc
 - [Epic 11: LLM Pipeline V2](11-llm-pipeline-v2.md) (data source: Recommendation, ProcessSuggestion)
 - [Epic 10: Schema + Extended Sync](10-schema-sync.md) (deploy endpoint: n8n client)
 - [Epic 12: Design System](12-design-system.md) (components: SlideOverPanel, ConfidenceBadge, TierBadge)
-- [Epic 13: Dashboard](13-dashboard.md) (dashboard-data.ts for shared data fields. NOTE: design guidelines §5 specify "UnifiedCard fields as aligned columns, not stacked cards" for this page — use same data fields as UnifiedCard but in table-row layout, not the stacked card component)
+- [Epic 13: Dashboard](13-dashboard.md) (dashboard-data.ts for shared data fields, UnifiedCard component pattern)
 - [Epic 14: Process Map](14-process-map.md) (gap indicators link to this page)
 - [Decisions §5: Priorities](../prd-2.0-decisions.md) | [Amendment P: Deploy](../prd-2.0-decisions.md)

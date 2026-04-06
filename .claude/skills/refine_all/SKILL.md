@@ -19,6 +19,19 @@ Do NOT read `specs/brainstorming.md` — its decisions are already incorporated 
 
 Specs with a corresponding results file (e.g., `specs/02-auth.md` → `specs/02-auth-results.md`) are **completed epics**. They are **read-only**: read them to understand data flow, schema, and dependencies, but do NOT flag issues in them, modify their spec files, or add open questions to them. Only unbuilt specs (no results file) can be modified. If a cross-epic issue involves a completed epic, note the issue on the **unbuilt** spec that depends on it — the unbuilt spec is the one that must adapt to reality.
 
+## Team-Assisted Investigation
+
+You are the team lead. You read all inputs and build the cross-epic mental model — but you **delegate codebase investigation to team members using TeamCreate**.
+
+After identifying potential cross-epic issues, create team members to verify assumptions against the actual codebase. Team members should:
+- Trace data flow chains end-to-end (producer → consumer) through actual source code
+- Verify schema references match current `prisma/schema.prisma`
+- Check that component APIs and data layer functions match what specs assume
+- Verify patterns established in completed epics are consistent with what unbuilt specs expect
+- Report findings with file paths, line numbers, and code snippets
+
+You may launch multiple team members in parallel (e.g., one per data flow chain or one per group of related specs). Once they report back, you synthesize findings and apply edits yourself.
+
 ## Phase 1 — Cross-Epic Analysis & Apply
 
 Read every spec in order. Build a mental model of:

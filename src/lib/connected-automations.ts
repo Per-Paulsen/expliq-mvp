@@ -121,6 +121,30 @@ export function mergeLlmConnections(
   return Array.from(map.values());
 }
 
+export function getConnectionType(
+  sourceId: string,
+  targetId: string,
+  automations: Array<{ id: string; externalId: string; rawWorkflowJson: unknown }>
+): "error-handler" | "sub-workflow" | "logical" {
+  const source = automations.find((a) => a.id === sourceId);
+  const target = automations.find((a) => a.id === targetId);
+  if (!source || !target) return "logical";
+
+  // If source's errorWorkflow points to target → error-handler
+  const sourceSettings = getSettings(source.rawWorkflowJson);
+  if (sourceSettings.errorWorkflow === target.externalId) {
+    return "error-handler";
+  }
+
+  // If target's callerIds contains source → sub-workflow
+  const targetSettings = getSettings(target.rawWorkflowJson);
+  if (targetSettings.callerIds?.includes(source.externalId)) {
+    return "sub-workflow";
+  }
+
+  return "logical";
+}
+
 export function mergeConnectionUpdates(
   existing: ConnectionUpdate[],
   additional: ConnectionUpdate[]

@@ -35,6 +35,14 @@ vi.mock("@/lib/actions/connector", () => ({
   syncAndAnalyze: vi.fn(),
 }));
 
+vi.mock("@/lib/detail-data", () => ({
+  prepareDetailData: vi.fn().mockResolvedValue({
+    id: "test-123",
+    name: "Test Automation",
+    businessNarrative: null,
+  }),
+}));
+
 describe("Route smoke tests", () => {
   describe("/ (Dashboard)", () => {
     it("renders empty state when no CompanyProfile", async () => {
@@ -74,7 +82,7 @@ describe("Route smoke tests", () => {
   });
 
   describe("/automations/[id] (Automation Detail)", () => {
-    it("renders Automation Detail heading with id", async () => {
+    it("renders not-analyzed state when businessNarrative is null", async () => {
       const { default: AutomationDetailPage } = await import(
         "@/app/(app)/automations/[id]/page"
       );
@@ -83,8 +91,10 @@ describe("Route smoke tests", () => {
         params: Promise.resolve({ id: "test-123" }),
       });
       render(element);
-      expect(screen.getByText("Automation Detail")).toBeInTheDocument();
-      expect(screen.getByText(/test-123/)).toBeInTheDocument();
+      expect(screen.getByText("Test Automation")).toBeInTheDocument();
+      expect(
+        screen.getByText(/has not been analyzed yet/),
+      ).toBeInTheDocument();
     });
   });
 

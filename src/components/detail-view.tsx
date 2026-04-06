@@ -255,7 +255,7 @@ export function DetailView({ data }: DetailViewProps) {
             className={cn(
               "border-l-[3px] rounded-r-lg pl-4 py-3 min-w-0",
               data.timeSavingsEstimate
-                ? "border-primary"
+                ? "border-primary bg-primary/5"
                 : "border-text-tertiary/30",
             )}
           >

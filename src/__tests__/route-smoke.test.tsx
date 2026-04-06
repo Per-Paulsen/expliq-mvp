@@ -47,7 +47,7 @@ vi.mock("@/lib/detail-data", () => ({
 describe("Route smoke tests", () => {
   describe("/ (Dashboard)", () => {
     it("renders empty state when no CompanyProfile", async () => {
-      const { default: DashboardPage } = await import("@/app/(app)/page");
+      const { default: DashboardPage } = await import("@/app/(app)/dashboard/page");
       const element = await DashboardPage();
       render(element);
       expect(

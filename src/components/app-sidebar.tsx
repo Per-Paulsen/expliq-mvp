@@ -29,7 +29,7 @@ function formatTimeAgo(date: Date): string {
 }
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: Home },
+  { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/processes", label: "Process Map", icon: Layers },
   { href: "/opportunities", label: "Opportunities", icon: Target },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -41,7 +41,7 @@ export function AppSidebar({ lastSyncAt }: { lastSyncAt?: Date | null }) {
   return (
     <Sidebar>
       <SidebarHeader>
-        <Link href="/" className="px-2 text-lg font-bold text-foreground hover:opacity-80">
+        <Link href="/dashboard" className="px-2 text-lg font-bold text-foreground hover:opacity-80">
           Expliq
         </Link>
       </SidebarHeader>
@@ -51,7 +51,7 @@ export function AppSidebar({ lastSyncAt }: { lastSyncAt?: Date | null }) {
             <SidebarMenu>
               {navItems.map(({ href, label, icon: Icon }) => {
                 const isActive =
-                  href === "/" ? pathname === "/" : pathname.startsWith(href)
+                  href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href)
                 return (
                   <SidebarMenuItem key={href}>
                     <SidebarMenuButton

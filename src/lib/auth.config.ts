@@ -11,10 +11,13 @@ export const authConfig = {
       const isAuthPage = pathname === "/login" || pathname === "/signup";
 
       if (isAuthPage && isLoggedIn) {
-        return Response.redirect(new URL("/", request.nextUrl));
+        return Response.redirect(new URL("/dashboard", request.nextUrl));
       }
 
       if (isAuthPage) return true;
+
+      const isPublicPage = pathname === "/";
+      if (isPublicPage) return true;
 
       return isLoggedIn;
     },

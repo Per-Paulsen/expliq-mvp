@@ -4,7 +4,6 @@ import { ConfidenceBadge } from "@/components/confidence-badge";
 export type EstimateCardProps = {
   label: string;
   value: string;
-  explanation: string;
   confidence: "data-driven" | "benchmark-based" | "ai-suggested";
   deltaType: "positive" | "negative";
   className?: string;
@@ -13,7 +12,6 @@ export type EstimateCardProps = {
 export function EstimateCard({
   label,
   value,
-  explanation,
   confidence,
   deltaType,
   className,
@@ -34,14 +32,8 @@ export function EstimateCard({
       >
         {value}
       </p>
-      <p className="text-sm text-text-secondary mt-1.5 leading-relaxed">
-        {explanation}
-      </p>
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
+      <div className="mt-2">
         <ConfidenceBadge level={confidence} />
-        <button className="text-xs text-primary font-medium hover:underline">
-          methodology →
-        </button>
       </div>
     </div>
   );

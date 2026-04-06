@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { computeGovernanceDot } from "@/lib/risk-engine";
 import type { GovernanceDotInput } from "@/lib/risk-engine";
 import type { Snapshot } from "@/lib/delta-generation";
-import { normalizeTier } from "@/lib/opportunities-data";
+import { normalizeTier, normalizeConfidence } from "@/lib/opportunities-data";
 
 // ── Types ───────────────────────────────────────────────
 
@@ -86,6 +86,13 @@ export interface DashboardData {
   topOpportunities: OpportunityItem[];
   processCoverage: ProcessCoverageItem[];
   systemLandscape: Array<{ name: string; workflowCount: number }>;
+}
+
+function clampConfidence(raw: string | null): string | null {
+  const normalized = normalizeConfidence(raw);
+  if (!normalized) return null;
+  if (normalized === "data-driven") return "benchmark-based";
+  return normalized;
 }
 
 // ── Pure helpers ────────────────────────────────────────
@@ -204,7 +211,7 @@ export function generateStructuredDelta(
   if (newWorkflows.length > 0) {
     segments.push({
       text: `+${newWorkflows.length}`,
-      type: "negative",
+      type: "neutral",
     });
     segments.push({
       text: `new workflow${newWorkflows.length === 1 ? "" : "s"} detected`,
@@ -280,17 +287,17 @@ export function generateStructuredDelta(
   if (newRecs.length > 0) {
     segments.push({
       text: `${newRecs.length} new recommendation${newRecs.length === 1 ? "" : "s"}`,
-      type: "neutral",
+      type: "info",
     });
   }
   if (resolvedRecs.length > 0) {
     segments.push({
       text: `${resolvedRecs.length}`,
-      type: "info",
+      type: "positive",
     });
     segments.push({
       text: `recommendation${resolvedRecs.length === 1 ? "" : "s"} resolved`,
-      type: "info",
+      type: "positive",
     });
   }
 
@@ -506,6 +513,7 @@ export async function prepareDashboardData(
     (companyProfile?.aggregateEstimates as {
       totalTimeSavings?: string;
       totalValueAtRisk?: string;
+      totalOpportunityValue?: string;
     }) ?? null;
 
   // Previous snapshot for deltas
@@ -552,7 +560,7 @@ export async function prepareDashboardData(
     brief: r.brief ?? "",
     tier: normalizeTier(r.tier),
     impactEstimate: r.impactEstimate ?? "",
-    confidence: r.confidence ?? null,
+    confidence: clampConfidence(r.confidence),
     scope: r.affectedScope ?? null,
     processName: r.process?.name ?? null,
   }));
@@ -565,13 +573,13 @@ export async function prepareDashboardData(
       brief: r.brief ?? "",
       tier: normalizeTier(r.tier),
       impactEstimate: r.impactEstimate ?? "",
-      confidence: r.confidence ?? null,
+      confidence: clampConfidence(r.confidence),
       scope: r.affectedScope ?? null,
       processName: r.process?.name ?? null,
     }));
 
   // Total opportunity value from aggregate estimates
-  const totalOpportunityValue = aggregateEstimates?.totalValueAtRisk ?? null;
+  const totalOpportunityValue = aggregateEstimates?.totalOpportunityValue ?? null;
 
   return {
     deltaSummary: companyProfile?.deltaSummary ?? null,

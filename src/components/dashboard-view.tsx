@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { X, Bot, Activity, ArrowRight, ChevronRight } from "lucide-react";
-import { KpiCard } from "@/components/kpi-card";
+import { cn } from "@/lib/utils";
 import { EstimateCard } from "@/components/estimate-card";
 import { UnifiedCard } from "@/components/unified-card";
 import { ProcessCard } from "@/components/process-card";
@@ -38,6 +38,23 @@ export interface DashboardViewProps {
     name: string;
     workflowCount: number;
   }>;
+}
+
+function splitEstimate(text: string): { amount: string; rest: string } {
+  // Match monetary/time amounts like "~€2K/mo", "$500K-1.5M+", "200-400 hours per week"
+  const match = text.match(
+    /^([~]?[\$€£]?[\d,.\-\s]+[KkMmBb+]*(?:\/\w+)?(?:\s+(?:per\s+\w+|annually|monthly|weekly|hours?|hrs?|min(?:utes?)?))?)/,
+  );
+  if (match && match[1].trim().length > 1) {
+    return { amount: match[1].trim(), rest: text.slice(match[1].length).trim() };
+  }
+  // Fallback: if short string (< 30 chars), treat entire thing as amount
+  if (text.length < 30) return { amount: text, rest: "" };
+  // Otherwise split at first space after 15 chars
+  const firstSpace = text.indexOf(" ", 15);
+  if (firstSpace > 0)
+    return { amount: text.slice(0, firstSpace), rest: text.slice(firstSpace) };
+  return { amount: text, rest: "" };
 }
 
 const segmentColor: Record<DeltaSegment["type"], string> = {
@@ -120,21 +137,23 @@ export function DashboardView(props: DashboardViewProps) {
             </span>
           </div>
 
-          <UnifiedCard
-            type="recommendation"
-            tier={firstRec.tier}
-            name={firstRec.name}
-            description={firstRec.brief}
-            metric={firstRec.impactEstimate}
-            confidence={
-              (firstRec.confidence?.toLowerCase().replace(/\s+/g, "-") as
-                | "data-driven"
-                | "benchmark-based"
-                | "ai-suggested") ?? undefined
-            }
-            scope={firstRec.scope ?? undefined}
-            process={firstRec.processName ?? ""}
-          />
+          <Link href={`/opportunities?highlight=${firstRec.id}`}>
+            <UnifiedCard
+              type="recommendation"
+              tier={firstRec.tier}
+              name={firstRec.name}
+              description={firstRec.brief}
+              metric={firstRec.impactEstimate}
+              confidence={
+                (firstRec.confidence?.toLowerCase().replace(/\s+/g, "-") as
+                  | "data-driven"
+                  | "benchmark-based"
+                  | "ai-suggested") ?? undefined
+              }
+              scope={firstRec.scope ?? undefined}
+              process={firstRec.processName ?? ""}
+            />
+          </Link>
 
           {secondRec && (
             <Link
@@ -157,52 +176,81 @@ export function DashboardView(props: DashboardViewProps) {
             </Link>
           )}
 
-          {props.totalOpportunityValue && (
-            <p className="text-sm text-text-tertiary mt-3">
-              <span className="font-bold font-mono text-foreground">
-                {props.nextMoveRecommendations.length}
-              </span>{" "}
-              moves, total impact:{" "}
-              <span className="font-bold font-mono text-primary">
-                {props.totalOpportunityValue}
-              </span>
-            </p>
-          )}
+          {props.totalOpportunityValue && (() => {
+            const { amount, rest } = splitEstimate(props.totalOpportunityValue);
+            return (
+              <p className="text-sm text-text-tertiary mt-3">
+                <span className="font-bold font-mono text-foreground">
+                  {props.nextMoveRecommendations.length}
+                </span>{" "}
+                moves, total impact:{" "}
+                <span className="font-bold font-mono text-primary">
+                  {amount}
+                </span>
+                {rest && (
+                  <span className="text-text-secondary"> {rest}</span>
+                )}
+              </p>
+            );
+          })()}
         </div>
       )}
 
       {/* 3. Facts Bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <KpiCard
-          label="Workflows"
-          value={String(props.workflowCount)}
-          delta={props.kpiDeltas.workflows?.delta}
-          deltaType={props.kpiDeltas.workflows?.deltaType}
-        />
-        <KpiCard
-          label="Processes"
-          value={String(props.processCount)}
-          delta={props.kpiDeltas.processes?.delta}
-          deltaType={props.kpiDeltas.processes?.deltaType}
-        />
-        <KpiCard
-          label="Active"
-          value={String(props.activeCount)}
-          delta={props.kpiDeltas.active.delta}
-          deltaType={props.kpiDeltas.active.deltaType}
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="bg-surface rounded-xl border border-border shadow-sm p-5">
+          <div className="space-y-4">
+            {/* Workflows */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-text-secondary">Workflows</span>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold font-mono text-foreground">{props.workflowCount}</span>
+                {props.kpiDeltas.workflows?.delta && (
+                  <span className={cn("text-sm", props.kpiDeltas.workflows.deltaType === "positive" ? "text-status-healthy" : props.kpiDeltas.workflows.deltaType === "negative" ? "text-status-attention" : "text-text-tertiary")}>
+                    {props.kpiDeltas.workflows.deltaType === "positive" && "↑ "}{props.kpiDeltas.workflows.deltaType === "negative" && "↓ "}{props.kpiDeltas.workflows.delta}
+                  </span>
+                )}
+              </div>
+            </div>
+            {/* divider */}
+            <div className="border-t border-border" />
+            {/* Processes */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-text-secondary">Processes</span>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold font-mono text-foreground">{props.processCount}</span>
+                {props.kpiDeltas.processes?.delta && (
+                  <span className={cn("text-sm", props.kpiDeltas.processes.deltaType === "positive" ? "text-status-healthy" : props.kpiDeltas.processes.deltaType === "negative" ? "text-status-attention" : "text-text-tertiary")}>
+                    {props.kpiDeltas.processes.deltaType === "positive" && "↑ "}{props.kpiDeltas.processes.deltaType === "negative" && "↓ "}{props.kpiDeltas.processes.delta}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="border-t border-border" />
+            {/* Active */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-text-secondary">Active</span>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold font-mono text-foreground">{props.activeCount}</span>
+                {props.kpiDeltas.active?.delta && (
+                  <span className="text-sm text-text-tertiary">
+                    {props.kpiDeltas.active.delta}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
         <EstimateCard
           label="Time Saved"
           value={props.aggregateEstimates?.totalTimeSavings ?? "\u2014"}
-          explanation="Manual effort replaced by existing automations across all processes"
           confidence="benchmark-based"
           deltaType="positive"
         />
         <EstimateCard
           label="At Risk"
           value={props.aggregateEstimates?.totalValueAtRisk ?? "\u2014"}
-          explanation="Revenue exposure from current error rates, gaps, and unmonitored workflows"
-          confidence="ai-suggested"
+          confidence="benchmark-based"
           deltaType="negative"
         />
       </div>

@@ -50,7 +50,10 @@ export function normalizeTier(tier: string): "act-now" | "investigate" | "explor
 
 export function normalizeConfidence(raw: string | null | undefined): "data-driven" | "benchmark-based" | "ai-suggested" | undefined {
   if (!raw) return undefined;
-  return raw.toLowerCase().replace(/\s+/g, "-") as "data-driven" | "benchmark-based" | "ai-suggested";
+  const normalized = raw.toLowerCase().replace(/\s+/g, "-") as "data-driven" | "benchmark-based" | "ai-suggested";
+  // Revenue/time estimates can never be truly "data-driven" without user business inputs
+  if (normalized === "data-driven") return "benchmark-based";
+  return normalized;
 }
 
 function extractEvidenceChain(evidence: unknown): string | null {
@@ -84,7 +87,7 @@ function mapRecommendation(
     name: rec.name,
     brief: rec.brief ?? "",
     tier: normalizeTier(rec.tier),
-    confidence: rec.confidence,
+    confidence: normalizeConfidence(rec.confidence) ?? null,
     impactEstimate: rec.impactEstimate ?? "",
     affectedScope: rec.affectedScope,
     processName: rec.process?.name ?? null,

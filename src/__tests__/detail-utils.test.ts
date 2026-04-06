@@ -62,12 +62,12 @@ describe("normalizeConfidence", () => {
     expect(normalizeConfidence("")).toBeUndefined();
   });
 
-  it("normalizes 'Data Driven' to 'data-driven'", () => {
-    expect(normalizeConfidence("Data Driven")).toBe("data-driven");
+  it("clamps 'Data Driven' to 'benchmark-based' (no real business data)", () => {
+    expect(normalizeConfidence("Data Driven")).toBe("benchmark-based");
   });
 
-  it("normalizes 'data-driven' as-is", () => {
-    expect(normalizeConfidence("data-driven")).toBe("data-driven");
+  it("clamps 'data-driven' to 'benchmark-based' (no real business data)", () => {
+    expect(normalizeConfidence("data-driven")).toBe("benchmark-based");
   });
 
   it("normalizes 'Benchmark Based' to 'benchmark-based'", () => {

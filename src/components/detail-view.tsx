@@ -93,6 +93,42 @@ function formatRelativeTime(date: Date): string {
   return `${weeks}w ago`;
 }
 
+// ── Text helpers ───────────────────────────────────────
+
+/** Split text into first N sentences and remainder */
+function splitSentences(text: string, count: number): { visible: string; hidden: string } {
+  const sentences = text.match(/[^.!?]+[.!?]+\s*/g) || [text];
+  if (sentences.length <= count) return { visible: text, hidden: "" };
+  return {
+    visible: sentences.slice(0, count).join("").trim(),
+    hidden: sentences.slice(count).join("").trim(),
+  };
+}
+
+/** Split estimate text at "Reasoning:" into amount and reasoning */
+function splitEstimateReasoning(text: string): { estimate: string; reasoning: string } {
+  const idx = text.search(/reasoning:/i);
+  if (idx > 0) {
+    return {
+      estimate: text.slice(0, idx).trim().replace(/[.\s]+$/, ""),
+      reasoning: text.slice(idx).replace(/^reasoning:\s*/i, "").trim(),
+    };
+  }
+  // Fallback: split at first sentence-ending period (not decimal)
+  const sentenceEnd = text.search(/\.(?!\d)\s/);
+  if (sentenceEnd > 0) {
+    return { estimate: text.slice(0, sentenceEnd + 1).trim(), reasoning: text.slice(sentenceEnd + 1).trim() };
+  }
+  return { estimate: text, reasoning: "" };
+}
+
+/** Truncate stepName: strip everything after first ( */
+function shortStepName(stepName: string): string {
+  const parenIdx = stepName.indexOf("(");
+  if (parenIdx > 0) return stepName.slice(0, parenIdx).trim();
+  return stepName.length > 40 ? stepName.slice(0, 40) + "…" : stepName;
+}
+
 // ── Main component ─────────────────────────────────────
 
 export interface DetailViewProps {
@@ -101,6 +137,11 @@ export interface DetailViewProps {
 
 export function DetailView({ data }: DetailViewProps) {
   const [showAllFindings, setShowAllFindings] = useState(false);
+  const [narrativeExpanded, setNarrativeExpanded] = useState(false);
+  const [failureExpanded, setFailureExpanded] = useState(false);
+  const [timeSavingsExpanded, setTimeSavingsExpanded] = useState(false);
+  const [revenueEstExpanded, setRevenueEstExpanded] = useState(false);
+  const [revenueConnExpanded, setRevenueConnExpanded] = useState(false);
   const findings = data.technicalEvidence.keyFindings;
   const visibleFindings = showAllFindings ? findings : findings.slice(0, 5);
   const hiddenCount = findings.length - 5;
@@ -109,8 +150,14 @@ export function DetailView({ data }: DetailViewProps) {
   const confidenceTimeSavings = data.timeSavingsConfidence;
   const confidenceRevenue = data.revenueConfidence;
 
+  const narrativeParts = data.businessNarrative ? splitSentences(data.businessNarrative, 2) : null;
+  const failureParts = data.impact.failureScenario ? splitSentences(data.impact.failureScenario, 2) : null;
+  const timeSavingsParts = data.timeSavingsEstimate ? splitEstimateReasoning(data.timeSavingsEstimate) : null;
+  const revenuEstParts = data.revenueImpactEstimate ? splitEstimateReasoning(data.revenueImpactEstimate) : null;
+  const revenueConnParts = data.impact.revenueConnection ? splitSentences(data.impact.revenueConnection, 2) : null;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* ── 1. Header — Status Card ────────────────────── */}
       <Card className="p-6">
         {/* Row 1 — Identity */}
@@ -144,7 +191,7 @@ export function DetailView({ data }: DetailViewProps) {
               href="/processes"
               className="inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium px-3 py-1 hover:bg-primary/20 transition"
             >
-              {data.stepName} — {data.process.name}
+              {shortStepName(data.stepName)} — {data.process.name}
             </Link>
           )}
         </div>
@@ -158,8 +205,13 @@ export function DetailView({ data }: DetailViewProps) {
             <SectionHeader>Business Narrative</SectionHeader>
           </div>
           <p className="text-[15px] text-foreground leading-relaxed">
-            {data.businessNarrative}
+            {narrativeExpanded ? data.businessNarrative : narrativeParts!.visible}
           </p>
+          {narrativeParts!.hidden && (
+            <button onClick={() => setNarrativeExpanded(!narrativeExpanded)} className="text-xs text-primary font-medium hover:underline mt-1">
+              {narrativeExpanded ? "Show less" : "Read more"}
+            </button>
+          )}
         </Card>
       )}
 
@@ -194,8 +246,15 @@ export function DetailView({ data }: DetailViewProps) {
                   : "text-text-tertiary",
               )}
             >
-              {data.impact.failureScenario ?? "Not applicable"}
+              {data.impact.failureScenario
+                ? (failureExpanded ? data.impact.failureScenario : failureParts!.visible)
+                : "Not applicable"}
             </p>
+            {failureParts?.hidden && (
+              <button onClick={() => setFailureExpanded(!failureExpanded)} className="text-xs text-primary font-medium hover:underline mt-1">
+                {failureExpanded ? "Show less" : "Read more"}
+              </button>
+            )}
           </div>
 
           {/* Time Savings */}
@@ -218,10 +277,22 @@ export function DetailView({ data }: DetailViewProps) {
             {data.timeSavingsEstimate ? (
               <>
                 <p className="text-lg font-bold font-mono text-primary">
-                  {data.timeSavingsEstimate}
+                  {timeSavingsParts!.estimate}
                 </p>
                 {confidenceTimeSavings && (
                   <ConfidenceBadge level={confidenceTimeSavings} className="mt-1" />
+                )}
+                {timeSavingsParts!.reasoning && (
+                  <>
+                    {timeSavingsExpanded && (
+                      <p className="text-sm text-text-secondary leading-relaxed mt-1">
+                        {timeSavingsParts!.reasoning}
+                      </p>
+                    )}
+                    <button onClick={() => setTimeSavingsExpanded(!timeSavingsExpanded)} className="text-xs text-primary font-medium hover:underline mt-1">
+                      {timeSavingsExpanded ? "Show less" : "Read more"}
+                    </button>
+                  </>
                 )}
               </>
             ) : (
@@ -251,15 +322,34 @@ export function DetailView({ data }: DetailViewProps) {
             {data.revenueImpactEstimate ? (
               <>
                 <p className="text-lg font-bold font-mono text-status-attention">
-                  {data.revenueImpactEstimate}
+                  {revenuEstParts!.estimate}
                 </p>
                 {confidenceRevenue && (
                   <ConfidenceBadge level={confidenceRevenue} className="mt-1" />
                 )}
+                {revenuEstParts!.reasoning && (
+                  <>
+                    {revenueEstExpanded && (
+                      <p className="text-sm text-text-secondary leading-relaxed mt-1">
+                        {revenuEstParts!.reasoning}
+                      </p>
+                    )}
+                    <button onClick={() => setRevenueEstExpanded(!revenueEstExpanded)} className="text-xs text-primary font-medium hover:underline mt-1">
+                      {revenueEstExpanded ? "Show less" : "Read more"}
+                    </button>
+                  </>
+                )}
                 {data.impact.revenueConnection && (
-                  <p className="text-sm text-text-secondary mt-1">
-                    {data.impact.revenueConnection}
-                  </p>
+                  <>
+                    <p className="text-sm text-text-secondary mt-1">
+                      {revenueConnExpanded ? data.impact.revenueConnection : revenueConnParts!.visible}
+                    </p>
+                    {revenueConnParts!.hidden && (
+                      <button onClick={() => setRevenueConnExpanded(!revenueConnExpanded)} className="text-xs text-primary font-medium hover:underline mt-1">
+                        {revenueConnExpanded ? "Show less" : "Read more"}
+                      </button>
+                    )}
+                  </>
                 )}
               </>
             ) : (

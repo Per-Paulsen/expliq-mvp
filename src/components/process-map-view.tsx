@@ -209,7 +209,7 @@ export function ProcessMapView({ processes }: ProcessMapViewProps) {
                             key={`gap-${gap.processId}-${gap.stepName}`}
                             href={`/opportunities?process=${gap.processId}`}
                           >
-                            <div className="border-dashed border-2 border-text-tertiary/30 rounded-xl p-4 hover:border-text-tertiary/50 transition cursor-pointer">
+                            <div className="border-dashed border-2 border-primary/30 rounded-xl p-4 hover:border-primary/50 transition cursor-pointer">
                               <div className="flex items-center justify-between">
                                 <div>
                                   <p className="text-[15px] font-semibold text-foreground">

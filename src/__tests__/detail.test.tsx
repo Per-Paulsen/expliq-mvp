@@ -121,10 +121,10 @@ describe("DetailView", () => {
     expect(screen.getByText("HubSpot")).toBeInTheDocument();
     expect(screen.getByText("Gmail")).toBeInTheDocument();
 
-    // Step pill
+    // Step pill (process name appears in both pill and process position)
     expect(
-      screen.getByText("Capture Lead — Lead Management"),
-    ).toBeInTheDocument();
+      screen.getAllByText("Lead Management").length,
+    ).toBeGreaterThanOrEqual(1);
 
     // Business Narrative
     expect(screen.getByText("Business Narrative")).toBeInTheDocument();
@@ -158,7 +158,7 @@ describe("DetailView", () => {
 
     // Process Position
     expect(screen.getByText("Process Position")).toBeInTheDocument();
-    expect(screen.getByText("Lead Management")).toBeInTheDocument();
+    expect(screen.getAllByText("Lead Management").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Production")).toBeInTheDocument();
     expect(screen.getByText("Score Lead")).toBeInTheDocument();
 
@@ -263,10 +263,12 @@ describe("DetailView", () => {
   // AC #40: Step pill links to process map
   it("step pill links to /processes", () => {
     render(<DetailView data={makeDetailData()} />);
-    const stepLink = screen
-      .getByText("Capture Lead — Lead Management")
-      .closest("a");
-    expect(stepLink).toHaveAttribute("href", "/processes");
+    const stepLinks = screen
+      .getAllByText("Lead Management")
+      .map((el) => el.closest("a"))
+      .filter((a) => a?.classList.contains("inline-flex"));
+    expect(stepLinks.length).toBe(1);
+    expect(stepLinks[0]).toHaveAttribute("href", "/processes");
   });
 
   // AC #41: Connected automation links to detail page

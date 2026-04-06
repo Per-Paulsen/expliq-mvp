@@ -40,22 +40,6 @@ export interface DashboardViewProps {
   }>;
 }
 
-function splitEstimate(text: string): { amount: string; rest: string } {
-  // Match monetary/time amounts like "~€2K/mo", "$500K-1.5M+", "200-400 hours per week"
-  const match = text.match(
-    /^([~]?[\$€£]?[\d,.\-\s]+[KkMmBb+]*(?:\/\w+)?(?:\s+(?:per\s+\w+|annually|monthly|weekly|hours?|hrs?|min(?:utes?)?))?)/,
-  );
-  if (match && match[1].trim().length > 1) {
-    return { amount: match[1].trim(), rest: text.slice(match[1].length).trim() };
-  }
-  // Fallback: if short string (< 30 chars), treat entire thing as amount
-  if (text.length < 30) return { amount: text, rest: "" };
-  // Otherwise split at first space after 15 chars
-  const firstSpace = text.indexOf(" ", 15);
-  if (firstSpace > 0)
-    return { amount: text.slice(0, firstSpace), rest: text.slice(firstSpace) };
-  return { amount: text, rest: "" };
-}
 
 const segmentColor: Record<DeltaSegment["type"], string> = {
   neutral: "text-foreground",
@@ -177,19 +161,15 @@ export function DashboardView(props: DashboardViewProps) {
           )}
 
           {props.totalOpportunityValue && (() => {
-            const { amount, rest } = splitEstimate(props.totalOpportunityValue);
             return (
               <p className="text-sm text-text-tertiary mt-3">
-                <span className="font-bold font-mono text-foreground">
+                <span className="font-bold font-mono text-primary">
                   {props.nextMoveRecommendations.length}
                 </span>{" "}
                 moves, total impact:{" "}
                 <span className="font-bold font-mono text-primary">
-                  {amount}
+                  {props.totalOpportunityValue}
                 </span>
-                {rest && (
-                  <span className="text-text-secondary"> {rest}</span>
-                )}
               </p>
             );
           })()}
@@ -199,21 +179,8 @@ export function DashboardView(props: DashboardViewProps) {
       {/* 3. Facts Bar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-surface rounded-xl border border-border shadow-sm p-5">
+          <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-3">Overview</p>
           <div className="space-y-4">
-            {/* Workflows */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-text-secondary">Workflows</span>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold font-mono text-foreground">{props.workflowCount}</span>
-                {props.kpiDeltas.workflows?.delta && (
-                  <span className={cn("text-sm", props.kpiDeltas.workflows.deltaType === "positive" ? "text-status-healthy" : props.kpiDeltas.workflows.deltaType === "negative" ? "text-status-attention" : "text-text-tertiary")}>
-                    {props.kpiDeltas.workflows.deltaType === "positive" && "↑ "}{props.kpiDeltas.workflows.deltaType === "negative" && "↓ "}{props.kpiDeltas.workflows.delta}
-                  </span>
-                )}
-              </div>
-            </div>
-            {/* divider */}
-            <div className="border-t border-border" />
             {/* Processes */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-text-secondary">Processes</span>
@@ -227,17 +194,23 @@ export function DashboardView(props: DashboardViewProps) {
               </div>
             </div>
             <div className="border-t border-border" />
-            {/* Active */}
+            {/* Workflows */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-text-secondary">Active</span>
+              <span className="text-sm font-medium text-text-secondary">Workflows</span>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold font-mono text-foreground">{props.activeCount}</span>
-                {props.kpiDeltas.active?.delta && (
-                  <span className="text-sm text-text-tertiary">
-                    {props.kpiDeltas.active.delta}
+                <span className="text-2xl font-bold font-mono text-foreground">{props.workflowCount}</span>
+                {props.kpiDeltas.workflows?.delta && (
+                  <span className={cn("text-sm", props.kpiDeltas.workflows.deltaType === "positive" ? "text-status-healthy" : props.kpiDeltas.workflows.deltaType === "negative" ? "text-status-attention" : "text-text-tertiary")}>
+                    {props.kpiDeltas.workflows.deltaType === "positive" && "↑ "}{props.kpiDeltas.workflows.deltaType === "negative" && "↓ "}{props.kpiDeltas.workflows.delta}
                   </span>
                 )}
               </div>
+            </div>
+            <div className="border-t border-border" />
+            {/* Active */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-text-secondary">Active</span>
+              <span className="text-2xl font-bold font-mono text-foreground">{props.activeCount}</span>
             </div>
           </div>
         </div>
@@ -263,11 +236,9 @@ export function DashboardView(props: DashboardViewProps) {
             <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
               Needs Attention
             </h3>
-            {props.attentionItems.length > 0 && (
-              <span className="text-sm font-mono font-semibold text-status-attention">
-                {props.attentionItems.length} items
-              </span>
-            )}
+            <Link href="/processes" className="text-sm text-primary font-medium hover:underline inline-flex items-center gap-1">
+              View all in Process Map <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
           {props.attentionItems.length === 0 ? (
             <p className="text-base text-text-tertiary py-8">
@@ -292,15 +263,6 @@ export function DashboardView(props: DashboardViewProps) {
                   />
                 </Link>
               ))}
-              {props.attentionItems.length >= 5 && (
-                <Link
-                  href="/processes"
-                  className="inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline mt-3"
-                >
-                  View all on Process Map{" "}
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              )}
             </div>
           )}
         </div>
@@ -315,7 +277,7 @@ export function DashboardView(props: DashboardViewProps) {
               href="/opportunities"
               className="text-sm text-primary font-medium hover:underline inline-flex items-center gap-1"
             >
-              View all <ArrowRight className="w-3.5 h-3.5" />
+              View all in Opportunities <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           {props.topOpportunities.length === 0 ? (

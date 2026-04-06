@@ -4,6 +4,12 @@ import type { GovernanceDotInput, GovernanceDot } from "@/lib/risk-engine";
 import { getConnectionType } from "@/lib/connected-automations";
 import { normalizeTier, normalizeConfidence } from "@/lib/opportunities-data";
 
+function clampEstimateConfidence(value: string | null | undefined): "data-driven" | "benchmark-based" | "ai-suggested" | undefined {
+  const normalized = normalizeConfidence(value);
+  if (normalized === "data-driven") return "benchmark-based";
+  return normalized;
+}
+
 // ── Types ───────────────────────────────────────────────
 
 export type { GovernanceDot };
@@ -334,9 +340,9 @@ export async function prepareDetailData(
     businessNarrative: automation.businessNarrative,
     impact: parseImpact(automation.impact),
     timeSavingsEstimate: automation.timeSavingsEstimate,
-    timeSavingsConfidence: normalizeConfidence(automation.timeSavingsConfidence) ?? null,
+    timeSavingsConfidence: clampEstimateConfidence(automation.timeSavingsConfidence) ?? null,
     revenueImpactEstimate: automation.revenueImpactEstimate,
-    revenueConfidence: normalizeConfidence(automation.revenueConfidence) ?? null,
+    revenueConfidence: clampEstimateConfidence(automation.revenueConfidence) ?? null,
     technicalEvidence: parseTechnicalEvidence(automation.technicalEvidence),
     detectability: parseDetectability(automation.detectability),
     runsPerWeek: automation.runsPerWeek,

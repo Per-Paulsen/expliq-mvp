@@ -58,7 +58,7 @@ function Card({
   return (
     <div
       className={cn(
-        "bg-surface rounded-xl border border-border shadow-sm",
+        "bg-surface rounded-xl border border-border shadow-sm overflow-hidden",
         className,
       )}
     >
@@ -120,13 +120,6 @@ function splitEstimateReasoning(text: string): { estimate: string; reasoning: st
     return { estimate: text.slice(0, sentenceEnd + 1).trim(), reasoning: text.slice(sentenceEnd + 1).trim() };
   }
   return { estimate: text, reasoning: "" };
-}
-
-/** Truncate stepName: strip everything after first ( */
-function shortStepName(stepName: string): string {
-  const parenIdx = stepName.indexOf("(");
-  if (parenIdx > 0) return stepName.slice(0, parenIdx).trim();
-  return stepName.length > 40 ? stepName.slice(0, 40) + "…" : stepName;
 }
 
 // ── Main component ─────────────────────────────────────
@@ -191,7 +184,7 @@ export function DetailView({ data }: DetailViewProps) {
               href="/processes"
               className="inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium px-3 py-1 hover:bg-primary/20 transition"
             >
-              {shortStepName(data.stepName)} — {data.process.name}
+              {data.process.name}
             </Link>
           )}
         </div>
@@ -204,7 +197,7 @@ export function DetailView({ data }: DetailViewProps) {
             <Sparkles className="w-4 h-4 text-primary" />
             <SectionHeader>Business Narrative</SectionHeader>
           </div>
-          <p className="text-[15px] text-foreground leading-relaxed">
+          <p className="text-[15px] text-foreground leading-relaxed break-words">
             {narrativeExpanded ? data.businessNarrative : narrativeParts!.visible}
           </p>
           {narrativeParts!.hidden && (
@@ -218,11 +211,11 @@ export function DetailView({ data }: DetailViewProps) {
       {/* ── 3. Business Case — Three-Column Grid ───────── */}
       <Card className="p-6">
         <SectionHeader className="mb-4">Business Case</SectionHeader>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
           {/* Failure Impact */}
           <div
             className={cn(
-              "border-l-[3px] rounded-r-lg pl-4 py-3",
+              "border-l-[3px] rounded-r-lg pl-4 py-3 min-w-0",
               data.impact.failureScenario
                 ? "border-status-critical bg-status-critical/5"
                 : "border-text-tertiary/30",
@@ -260,7 +253,7 @@ export function DetailView({ data }: DetailViewProps) {
           {/* Time Savings */}
           <div
             className={cn(
-              "border-l-[3px] rounded-r-lg pl-4 py-3",
+              "border-l-[3px] rounded-r-lg pl-4 py-3 min-w-0",
               data.timeSavingsEstimate
                 ? "border-primary"
                 : "border-text-tertiary/30",
@@ -276,7 +269,7 @@ export function DetailView({ data }: DetailViewProps) {
             </p>
             {data.timeSavingsEstimate ? (
               <>
-                <p className="text-lg font-bold font-mono text-primary">
+                <p className="text-lg font-bold font-mono text-primary break-words">
                   {timeSavingsParts!.estimate}
                 </p>
                 {confidenceTimeSavings && (
@@ -303,7 +296,7 @@ export function DetailView({ data }: DetailViewProps) {
           {/* Revenue Connection */}
           <div
             className={cn(
-              "border-l-[3px] rounded-r-lg pl-4 py-3",
+              "border-l-[3px] rounded-r-lg pl-4 py-3 min-w-0",
               data.revenueImpactEstimate || data.impact.revenueConnection
                 ? "border-status-attention bg-status-attention/5"
                 : "border-text-tertiary/30",
@@ -321,7 +314,7 @@ export function DetailView({ data }: DetailViewProps) {
             </p>
             {data.revenueImpactEstimate ? (
               <>
-                <p className="text-lg font-bold font-mono text-status-attention">
+                <p className="text-lg font-bold font-mono text-status-attention break-words">
                   {revenuEstParts!.estimate}
                 </p>
                 {confidenceRevenue && (
@@ -337,18 +330,6 @@ export function DetailView({ data }: DetailViewProps) {
                     <button onClick={() => setRevenueEstExpanded(!revenueEstExpanded)} className="text-xs text-primary font-medium hover:underline mt-1">
                       {revenueEstExpanded ? "Show less" : "Read more"}
                     </button>
-                  </>
-                )}
-                {data.impact.revenueConnection && (
-                  <>
-                    <p className="text-sm text-text-secondary mt-1">
-                      {revenueConnExpanded ? data.impact.revenueConnection : revenueConnParts!.visible}
-                    </p>
-                    {revenueConnParts!.hidden && (
-                      <button onClick={() => setRevenueConnExpanded(!revenueConnExpanded)} className="text-xs text-primary font-medium hover:underline mt-1">
-                        {revenueConnExpanded ? "Show less" : "Read more"}
-                      </button>
-                    )}
                   </>
                 )}
               </>
@@ -387,7 +368,7 @@ export function DetailView({ data }: DetailViewProps) {
               <Link
                 key={rec.id}
                 href={`/opportunities?highlight=${rec.id}`}
-                className="flex items-center justify-between gap-4 py-3 hover:bg-surface-hover -mx-6 px-6 transition group"
+                className="flex items-center justify-between gap-4 py-3 hover:bg-surface-hover -mx-6 px-6 transition group overflow-hidden"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -479,7 +460,7 @@ export function DetailView({ data }: DetailViewProps) {
                     <Link
                       key={conn.id}
                       href={`/automations/${conn.id}`}
-                      className="flex items-center gap-3 py-2 hover:bg-surface-hover -mx-6 px-6 transition group"
+                      className="flex items-center gap-3 py-2 hover:bg-surface-hover -mx-6 px-6 transition group overflow-hidden"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
@@ -515,7 +496,7 @@ export function DetailView({ data }: DetailViewProps) {
                     <Link
                       key={conn.id}
                       href={`/automations/${conn.id}`}
-                      className="flex items-center gap-3 py-2 hover:bg-surface-hover -mx-6 px-6 transition group"
+                      className="flex items-center gap-3 py-2 hover:bg-surface-hover -mx-6 px-6 transition group overflow-hidden"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">

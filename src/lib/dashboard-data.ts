@@ -88,13 +88,6 @@ export interface DashboardData {
   systemLandscape: Array<{ name: string; workflowCount: number }>;
 }
 
-function clampConfidence(raw: string | null): string | null {
-  const normalized = normalizeConfidence(raw);
-  if (!normalized) return null;
-  if (normalized === "data-driven") return "benchmark-based";
-  return normalized;
-}
-
 // ── Pure helpers ────────────────────────────────────────
 
 export function formatAttentionMetric(
@@ -560,7 +553,7 @@ export async function prepareDashboardData(
     brief: r.brief ?? "",
     tier: normalizeTier(r.tier),
     impactEstimate: r.impactEstimate ?? "",
-    confidence: clampConfidence(r.confidence),
+    confidence: normalizeConfidence(r.confidence) ?? null,
     scope: r.affectedScope ?? null,
     processName: r.process?.name ?? null,
   }));
@@ -573,7 +566,7 @@ export async function prepareDashboardData(
       brief: r.brief ?? "",
       tier: normalizeTier(r.tier),
       impactEstimate: r.impactEstimate ?? "",
-      confidence: clampConfidence(r.confidence),
+      confidence: normalizeConfidence(r.confidence) ?? null,
       scope: r.affectedScope ?? null,
       processName: r.process?.name ?? null,
     }));

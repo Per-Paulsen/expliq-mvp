@@ -234,7 +234,8 @@ describe("DashboardView", () => {
       render(<DashboardView {...fullProps} />);
       // KpiCard prepends "↑ " for positive deltas
       expect(screen.getByText(/\+2 since last sync/)).toBeInTheDocument();
-      expect(screen.getByText(/of 8 total/)).toBeInTheDocument();
+      // Active count shown without "of X total" (redundant with Workflows count)
+      expect(screen.getByText("Active")).toBeInTheDocument();
     });
 
     it("renders aggregate estimates", () => {
@@ -309,23 +310,9 @@ describe("DashboardView", () => {
   });
 
   describe("conditional rendering", () => {
-    it("shows 'View all' link when 5 attention items", () => {
-      const fiveItems: AttentionItem[] = Array.from({ length: 5 }, (_, i) => ({
-        id: `auto-${i}`,
-        name: `Workflow ${i}`,
-        governanceDot: "critical" as const,
-        businessNarrative: `Issue ${i}`,
-        metric: null,
-        scope: null,
-        processName: null,
-      }));
-      render(<DashboardView {...makeProps({ attentionItems: fiveItems })} />);
-      expect(screen.getByRole("link", { name: /View all on Process Map/ })).toBeInTheDocument();
-    });
-
-    it("does not show 'View all' link when fewer than 5 attention items", () => {
+    it("shows 'View all in Process Map' link in attention header", () => {
       render(<DashboardView {...fullProps} />);
-      expect(screen.queryByText("View all on Process Map →")).not.toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /View all in Process Map/ })).toBeInTheDocument();
     });
 
     it("single nextMoveRecommendation shows no follow-up card", () => {

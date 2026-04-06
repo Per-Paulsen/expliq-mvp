@@ -131,12 +131,165 @@ Proceed to Phase 2. All changes are well-defined with exact line numbers. No amb
 
 ---
 
+---
+
+## Implementation Applied (2026-04-06)
+
+**Commit:** `69bd1fc` — `fix: design spike v2 — dashboard, detail, and process map visual fixes`
+
+**Files modified:**
+- `src/lib/dashboard-data.ts` — delta colors, totalOpportunityValue fix, confidence clamp
+- `src/components/dashboard-view.tsx` — facts bar merge, next move link, impact parse, estimate cleanup
+- `src/components/estimate-card.tsx` — removed explanation, methodology button; badge below value
+- `src/components/detail-view.tsx` — overflow fix, step pill truncate, all text parse+collapse
+- `src/components/process-map-view.tsx` — gap card border gray → teal
+- `src/lib/opportunities-data.ts` — confidence clamp in normalizeConfidence, applied to recommendations
+- `src/__tests__/detail-utils.test.ts` — updated expectations for data-driven → benchmark-based clamp
+
+**Verification:**
+| Check | Result |
+|-------|--------|
+| `npm run test` | Pass (307 tests) |
+| `npm run lint` | Pass (1 pre-existing error in opportunities-view.tsx) |
+| `npm run build` | Pass |
+| Playwright: Dashboard | Pass — merged facts card, cleaned estimate cards, clickable next move, correct total impact |
+| Playwright: Detail page | Pass — no overflow, truncated text with Read more toggles, short step pill |
+| Playwright: Process Map | Pass — toggle works, border code verified |
+| Console errors | 0 across all pages |
+
+---
+
+### 19. Dashboard — "2 moves, total impact" splitting and color
+- **Issue**: The total impact line splits the value incorrectly and inconsistently. Since we now use `totalOpportunityValue` (a different, shorter LLM field), there's no need to regex-parse it. Show the count "2" (or "2 moves") in teal, and the FULL opportunity value string in teal bold mono. No splitting needed.
+- **Fix**: Remove `splitEstimate()` logic. Render count in teal, full value in teal bold mono. Simple.
+
+### 20. Dashboard — Combined KPI card: reorder, relabel, remove redundant "of 14 total"
+- **Issue**: 
+  - Order should be: Processes, Workflows, Active (top to bottom) — not Workflows, Processes, Active
+  - "of 14 total" on Active is redundant — Workflows count (14) is shown right above
+  - Card needs a label/title like "Process Summary" or similar
+- **Fix**: Reorder rows, remove "of 14 total" delta text for active, add a card title.
+
+### 21. Dashboard — Needs Attention cards don't show the affected workflow name
+- **Issue**: Attention cards show the process name but not which specific workflow the issue applies to. The card should show the workflow name prominently since the attention is about a specific automation.
+- **Investigate**: Check what `attentionItems` contains — is the workflow name in `name` field? If so, is it being shown? Or is the process name being shown instead of the workflow name?
+
+### 22. Dashboard — "5 items" label in Needs Attention is pointless
+- **Issue**: The section header shows "5 items" next to "NEEDS ATTENTION" — but there are visually 5 cards, so the count adds nothing. Should either show "5 of N total" (how many attention items exist vs how many are shown, since it caps at 5) or be removed.
+- **Fix**: Show "X of Y" if there are more than 5 attention items total (Y > 5), otherwise remove the count entirely.
+
+### 23. Dashboard — Process Coverage cards missing "Time Saved" and opportunity potential
+- **Issue**: Same as finding #12 — process cards only show "At Risk" but not "Time Saved" or opportunity potential. This was recorded as deferred (depends on structured recommendation fields, finding #11), but Per is flagging it again.
+- **Status**: Still blocked by finding #11 (schema change needed). Record as high-priority for next iteration.
+
+### 24. Detail page — STILL has horizontal scrollbar
+- **Issue**: The `overflow-x-hidden` fix from the patch did not fully resolve the horizontal scrollbar. Something else is still overflowing.
+- **Fix**: Must find and fix the actual overflow source. Add `overflow-x-hidden` to EVERY card container, or use `max-w-full break-words` on the long text elements. Also check if the Business Case grid columns have min-width issues. THIS MUST BE FIXED — no horizontal scrollbar under any circumstances.
+
+### 25. Detail page — Revenue Connection has explanation text but Time Savings does not
+- **Issue**: In the Business Case section, Revenue Connection shows both the estimate AND an explanation paragraph (`data.impact.revenueConnection`), but Time Savings only shows the estimate with no equivalent explanation. This is inconsistent.
+- **Investigate**: Check if there's a `timeSavingsExplanation` or equivalent field. The asymmetry may come from the LLM prompt — `impact` JSON has `revenueConnection` but no `timeSavingsExplanation` field.
+- **Fix**: Either add explanation to Time Savings (prompt/schema change) or remove it from Revenue Connection (quick fix for consistency).
+
+### 26. Dashboard — "View all" links are inconsistent between Attention and Opportunities
+- **Issue**: Needs Attention has "View all on Process Map" at the BOTTOM. Top Opportunities has "View all →" at the TOP RIGHT. Different placement, different wording, different destinations (Process Map vs Opportunities).
+- **Fix**: Make both consistent — both at top right, both saying "View all in {destination}" (e.g., "View all in Process Map", "View all in Opportunities").
+
+### 27. Dashboard — All opportunity cards show "BENCHMARK BASED" badge
+- **Issue**: After the confidence clamp (finding #13), ALL confidence badges on opportunity/recommendation cards show "BENCHMARK BASED" because `normalizeConfidence()` now clamps "data-driven" to "benchmark-based". This means every card looks the same — the badge adds no information.
+- **Root cause**: The clamp was too aggressive. It clamps ALL confidence values, not just revenue/time estimates. Recommendation confidence (which is about the recommendation quality, not a dollar estimate) arguably COULD be data-driven if backed by error rates.
+- **Fix options**: (a) Only clamp on `timeSavingsConfidence` and `revenueConfidence` fields, not on `Recommendation.confidence`. (b) Remove badges entirely from dashboard cards since they all say the same thing. (c) Accept for now.
+
+### 28. Dashboard — Needs Attention cards show process name but not workflow name
+- **Issue**: The attention cards show the business process name (e.g., "Lead Acquisition and Initial Qualification") in the bottom right, but the card title (`item.name`) shows the n8n workflow name which can look like a step description rather than a recognizable workflow name. The user can't easily tell WHICH workflow needs attention.
+- **Investigate**: Check if the `name` field is actually the workflow name from n8n. If so, the issue is that n8n workflow names are sometimes vague. The process name is shown but the specific workflow is unclear.
+- **Possible fix**: Show both — workflow name as title (already done), and process name + step position in the scope area. Or make the workflow name more prominent.
+
+### 29. Dashboard — Process Coverage cards still missing "Time Saved"
+- **Issue**: Same as findings #12 and #23. Process cards only show At Risk, not Time Saved. Per is flagging this again.
+- **Status**: Still blocked by finding #11 (Recommendations need structured time/revenue fields). But per-automation `timeSavingsEstimate` DOES exist and could be aggregated per process even without recommendation changes. This could be a partial fix.
+
+### 30. Detail page — Horizontal scrollbar STILL present
+- **Issue**: Despite `overflow-hidden` on Card component and `overflow-x-hidden` on outer container, the scrollbar persists. Root cause identified: Connected Automations section Link elements use `-mx-6 px-6` (negative margin pattern for full-width hover), and the `truncate` class on the business narrative `<p>` inside doesn't clip because the negative margin extends the element beyond the overflow boundary.
+- **Fix**: Must either (a) remove the `-mx-6 px-6` pattern from Connected Automations links, or (b) add `overflow-hidden` directly on each Link element, or (c) add `overflow-x-hidden` on the `<main>` element in the app layout. The fix MUST work — this has been flagged 3 times now.
+
+### 31. Detail page — Step pill shows two confusing names
+- **Issue**: Per sees "Lead intake and intelligent triage — Lead Acquisition and Initial Qualification" and asks why there are two names after each other for the workflow "AI-Powered Lead Distribution System". This is finding #17 — stepName (from LLM call 1) concatenated with process.name (from LLM call 2). Despite the truncation fix (strip after parenthesis), the remaining text is still confusing: a step description + a process name that look like two names for the same thing.
+- **Fix**: Either (a) show ONLY the process name in the pill (remove stepName entirely since it's unreliable), or (b) show stepName as the pill text and process name as a separate element, or (c) reformat as "Step: {shortStepName} in {processName}" to make the relationship clear.
+
+---
+
+## Discussion (Round 2)
+
+### Q: Why are the "View all" links named differently and placed differently?
+**A:** Sloppy implementation. One says "View all on Process Map" (bottom), the other says "View all →" (top right). They should both say "View all in {Page Name}" and be in the same position (top right). Simple fix.
+
+**Per:** then do it!
+**Decision:** Fix. Both links top-right, "View all in {Page Name}".
+
+### Q: Why do all opportunities now show "BENCHMARK BASED"?
+**A:** The confidence clamp in `normalizeConfidence()` was too aggressive — it clamps ALL "data-driven" to "benchmark-based" globally. But `Recommendation.confidence` is about the recommendation quality, not a dollar estimate. It CAN legitimately be "data-driven" when backed by real error rates. The fix: only clamp on `timeSavingsConfidence` and `revenueConfidence` fields, NOT on `Recommendation.confidence`. Need to undo the global clamp and make it targeted.
+
+**Per:** do it!
+**Decision:** Fix. Revert the global clamp in `normalizeConfidence()`. Instead, add a separate `clampEstimateConfidence()` that only applies to `timeSavingsConfidence` and `revenueConfidence` fields in the data layers.
+
+### Q: Why do needs attention cards show process name but not workflow name?
+**A:** They DO show the workflow name — it's the card title (e.g., "Automate lead scoring step", "HubSpot → Gmail Cold Outreach"). The process name is in the bottom-right corner. But some n8n workflow names look like step descriptions, making it confusing.
+
+**Per:** ah, oke. but why do the needs attention cards not have their own "issue" name like the opportunities?
+**A:** Good point. Opportunities show a recommendation name (LLM-generated, action-oriented like "Fix broken Slack channel configurations"). Attention cards show the workflow name from n8n, then the `businessNarrative` as description, then the metric ("Needs review", "31% error rate"). There's no separate "issue name" — the card relies on the metric + narrative to explain what's wrong. The workflow name IS the title. The difference is that opportunities have a human-readable action name from the LLM, while attention items use the raw n8n workflow name. To fix this we'd need the LLM to generate an "issue summary" per attention item — that's a prompt change, deferred.
+**Decision:** Deferred — needs LLM prompt change to generate issue names per automation.
+
+### Q: Why is there no time saved on the process cards?
+**A:** The data doesn't exist per-process. Per-automation `timeSavingsEstimate` is an LLM string we can't easily sum. Blocked by finding #11.
+
+**Per:** but a "at risk" exists per-process?
+**A:** Yes — `BusinessProcess.valueAtStake` is a single LLM string from call 2 (workspace analysis). The LLM generates it per process directly. But there's no equivalent `timeSavings` field on BusinessProcess. The LLM was only asked for `valueAtStake`, not `timeSavings`. To fix: add `timeSavings` field to BusinessProcess model and LLM workspace prompt. That's a schema + prompt change.
+**Decision:** Deferred — needs schema migration + prompt change. Add to the same future iteration as finding #11.
+
+### Q: Why is the horizontal scrollbar STILL there?
+**A:** Connected Automations Link elements use `-mx-6 px-6` negative margin. This extends beyond overflow boundaries.
+
+**Per:** fucking fix it!
+**Decision:** Fix. Add `overflow-hidden` on each Link element in Connected Automations AND Recommendations sections. If that still doesn't work, add `overflow-x-hidden` to the `<main>` element in the app layout as a nuclear option.
+
+### Q: What do "Lead intake and intelligent triage — Lead Acquisition and Initial Qualification" mean?
+**A:** stepName from LLM call 1 + process.name from LLM call 2 concatenated.
+
+**Per:** why dont you simply delete the process name from call 1 ie dont show it!?
+**Decision:** Fix. Show ONLY `process.name` in the pill, drop `stepName` entirely from the detail page header. The process name from call 2 is the authoritative one. stepName is unreliable and redundant.
+
+---
+
 ### 18. Process Map — Gap cards should have teal dashed border, not gray
 - **Issue**: Gap cards use `border-dashed border-2 border-text-tertiary/30` (gray). Gaps represent opportunities (missing automations that could be built). Opportunities = teal throughout the app. The border should be teal.
 - **Location**: `src/components/process-map-view.tsx` line 212
 - **Current**: `border-dashed border-2 border-text-tertiary/30`
 - **Fix**: Change to `border-dashed border-2 border-primary/30 hover:border-primary/50`
 - **Effort**: Trivial — one line.
+
+is already resolved
+
+---
+
+## Round 2 Patch — Codebase Status (2026-04-06)
+
+Some fixes were partially applied during the spike. Here's what's done vs what still needs work:
+
+**Already applied (from earlier edits):**
+- ✅ #19: splitEstimate removed, total impact renders count + full value in teal
+- ✅ #20: KPI card reordered (Processes/Workflows/Active), "Overview" label added, "of 14 total" removed from Active
+- ✅ #22: "5 items" label removed from Needs Attention
+- ✅ #24/#30: overflow-hidden added to Card component and Link elements in detail-view.tsx (needs verification after cache clear)
+- ✅ #25: revenueConnection explanation text removed from Revenue Connection section
+
+**Still needs fixing:**
+- ❌ #26: "View all" links inconsistent — Attention says "View all on Process Map" (bottom), Opportunities says "View all →" (top right). Need: both at top right, both "View all in {destination}".
+- ❌ #27: Confidence clamp still global in `normalizeConfidence()` — need to revert global clamp, add targeted `clampEstimateConfidence()` for timeSavingsConfidence/revenueConfidence only.
+- ❌ #31: Step pill still shows `shortStepName(data.stepName) — process.name`. Decision: drop stepName, show ONLY process.name.
+- ❓ #30: Horizontal scrollbar — overflow-hidden was added but not verified (cache was stale when last checked). Must verify.
+
+**No questions remaining — all decisions made. Ready for implementation.**
 
 ---
 

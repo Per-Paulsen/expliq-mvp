@@ -279,6 +279,92 @@ Screenshot: `epic-15-final-with-processes.png`
 
 ---
 
+## Post-commit: Performance optimizations — skip-unchanged + Haiku (2026-04-06)
+
+**Optimizations implemented:**
+1. **Skip-unchanged automations:** Per-automation LLM calls skipped for workflows whose n8n definition hasn't changed since last analysis (compares `automationLastUpdated` against `companyProfile.analyzedAt`). Cached analysis results reused for the workspace call.
+2. **Haiku for per-automation calls:** Per-workflow analysis uses `claude-haiku-4-5` (~3x faster, cheaper) via `OPENROUTER_PER_AUTOMATION_MODEL` env var. Workspace-level call stays on Sonnet.
+3. **Previous analysis context:** Workspace LLM call receives `previousAnalysis` with prior process names and recommendation assignments, enabling continuity across re-syncs.
+
+**Timing results:**
+| Scenario | Before | After |
+|----------|--------|-------|
+| Full sync (first time, 12 workflows) | ~8 min | ~4 min (Haiku) |
+| Re-sync (nothing changed) | ~8 min | ~3 min (0 per-auto calls) |
+
+**Bugs fixed during implementation:**
+- `updatedAt` vs `automationLastUpdated`: Prisma's `updatedAt` is auto-refreshed on every sync (execution stats update), making skip-unchanged always re-analyze. Fixed to use `automationLastUpdated` (n8n workflow change timestamp).
+- Haiku model ID: `anthropic/claude-haiku-4-5-20251001` not available on OpenRouter, fixed to `anthropic/claude-haiku-4-5`.
+- Automation index bug: `perAutomationResults[i]` was indexed against all `automations` instead of `needsAnalysis` array.
+- Null safety: unchanged automations' `impact`/`detectability` Json fields need defaults when null.
+
+**Commits:**
+| Commit | Description |
+|--------|-------------|
+| `97c8908` | `perf: skip LLM for unchanged automations + use Haiku for per-automation` |
+| `f47b439` | `feat: pass previous analysis context to workspace LLM for continuity` |
+| `e87787e` | `fix: skip-unchanged uses automationLastUpdated, fix Haiku model ID` |
+
+---
+
+## Known Issues / Future Improvements
+
+### 1. Process name stability across re-syncs (NEEDS STRONGER PROMPT)
+
+The workspace LLM receives `previousAnalysis` with prior process names and is instructed to maintain them unless there's clear reason to change. However, the LLM still drifts — "Lead Intake and Qualification" becomes "Lead Acquisition and Initial Qualification" on the next sync. The names are semantically consistent but not character-for-character stable.
+
+**Impact:** Process IDs change every sync (records are deleted + recreated in the "clean slate" step). This means:
+- Process Map links from gap cards (`/opportunities?process={id}`) point to deleted IDs after re-sync
+- Dashboard process coverage shows different process names each time
+- Delta banner can't meaningfully track process-level changes
+
+**Potential fixes:**
+- **Stronger prompt:** Require the LLM to output a `previousProcessMapping` array showing `{ previousName, newName, reason }` for any renames, and reject responses that rename without justification
+- **Name pinning:** Store "canonical" process names that persist across syncs; LLM proposes names but the pipeline matches to existing canonical names via fuzzy matching
+- **Incremental update:** Instead of clean-slate delete + recreate, update existing BusinessProcess records in place (match by name similarity), preserving IDs
+
+### 2. Skip-unchanged misses execution stat changes (NEEDS THRESHOLD-BASED RE-ANALYSIS)
+
+The current skip-unchanged logic only checks whether the n8n **workflow definition** changed (`automationLastUpdated`). But **execution stats** (runsPerWeek, errorRate, lastExecutedAt, avgDurationMs) are updated on every sync from real execution data — even for unchanged workflows.
+
+If a workflow's error rate jumps from 2% to 31%, the per-automation LLM analysis should re-evaluate its business narrative, impact assessment, and risk level. But the current logic skips re-analysis because the workflow JSON didn't change.
+
+**Impact:** The UI could show stale risk assessments — a workflow flagged as "healthy" might actually be failing at a critical rate, but the cached analysis still says "low impact."
+
+**Potential fix:** Also trigger re-analysis when execution stats change materially:
+```typescript
+const needsReanalysis = (
+  !a.businessNarrative ||
+  !lastAnalyzedAt ||
+  !a.automationLastUpdated ||
+  a.automationLastUpdated > lastAnalyzedAt ||
+  // Execution stat changes that warrant re-analysis:
+  Math.abs((a.errorRate ?? 0) - (cachedErrorRate ?? 0)) > 0.05 ||  // >5pp change
+  (a.runsPerWeek ?? 0) / (cachedRunsPerWeek || 1) > 2  // >2x volume change
+);
+```
+This requires storing the execution stats at the time of last analysis for comparison.
+
+---
+
+## All Epic 15 Commits
+
+| Commit | Description |
+|--------|-------------|
+| `673adf0` | `feat: implement epic 15 — opportunities` — initial implementation |
+| `b26b406` | `fix: broaden recommendation type checks for deploy/detail actions` |
+| `784c7be` | `fix: deploy to n8n — improved prompt, sanitize JSON, graceful activation` |
+| `2f658d5` | `feat: deploy improved versions for technical fix recommendations` |
+| `373fee2` | `style: replace slide-over with inline collapsible detail for recommendations` |
+| `35cdf95` | `fix: deduplicate process name in recommendation cards` |
+| `dd121e6` | `fix: robust tier normalization, FK validation, process linking, scope guidance` |
+| `8216afc` | `fix: process linking via processName field + new process creation` |
+| `97c8908` | `perf: skip LLM for unchanged automations + use Haiku for per-automation` |
+| `f47b439` | `feat: pass previous analysis context to workspace LLM for continuity` |
+| `e87787e` | `fix: skip-unchanged uses automationLastUpdated, fix Haiku model ID` |
+
+---
+
 ## Related
 
 - [Spec](15-opportunities.md)

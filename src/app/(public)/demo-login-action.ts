@@ -16,6 +16,6 @@ export async function demoLoginAction(): Promise<void> {
   await signIn("credentials", {
     email: DEMO_EMAIL,
     password: DEMO_PASSWORD,
-    redirectTo: "/",
+    redirectTo: "/dashboard",
   });
 }

@@ -1,0 +1,4447 @@
+[
+  {
+    "updatedAt": "2026-03-17T18:04:22.226Z",
+    "createdAt": "2026-03-06T10:59:37.632Z",
+    "id": "BlHTY3WMyrHpTYDK",
+    "name": "1 - FairTix Send Welcome Email",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "sendTo": "={{ $json.userEmail }}",
+          "subject": "Welcome to FairTix — Tickets for Fans, Not Bots",
+          "message": "=<h2>Hey {{ $json.userName }}! 👋</h2>\n<p>Welcome to <strong>FairTix</strong> — where every fan gets a fair chance at honest prices.</p>\n<p>Here's what makes us different:</p>\n<ul>\n<li><strong>Fair Queue</strong> — No bots, no speed advantage. Everyone gets an equal shot.</li>\n<li><strong>Transparent Pricing</strong> — The price you see is the price you pay. No hidden fees.</li>\n<li><strong>Verified Humans Only</strong> — Complete your verification to join your first queue.</li>\n<li><strong>Resale Cap</strong> — If you need to resell, prices stay fair (face value + 20% max).</li>\n</ul>\n<p>Your next step: <strong>verify your account</strong> so you're ready when tickets drop.</p>\n<p>See you at the show,<br>The FairTix Team</p> {{ $json.userName }}",
+          "options": {}
+        },
+        "id": "6d3f0b85-f291-4cc7-9446-9e29738f3a29",
+        "name": "Send Welcome Email",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          480,
+          0
+        ],
+        "webhookId": "dad347b2-f412-461d-887b-242e851d4cd4",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "id": "1ab62c55-bfd4-47c3-b498-d66671985c49",
+        "name": "When clicking 'Execute workflow'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "field-name",
+                "name": "userName",
+                "value": "Andreas Stephan",
+                "type": "string"
+              },
+              {
+                "id": "field-email",
+                "name": "userEmail",
+                "value": "demo-author@fairtix.example.com",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "0617c0cf-4177-4d0f-8525-b6a54336bdcc",
+        "name": "Set Name and Email",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          240,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "When clicking 'Execute workflow'": {
+        "main": [
+          [
+            {
+              "node": "Set Name and Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Name and Email": {
+        "main": [
+          [
+            {
+              "node": "Send Welcome Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "7f6db4c4-dd14-4d53-9221-4ad80a7edd5e",
+    "activeVersionId": null,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:51:11.589Z",
+        "createdAt": "2026-03-16T09:51:11.589Z",
+        "role": "workflow:owner",
+        "workflowId": "BlHTY3WMyrHpTYDK",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": null,
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-03-18T07:32:47.222Z",
+    "createdAt": "2026-03-15T20:20:02.140Z",
+    "id": "UVMF5W4FZzVFJwhH",
+    "name": "4 - FairTix- Switch FAQ/Manual",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "claude-haiku-4-5-20251001",
+            "mode": "list",
+            "cachedResultName": "Claude Haiku 4.5"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
+        "position": [
+          1768,
+          152
+        ],
+        "id": "d3c46ba9-062b-407b-84e4-ddcc260f27f4",
+        "name": "Anthropic Chat Model1",
+        "credentials": {
+          "anthropicApi": {
+            "id": "MCwj9jMzCKpt3nyj",
+            "name": "Anthropic account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "documentURL": "=1JXtpHvta3-rsZZSrK2yqIIWrrHkpDoTOsKsy-xiI43A"
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          1248,
+          -336
+        ],
+        "id": "dcb02d6f-df0c-409c-9abe-8e0e26d29c55",
+        "name": "Get FAQ contents",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "jHJX7J9R6GiFVQVA",
+            "name": "Google Docs account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineByPosition",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          1472,
+          -72
+        ],
+        "id": "987cd80f-58f4-4906-9516-3ea428c07ee7",
+        "name": "Merge"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.MessageBody }},\n{{ $json.Subject }}\n\nMy name is {{ $json.SenderName }}",
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=You are a friendly FairTix support agent. Answer the user's question using ONLY the FAQ document below. If the question is not covered by the FAQ, say \"I'm not sure about that — let me connect you with a team member who can help.\"  Be warm, concise, and specific. Use the user's first name if available. Do not invent information that isn't in the FAQ:\n\n{{ $json.content }}"
+              }
+            ]
+          },
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          1696,
+          -72
+        ],
+        "id": "ab7c4e3f-8b1d-4407-a0d1-bb4147065c62",
+        "name": "Create FAQ Answer Email"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1-7ClbKmIA1HTtrop-ybJAImcl9MovFzMzDjFBqvrkVQ",
+            "mode": "list",
+            "cachedResultName": "Andreas Stephan-Support-Messages",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-7ClbKmIA1HTtrop-ybJAImcl9MovFzMzDjFBqvrkVQ/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Response": "={{ $json.text }}",
+              "SenderName": "={{ $('If').item.json.SenderName }}"
+            },
+            "matchingColumns": [
+              "SenderName"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "SenderName",
+                "displayName": "SenderName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "SenderEmail",
+                "displayName": "SenderEmail",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "MessageBody",
+                "displayName": "MessageBody",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Category",
+                "displayName": "Category",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Sentiment",
+                "displayName": "Sentiment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Confidence",
+                "displayName": "Confidence",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Rationale",
+                "displayName": "Rationale",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Response",
+                "displayName": "Response",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "da719cba-60c1-4d8a-ba1e-45a762bb9dc0",
+        "name": "add response text to sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2048,
+          -72
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Write an automated response email text for FAQ categories",
+          "height": 80
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1680,
+          -176
+        ],
+        "typeVersion": 1,
+        "id": "48f7b222-6977-4676-9e31-0c7e63982612",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "8b55f080-65a8-4ad3-a1e4-689e3ac40c76",
+                "name": "category",
+                "value": "={{$json.output.category}}",
+                "type": "string"
+              },
+              {
+                "id": "cc7f3269-b143-47e4-b1b9-c086155219c3",
+                "name": "sentiment",
+                "value": "={{ $json.output.sentiment }}",
+                "type": "string"
+              },
+              {
+                "id": "5466c7c0-385a-4557-93cd-5dbce61107d0",
+                "name": "confidence",
+                "value": "={{ $json.output.confidence }}",
+                "type": "number"
+              },
+              {
+                "id": "7f5a7958-128a-4961-9933-000906bf0358",
+                "name": "rationale",
+                "value": "={{ $json.output.rationale }}",
+                "type": "string"
+              },
+              {
+                "id": "ab04372d-a201-43c0-a3e1-a66c75d85fda",
+                "name": "MessageBody",
+                "value": "={{ $('New Support Mail Received').item.json.text }}",
+                "type": "string"
+              },
+              {
+                "id": "c82daee2-e306-436a-9549-3c6a3043c361",
+                "name": "SenderName",
+                "value": "={{ $('New Support Mail Received').item.json.from.value[0].name.substr(19) }}",
+                "type": "string"
+              },
+              {
+                "id": "4429b3df-5b1b-44d8-ad14-8f102727f7f9",
+                "name": "Subject",
+                "value": "={{ $('New Support Mail Received').item.json.subject }}",
+                "type": "string"
+              },
+              {
+                "id": "2053ee27-488f-4daf-91a8-716fa8f54859",
+                "name": "SenderEmail",
+                "value": "={{ $('New Support Mail Received').item.json.to.text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          800,
+          -240
+        ],
+        "id": "af0e7f60-e77f-4dae-9cb4-4697da03ca92",
+        "name": "Data Mapping"
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1-7ClbKmIA1HTtrop-ybJAImcl9MovFzMzDjFBqvrkVQ",
+            "mode": "list",
+            "cachedResultName": "Andreas Stephan-Support-Messages",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-7ClbKmIA1HTtrop-ybJAImcl9MovFzMzDjFBqvrkVQ/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-7ClbKmIA1HTtrop-ybJAImcl9MovFzMzDjFBqvrkVQ/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "MessageBody": "={{ $json.MessageBody }}",
+              "SenderName": "={{ $json.SenderName }}",
+              "SenderEmail": "={{ $json.SenderEmail }}",
+              "Subject": "={{ $json.Subject }}",
+              "Category": "={{ $json.category }}",
+              "Sentiment": "={{ $json.sentiment }}",
+              "Confidence": "={{ $json.confidence }}",
+              "Rationale": "={{ $json.rationale }}",
+              "UpdatedAt": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "SenderName"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "SenderName",
+                "displayName": "SenderName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "SenderEmail",
+                "displayName": "SenderEmail",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "MessageBody",
+                "displayName": "MessageBody",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Category",
+                "displayName": "Category",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Sentiment",
+                "displayName": "Sentiment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Confidence",
+                "displayName": "Confidence",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Rationale",
+                "displayName": "Rationale",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Response",
+                "displayName": "Response",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "CreatedAt",
+                "displayName": "CreatedAt",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "UpdatedAt",
+                "displayName": "UpdatedAt",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "f6712e50-7cb8-4499-8f0a-cbb32a75f2b4",
+        "name": "Write Classification to MessagesSheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1024,
+          -336
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $('New Support Mail Received').item.json.to.value[0].address }}",
+          "subject": "Your FairTix Request",
+          "emailType": "text",
+          "message": "={{ $json.Response }}",
+          "options": {
+            "appendAttribution": false,
+            "senderName": "FairTix Support"
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          2272,
+          -72
+        ],
+        "id": "19575614-61ba-4e0b-b04c-0e1809525764",
+        "name": "Send a message",
+        "webhookId": "716f34c4-1eb6-48f0-a1a2-2289a7b216ec",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Please always sent response to your personal email",
+          "height": 80
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2192,
+          -176
+        ],
+        "typeVersion": 1,
+        "id": "6b176f66-976f-4790-8e43-269f125e7706",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 1
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          0,
+          -240
+        ],
+        "id": "5fe44ab7-59ac-48c9-bfbd-bdc619709a93",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\"FAQ\", \"Account/Verification\", \"Payment/Billing\", \"Technical/Bug\", \"Resale/Transfer\", \"Feedback\"],\n      \"description\": \"The primary support category based on what action is needed to resolve the message\"\n    },\n    \"sentiment\": {\n      \"type\": \"string\",\n      \"enum\": [\"positive\", \"neutral\", \"frustrated\", \"angry\"],\n      \"description\": \"The emotional tone of the message\"\n    },\n    \"confidence\": {\n      \"type\": \"number\",\n      \"description\": \"Classification confidence from 0.0 to 1.0\"\n    },\n    \"rationale\": {\n      \"type\": \"string\",\n      \"description\": \"Brief explanation of why this category was chosen\"\n    }\n  },\n  \"required\": [\"category\", \"sentiment\", \"confidence\", \"rationale\"]\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          584,
+          -16
+        ],
+        "id": "a569270c-7985-44ce-9016-ee201bcd369e",
+        "name": "Structured Output Parser1"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "claude-sonnet-4-6",
+            "mode": "list",
+            "cachedResultName": "Claude Sonnet 4.6"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
+        "position": [
+          456,
+          -16
+        ],
+        "id": "4ed56ca5-1ea4-43e3-9728-c0494313f1b4",
+        "name": "Anthropic Chat Model",
+        "credentials": {
+          "anthropicApi": {
+            "id": "MCwj9jMzCKpt3nyj",
+            "name": "Anthropic account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Connect your personal target sheet",
+          "height": 80,
+          "width": 176
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          992,
+          -432
+        ],
+        "typeVersion": 1,
+        "id": "3a1b7449-dcf8-49ef-aa9e-6e5519b4c186",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=From: {{ $json.from.value[0].name }}\nSubject:{{ $json.subject }} \n{{ $json.text }}",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "You are a support message classifier for FairTix, a fair ticket marketplace. Your job is to read an incoming customer support message and classify it into exactly ONE category and ONE sentiment.\n\n## Categories\n\n**FAQ** — The user is asking a question that can be answered from general FairTix knowledge: how the fair queue works, pricing transparency, ticket delivery, resale rules, verification process, purchase policies. Classify as FAQ even if the user is angry or frustrated — what matters is whether the QUESTION can be answered from standard information, not the user's tone.\n\n**Account/Verification** — The user has a problem with their specific account: can't log in, verification failing, need to change phone number, account locked, account missing, profile data issues. These require access to the user's account data to resolve.\n\n**Payment/Billing** — The user has a problem with a specific transaction: double charge, payment declined, refund request, pending charges, missing payment for a resale. These require access to transaction records to resolve.\n\n**Technical/Bug** — The user is experiencing a technical malfunction: app crashes, buttons not working, display errors, wrong information shown on their ticket, features not loading. These require investigation by the technical team.\n\n**Resale/Transfer** — The user has a question or problem specifically about reselling or transferring a ticket: listing not working, transfer process, resale eligibility issues. Note: general questions about resale RULES (like \"what is the resale cap?\") are FAQ. Problems with a SPECIFIC resale or transfer action are Resale/Transfer.\n\n**Feedback** — The user is sharing general feedback, praise, suggestions, or feature requests. They are not asking a question and do not have a problem to solve.\n\n## Sentiment\n\n**positive** — The user is happy, grateful, enthusiastic, or complimentary.\n**neutral** — The user is calm and informational. No strong emotion either way.\n**frustrated** — The user is annoyed, worried, or impatient but still communicating constructively.\n**angry** — The user is hostile, using caps/exclamation marks, making threats (e.g., chargebacks, negative reviews), or expressing outrage.\n\n## Rules\n\n1. Choose exactly ONE category based on what ACTION is needed to resolve the message — not based on the user's tone.\n2. Choose exactly ONE sentiment based on the user's emotional state.\n3. If a message could fit multiple categories, choose the one that best describes the PRIMARY issue the user needs resolved.\n4. If a message contains both a question AND a problem (e.g., \"How does resale work AND my listing was removed\"), classify by the PROBLEM — the question is secondary.\n5. Estimate your confidence as a decimal between 0.0 and 1.0. Use 0.85+ when the classification is clear. Use 0.5-0.7 when the message is ambiguous or could fit multiple categories.\n\n## Examples\n\nUser: \"How does the fair queue work? Does it matter when I join?\"\n→ {\"category\": \"FAQ\", \"sentiment\": \"neutral\", \"confidence\": 0.95, \"rationale\": \"User is asking a general question about the fair queue process.\"}\n\nUser: \"I'M SO SICK OF THIS. I entered the queue FOUR TIMES and never got selected. Your system is broken.\"\n→ {\"category\": \"FAQ\", \"sentiment\": \"angry\", \"confidence\": 0.75, \"rationale\": \"Despite the anger, the underlying question is about how the random selection works and why they weren't chosen. No specific account action needed.\"}\n\nUser: \"I tried to verify my phone but the code never arrives. I've tried three times with my +48 number.\"\n→ {\"category\": \"Account/Verification\", \"sentiment\": \"frustrated\", \"confidence\": 0.9, \"rationale\": \"User has a specific verification problem tied to their account and phone number.\"}\n\nUser: \"I see two charges on my credit card but only bought one ticket. Order FT-20260412-8834.\"\n→ {\"category\": \"Payment/Billing\", \"sentiment\": \"neutral\", \"confidence\": 0.95, \"rationale\": \"Specific transaction issue requiring access to payment records.\"}\n\nUser: \"The app crashes every time I try to open my ticket. Android, Pixel 8.\"\n→ {\"category\": \"Technical/Bug\", \"sentiment\": \"frustrated\", \"confidence\": 0.95, \"rationale\": \"Technical malfunction requiring investigation by the dev team.\"}\n\nUser: \"My resale listing was removed with no explanation. I was within the price cap.\"\n→ {\"category\": \"Resale/Transfer\", \"sentiment\": \"angry\", \"confidence\": 0.85, \"rationale\": \"Problem with a specific resale action, not a general question about resale rules.\"}\n\nUser: \"Just wanted to say thanks — the fair queue experience was amazing. No stress, no panic. You have a fan for life.\"\n→ {\"category\": \"Feedback\", \"sentiment\": \"positive\", \"confidence\": 0.95, \"rationale\": \"User is sharing praise with no question or problem to resolve.\"}\n\n## Output format\n\nRespond with ONLY a valid JSON object. No preamble, no explanation, no markdown formatting, no backticks. Just the raw JSON.\n\n{\"category\": \"...\", \"sentiment\": \"...\", \"confidence\": 0.0, \"rationale\": \"...\"}"
+              }
+            ]
+          },
+          "batching": {
+            "batchSize": 1,
+            "delayBetweenBatches": 1000
+          }
+        },
+        "id": "17dceeb8-653b-4df3-b249-26b354e82a60",
+        "name": "Classify Message",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          448,
+          -240
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 25,
+          "simple": false,
+          "filters": {
+            "q": "subject: Support Request"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          224,
+          -240
+        ],
+        "id": "0a441ae3-f367-4504-92fe-b85687fa3bb9",
+        "name": "New Support Mail Received",
+        "webhookId": "1860b8c5-2dd1-488a-8820-c809681f31d1",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "75725a62-f1b4-4241-9a37-5ec8b6484b62",
+                "leftValue": "={{ $json.category }}",
+                "rightValue": "FAQ",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1024,
+          -144
+        ],
+        "id": "2e1eaf84-ec18-48db-8cc1-df4e2278082e",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "sendTo": "ops@fairtix.example.com",
+          "subject": "={{ $('Classify Message').item.json.output.category }} - {{ $json.Subject }}",
+          "emailType": "text",
+          "message": "=New support ticket requiring human attention:\n\nCategory:{{ $('Classify Message').item.json.output.category }} \nSentiment: {{ $('Classify Message').item.json.output.sentiment }}\nConfidence: {{ $('Classify Message').item.json.output.confidence }}  \n\nFrom: {{ $json.SenderName }} ({{ $json.SenderEmail }}) \nSubject: {{ $json.Subject }}  \n\nOriginal Message: \n{{ $json.MessageBody }}  \n\nAI Assessment:\n{{ $('Classify Message').item.json.output.rationale }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          1264,
+          80
+        ],
+        "id": "09ac708a-8443-4936-b5f8-c930a4db4525",
+        "name": "Notify Support Team to reply manually",
+        "webhookId": "19beadac-4328-4214-9dfb-17c877fa3c77",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        },
+        "onError": "continueErrorOutput"
+      }
+    ],
+    "connections": {
+      "Anthropic Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Create FAQ Answer Email",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get FAQ contents": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Create FAQ Answer Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create FAQ Answer Email": {
+        "main": [
+          [
+            {
+              "node": "add response text to sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "add response text to sheet": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Data Mapping": {
+        "main": [
+          [
+            {
+              "node": "Write Classification to MessagesSheet",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "New Support Mail Received",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Anthropic Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Classify Message": {
+        "main": [
+          [
+            {
+              "node": "Data Mapping",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "New Support Mail Received": {
+        "main": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Get FAQ contents",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ],
+          [
+            {
+              "node": "Notify Support Team to reply manually",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {
+      "Data Mapping": [
+        {
+          "json": {
+            "category": "Feedback",
+            "sentiment": "positive",
+            "confidence": 0.97,
+            "rationale": "Emil is sharing genuine praise about his experience getting a Radiohead ticket at face value and includes a feature suggestion (showing estimated queue odds). There is no question or problem to resolve — this is purely feedback and a compliment.",
+            "MessageBody": "Just some feedback from a longtime concert-goer. I used to spend hundreds extra on resale sites because I had no choice. Last month I got my Radiohead ticket through FairTix at face value and the whole experience was just... calm. No panic, no racing against bots, no fee shock at checkout. The transparency is refreshing. Only suggestion: it would be great to see estimated odds before joining a queue (like \"12,000 people in queue for 5,000 tickets\"). Keep up the good work!\n\nEmil Lindqvist\n",
+            "SenderName": "Emil Lindqvist",
+            "Subject": "Support Request - FairTix changed how I think about tickets",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 0
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "angry",
+            "confidence": 0.82,
+            "rationale": "Despite the hostile tone, use of quotes around 'fair', and demands for a guaranteed spot, the core question is about how the random selection process works and why repeated non-selection is possible. This can be answered with general information about the fair queue system. No specific account data or transaction records are needed to address the underlying question. The demand for a guaranteed spot is unreasonable but doesn't change the classification — the resolvable part of this message is an explanation of queue odds and selection mechanics.",
+            "MessageBody": "I've entered the queue for SIX different events over the past two months and haven't been selected once. Not a single time. Meanwhile I see people on social media showing off tickets to multiple shows. If everyone has the same chance, how is it statistically possible that I get zero out of six? Something is clearly wrong with your system. I demand an explanation and I want a guaranteed spot at the next event I apply for.\n\nLucia Fernandez\n",
+            "SenderName": "Lucia Fernandez",
+            "Subject": "Support Request - Your \"\"fair\"\" queue is rigged",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 1
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "neutral",
+            "confidence": 0.88,
+            "rationale": "Ben is asking general questions about FairTix policies: whether minors can create accounts, whether separate phone numbers are required for verification, and whether a family ticket option exists. All of these can be answered from standard FairTix policy information without needing access to any specific account or transaction data. Tone is calm and polite.",
+            "MessageBody": "Hi FairTix,\n\nI see the policy is one ticket per person. I have two kids (ages 12 and 15) who I want to take to the Taylor Swift show. Can they create their own accounts and join the queue separately? Do they need their own phone numbers for verification? Or is there a family ticket option? They don't have their own phones yet so the SMS verification might be tricky.\n\nThanks,\nBen\n\nBen Murphy\n",
+            "SenderName": "Ben Murphy",
+            "Subject": "Support Request - Can I buy tickets for my kids too?",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 2
+          }
+        },
+        {
+          "json": {
+            "category": "Payment/Billing",
+            "sentiment": "frustrated",
+            "confidence": 0.82,
+            "rationale": "Priya has a specific transaction issue: payment was charged (€65) and a confirmation email was received, but the ticket is not appearing in her account. This requires access to transaction and order records (order FT-20260501-2291) to resolve. While it could also touch Account/Verification (missing ticket in account) or Technical/Bug (display issue), the primary resolution path is verifying the payment and ticket delivery tied to this specific order. Sentiment is frustrated given the time pressure and expressed panic, but she remains calm and constructive.",
+            "MessageBody": "Hello,\n\nI successfully purchased a ticket for the Ed Sheeran concert in Cologne three days ago. I received the confirmation email and my credit card was charged €65. But when I log into my account, under \"My Tickets\" it shows nothing. The confirmation email has the order number FT-20260501-2291. Where is my ticket? The show is in two weeks and I'm starting to panic.\n\nPriya\n\nPriya Sharma\n",
+            "SenderName": "Priya Sharma",
+            "Subject": "Support Request - Still no ticket in my account — paid 3 days ago",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 3
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "neutral",
+            "confidence": 0.95,
+            "rationale": "User is asking general questions about FairTix purchase window policy and re-entry rules after queue selection. These are informational questions answerable from standard policy documentation, with no specific account or transaction issue to resolve.",
+            "MessageBody": "Quick question — if I get selected in the fair queue but I can't complete the purchase within the 24-hour window (like if I'm traveling and don't see the email), what happens? Does my spot go to someone else? Can I get back in the queue for the same event? Just want to plan ahead because I travel a lot for work. Thanks!\n\nYuki Tanaka\n",
+            "SenderName": "Yuki Tanaka",
+            "Subject": "Support Request - What happens if I don't complete my purchase in time?",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 4
+          }
+        },
+        {
+          "json": {
+            "category": "Account/Verification",
+            "sentiment": "frustrated",
+            "confidence": 0.95,
+            "rationale": "User is locked out of their account due to 2FA being tied to a disconnected old phone number. This is a specific account access and verification issue requiring account-level intervention to resolve, not a general FAQ question about how the process works.",
+            "MessageBody": "Hey, I changed my phone number last month and now I can't log into my FairTix account because the 2FA code goes to my old number which is disconnected. I still have access to my email. How do I update my phone number without being able to log in? Kind of a catch-22 situation here. I need access before the Green Day lottery next week.\n\nFelix\n\nFelix Hartmann\n",
+            "SenderName": "Felix Hartmann",
+            "Subject": "Support Request - Verification code goes to old number",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 5
+          }
+        },
+        {
+          "json": {
+            "category": "Payment/Billing",
+            "sentiment": "frustrated",
+            "confidence": 0.82,
+            "rationale": "Priya has paid €65 and received a confirmation email with order number FT-20260501-2291, but the ticket is not appearing in her account. While this could also be classified as Technical/Bug (display issue) or Account/Verification (account data issue), the primary resolution path requires verifying the transaction and linking the order to her account — making Payment/Billing the best fit. Her tone is worried and panicked but still constructive, placing her at frustrated.",
+            "MessageBody": "Hello,\n\nI successfully purchased a ticket for the Ed Sheeran concert in Cologne three days ago. I received the confirmation email and my credit card was charged €65. But when I log into my account, under \"My Tickets\" it shows nothing. The confirmation email has the order number FT-20260501-2291. Where is my ticket? The show is in two weeks and I'm starting to panic.\n\nPriya\n\nPriya Sharma\n",
+            "SenderName": "Priya Sharma",
+            "Subject": "Support Request - Still no ticket in my account — paid 3 days ago",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 6
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "neutral",
+            "confidence": 0.95,
+            "rationale": "User is asking general questions about FairTix purchase window policy — what happens when the 24-hour window expires, whether the spot goes to someone else, and whether they can re-enter the queue. These are all answerable from standard FairTix policy information and require no access to account or transaction data.",
+            "MessageBody": "Quick question — if I get selected in the fair queue but I can't complete the purchase within the 24-hour window (like if I'm traveling and don't see the email), what happens? Does my spot go to someone else? Can I get back in the queue for the same event? Just want to plan ahead because I travel a lot for work. Thanks!\n\nYuki Tanaka\n",
+            "SenderName": "Yuki Tanaka",
+            "Subject": "Support Request - What happens if I don't complete my purchase in time?",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 7
+          }
+        },
+        {
+          "json": {
+            "category": "Account/Verification",
+            "sentiment": "frustrated",
+            "confidence": 0.95,
+            "rationale": "Felix has a specific account access problem: 2FA codes are going to his disconnected old number, locking him out. This requires account-level intervention to update his phone number and restore access. While he phrases it as a question ('How do I...?'), the resolution requires access to his specific account data, making Account/Verification the correct category. Sentiment is frustrated — he's describing a genuine catch-22 situation with urgency due to an upcoming lottery, but remains calm and constructive.",
+            "MessageBody": "Hey, I changed my phone number last month and now I can't log into my FairTix account because the 2FA code goes to my old number which is disconnected. I still have access to my email. How do I update my phone number without being able to log in? Kind of a catch-22 situation here. I need access before the Green Day lottery next week.\n\nFelix\n\nFelix Hartmann\n",
+            "SenderName": "Felix Hartmann",
+            "Subject": "Support Request - Verification code goes to old number",
+            "SenderEmail": "demo-author@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 8
+          }
+        },
+        {
+          "json": {
+            "category": "Payment/Billing",
+            "sentiment": "frustrated",
+            "confidence": 0.82,
+            "rationale": "Priya has paid €65 and received a confirmation email with order number FT-20260501-2291, but her ticket is not appearing in her account. While this could also be a Technical/Bug issue, the primary concern is that a specific transaction was completed but the ticket entitlement has not been fulfilled — resolving this requires access to transaction and order records. The user is anxious about the upcoming show but communicating constructively, indicating a frustrated sentiment.",
+            "MessageBody": "Hello,\n\nI successfully purchased a ticket for the Ed Sheeran concert in Cologne three days ago. I received the confirmation email and my credit card was charged €65. But when I log into my account, under \"My Tickets\" it shows nothing. The confirmation email has the order number FT-20260501-2291. Where is my ticket? The show is in two weeks and I'm starting to panic.\n\nPriya\n\nPriya Sharma\n",
+            "SenderName": "Priya Sharma",
+            "Subject": "Support Request - Still no ticket in my account — paid 3 days ago",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 9
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "neutral",
+            "confidence": 0.95,
+            "rationale": "User is asking a general question about what happens when a fair queue selection window expires — what the policy is, whether the spot is forfeited, and whether re-entry is possible. These are all answerable from standard FairTix policy information and require no account-specific action.",
+            "MessageBody": "Quick question — if I get selected in the fair queue but I can't complete the purchase within the 24-hour window (like if I'm traveling and don't see the email), what happens? Does my spot go to someone else? Can I get back in the queue for the same event? Just want to plan ahead because I travel a lot for work. Thanks!\n\nYuki Tanaka\n",
+            "SenderName": "Yuki Tanaka",
+            "Subject": "Support Request - What happens if I don't complete my purchase in time?",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 10
+          }
+        },
+        {
+          "json": {
+            "category": "Account/Verification",
+            "sentiment": "frustrated",
+            "confidence": 0.95,
+            "rationale": "Felix has a specific account access problem: his 2FA codes are going to a disconnected old phone number, locking him out. This requires account-level intervention to resolve, not just general information. His tone is calm and constructive despite the urgency, making it frustrated rather than angry.",
+            "MessageBody": "Hey, I changed my phone number last month and now I can't log into my FairTix account because the 2FA code goes to my old number which is disconnected. I still have access to my email. How do I update my phone number without being able to log in? Kind of a catch-22 situation here. I need access before the Green Day lottery next week.\n\nFelix\n\nFelix Hartmann\n",
+            "SenderName": "Felix Hartmann",
+            "Subject": "Support Request - Verification code goes to old number",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 11
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "neutral",
+            "confidence": 0.92,
+            "rationale": "Klara is asking general questions about resale price cap rules — specifically how the 20% cap is calculated and who pays transaction fees. These are policy/information questions answerable from standard FairTix knowledge. She has not yet listed a ticket or encountered a specific problem, so no account or transaction access is needed.",
+            "MessageBody": "Hi,\n\nI have a ticket for the Depeche Mode show that I bought for €85. I see the resale cap is face value + 20%, so the maximum I can list it for is €102. My question is: does the 20% include or exclude the original service fees? And who pays the transaction fee on the resale — me or the buyer? I want to make sure I understand before listing it.\n\nThanks,\nKlara\n\nKlara Wendt\n",
+            "SenderName": "Klara Wendt",
+            "Subject": "Support Request - Resale price cap question",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 12
+          }
+        },
+        {
+          "json": {
+            "category": "Technical/Bug",
+            "sentiment": "frustrated",
+            "confidence": 0.97,
+            "rationale": "User reports a specific, reproducible app crash when tapping on a ticket (white screen then closes) on Android Pixel 8. They've already attempted basic troubleshooting (reinstall, restart). This requires investigation by the technical team. Sentiment is frustrated due to the time-sensitive nature (event in 5 days) and expressed worry, though the tone remains calm and constructive.",
+            "MessageBody": "Hi support,\n\nWhenever I try to view my ticket for the Dua Lipa concert in the FairTix app (Android, Pixel 8, latest update), the app crashes immediately. It loads the ticket list fine but the moment I tap on the specific ticket, it goes to a white screen and then closes. I've tried reinstalling the app and restarting my phone. The event is in 5 days so I'm getting a bit worried. Can you help?\n\nRaj\n\nRaj Patel\n",
+            "SenderName": "Raj Patel",
+            "Subject": "Support Request - App crashes when opening my ticket",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 13
+          }
+        },
+        {
+          "json": {
+            "category": "Feedback",
+            "sentiment": "positive",
+            "confidence": 0.99,
+            "rationale": "Nina is sharing enthusiastic praise about her experience with the fair queue and transparent pricing. She has no question or problem to resolve — this is purely positive feedback and a feature endorsement.",
+            "MessageBody": "Just wanted to say THANK YOU. I've been trying to see Beyoncé for literally years and every time bots grabbed all the tickets. Yesterday I got selected through the fair queue and I actually cried. The price was exactly what it said — no surprise fees at checkout. You have a customer for life. Please never change how you do things. ❤️\n\nNina Johansson\n",
+            "SenderName": "Nina Johansson",
+            "Subject": "Support Request - Love this platform!!!",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 14
+          }
+        },
+        {
+          "json": {
+            "category": "Payment/Billing",
+            "sentiment": "angry",
+            "confidence": 0.9,
+            "rationale": "The user is requesting a refund for a specific €72 transaction following a postponed event. Resolving this requires access to transaction records. The user is hostile, making threats of a bank dispute and negative reviews, indicating an angry sentiment.",
+            "MessageBody": "I've sent THREE emails over the past 10 days about the postponed DJ Snake show in Hamburg. The event page says \"postponed\" but nobody has told me whether my ticket is still valid or if I get a refund. I paid €72 and I want my money back. If I don't hear from someone by end of this week I'm filing a dispute with my bank and leaving a review everywhere I can. This is the worst customer service I've ever experienced.\n\nDavid Osei\n",
+            "SenderName": "David Osei",
+            "Subject": "Support Request - REFUND NOW — Event cancelled and no response",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 15
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "positive",
+            "confidence": 0.97,
+            "rationale": "Sarah is asking general questions about how the fair queue works — specifically whether timing of entry matters and how long selection takes. These are standard questions answerable from general FairTix knowledge. Her tone is friendly and enthusiastic, making the sentiment positive.",
+            "MessageBody": "Hi! I just signed up for FairTix and I'm a bit confused about the fair queue. When I join, does it matter how fast I enter? Like, if I join in the first minute vs. the last minute of the window, do I have the same chance? Also, how long does the selection take after the window closes? I want to make sure I understand the process before the Kendrick Lamar tickets drop next week. Thanks!\n\nSarah Chen\n",
+            "SenderName": "Sarah Chen",
+            "Subject": "Support Request - How does the fair queue actually work?",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 16
+          }
+        },
+        {
+          "json": {
+            "category": "Account/Verification",
+            "sentiment": "frustrated",
+            "confidence": 0.95,
+            "rationale": "Tomasz has a specific, reproducible verification failure tied to his account. He has already attempted multiple troubleshooting steps (different browsers, cache clearing) and the SMS code is received but rejected, indicating a backend or account-level issue rather than a general FAQ question. The urgency around Friday's queue adds to the frustrated tone, but the message remains constructive and informational.",
+            "MessageBody": "Hello,\n\nI've been trying to verify my account for the past two days. I enter my phone number, I get the SMS code, I type it in, and every time it says \"Verification failed. Please try again.\" I've tried three different browsers and cleared my cache. My phone number is Polish (+48) — could that be the issue? I need to get verified before the Rammstein queue opens on Friday.\n\nTomasz\n\nTomasz Kowalski\n",
+            "SenderName": "Tomasz Kowalski",
+            "Subject": "Support Request - Phone verification not working",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 17
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "positive",
+            "confidence": 0.78,
+            "rationale": "Aisha is asking how the ticket transfer/gifting process works — a general question about FairTix's transfer rules and policies. While it touches on Resale/Transfer, she doesn't have a specific problem with an active transfer action; she hasn't attempted anything yet and is asking what she needs to do. This can be answered from standard FairTix policy information, making FAQ the best fit. Confidence is slightly reduced because the question is closely related to Resale/Transfer territory.",
+            "MessageBody": "Hey there! I won a ticket to the Billie Eilish show in Munich but my sister is a way bigger fan than me. I'd love to just give it to her — I don't want any money for it. She has her own verified FairTix account. I read something about resale being capped at +20% but I'm not trying to sell it, just transfer it as a gift. What do I need to do?\n\nCheers,\nAisha\n\nAisha Okonkwo\n",
+            "SenderName": "Aisha Okonkwo",
+            "Subject": "Support Request - Can I transfer my ticket to my sister?",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 18
+          }
+        },
+        {
+          "json": {
+            "category": "FAQ",
+            "sentiment": "angry",
+            "confidence": 0.82,
+            "rationale": "Despite Marco's intense anger and demand for investigation, the core question is about how the fair queue random selection works and whether the algorithm favors certain users. No specific account action is required — this can be addressed with a general explanation of how the lottery system operates. The user's tone is hostile with caps and accusations, making sentiment clearly angry.",
+            "MessageBody": "ARE YOU KIDDING ME?? I waited THREE WEEKS for the Coldplay lottery and I didn't get selected AGAIN. This is the second time in a row. How is this \"fair\"?? My friend signed up the same day and got through. Explain to me how a system that rejects me twice is fair. I'm starting to think this whole \"fair queue\" thing is just marketing BS. I want someone to actually look into whether your algorithm is broken or if you're giving preference to certain users. This is unacceptable.\n\nMarco Di Napoli\n",
+            "SenderName": "Marco Di Napoli",
+            "Subject": "Support Request - THIS IS ABSOLUTE GARBAGE",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 19
+          }
+        },
+        {
+          "json": {
+            "category": "Payment/Billing",
+            "sentiment": "frustrated",
+            "confidence": 0.97,
+            "rationale": "Lena reports a duplicate charge of €55.00 on her credit card for a single ticket purchase, provides an order number (FT-20260412-8834), and requests a refund. This is a specific transaction issue requiring access to payment records. Her tone is polite but concerned, fitting 'frustrated' rather than 'neutral'.",
+            "MessageBody": "Hi FairTix team,\n\nI completed my purchase for the Arctic Monkeys show in Berlin yesterday and I can see TWO charges of €55.00 on my credit card statement. I only bought one ticket (which is all you allow anyway). Can you please check this and refund the duplicate charge? I've attached a screenshot of my bank statement. My order number is FT-20260412-8834.\n\nThanks,\nLena\n\nLena Bergström\n",
+            "SenderName": "Lena Bergström",
+            "Subject": "Support Request - Charged twice for Arctic Monkeys ticket??",
+            "SenderEmail": "ops@fairtix.example.com"
+          },
+          "pairedItem": {
+            "item": 20
+          }
+        }
+      ]
+    },
+    "versionId": "dafb0535-7efd-410d-8489-48d588062101",
+    "activeVersionId": null,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:52:13.268Z",
+        "createdAt": "2026-03-16T09:52:13.268Z",
+        "role": "workflow:owner",
+        "workflowId": "UVMF5W4FZzVFJwhH",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": null,
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-03-16T20:14:21.845Z",
+    "createdAt": "2026-03-16T08:42:54.161Z",
+    "id": "YaISNWlu30eV1Ko3",
+    "name": "5 - FairTix - LotteryWin - Published",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "sendTo": "={{ $json.Email }}",
+          "subject": "={{ $json.EventName }} - You won!",
+          "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; background-color: #ffffff;\">\n\n  <!-- Header -->\n  <div style=\"background-color: #1a1a2e; padding: 32px 24px; text-align: center; border-radius: 8px 8px 0 0;\">\n    <h1 style=\"color: #ffffff; font-size: 24px; margin: 0; font-weight: 700; letter-spacing: -0.5px;\">🎫 FairTix</h1>\n    <p style=\"color: #a0a0b8; font-size: 13px; margin: 8px 0 0 0;\">Tickets for fans, not bots.</p>\n  </div>\n\n  <!-- Main Content -->\n  <div style=\"background-color: #f8f8fc; padding: 32px 24px;\">\n\n    <!-- Celebration Banner -->\n    <div style=\"background: linear-gradient(135deg, #16a34a, #15803d); padding: 24px; border-radius: 8px; text-align: center; margin-bottom: 24px;\">\n      <p style=\"color: #bbf7d0; font-size: 14px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">Fair Queue Result</p>\n      <h2 style=\"color: #ffffff; font-size: 28px; margin: 0; font-weight: 700;\">You got the ticket! 🎉</h2>\n    </div>\n\n    <!-- Greeting -->\n    <p style=\"color: #1a1a2e; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;\">\n      Hey {{ $json.Name }},\n    </p>\n    <p style=\"color: #1a1a2e; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;\">\n      Great news — the Fair Queue selected you for <strong>{{ $json.EventName }}</strong>! Your ticket is reserved and waiting for you.\n    </p>\n\n    <!-- Ticket Details Card -->\n    <div style=\"background-color: #ffffff; border: 1px solid #e2e2ee; border-radius: 8px; padding: 24px; margin-bottom: 24px;\">\n      <table style=\"width: 100%; border-collapse: collapse;\">\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Event</td>\n          <td style=\"padding: 8px 0; color: #1a1a2e; font-size: 15px; font-weight: 600; text-align: right;\">{{ $json.EventName }}</td>\n        </tr>\n        <tr>\n          <td colspan=\"2\" style=\"border-bottom: 1px solid #f0f0f5;\"></td>\n        </tr>\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Total Price</td>\n          <td style=\"padding: 8px 0; color: #1a1a2e; font-size: 15px; font-weight: 600; text-align: right;\">€{{ $json.TicketPrice }}</td>\n        </tr>\n        <tr>\n          <td colspan=\"2\" style=\"border-bottom: 1px solid #f0f0f5;\"></td>\n        </tr>\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Hidden Fees</td>\n          <td style=\"padding: 8px 0; color: #16a34a; font-size: 15px; font-weight: 600; text-align: right;\">€0.00 ✓</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Transparent Pricing Note -->\n    <div style=\"background-color: #f0fdf4; border-left: 3px solid #16a34a; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 24px;\">\n      <p style=\"color: #15803d; font-size: 13px; margin: 0; line-height: 1.5;\">\n        <strong>All-in pricing.</strong> The price above is exactly what you'll pay. No service fees, no processing charges, no surprises at checkout.\n      </p>\n    </div>\n\n    <!-- CTA Button -->\n    <div style=\"text-align: center; margin-bottom: 24px;\">\n      <a href=\"https://fairtix.demo/checkout\" style=\"display: inline-block; background-color: #1a1a2e; color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 6px; font-size: 15px; font-weight: 600;\">Complete Your Purchase →</a>\n    </div>\n\n    <p style=\"color: #6b6b80; font-size: 13px; text-align: center; margin: 0;\">\n      You have <strong>24 hours</strong> to complete your purchase before your spot is released.\n    </p>\n  </div>\n\n  <!-- Footer -->\n  <div style=\"background-color: #1a1a2e; padding: 20px 24px; text-align: center; border-radius: 0 0 8px 8px;\">\n    <p style=\"color: #a0a0b8; font-size: 12px; margin: 0; line-height: 1.6;\">\n      FairTix — Verified humans only. Fair queue. Transparent pricing.<br>\n      You're receiving this because you entered the Fair Queue for {{ $json.EventName }}.\n    </p>\n  </div>\n\n</div>",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          208,
+          0
+        ],
+        "id": "9c1dc7e8-cf4d-4b0d-a2db-b087e5c67daf",
+        "name": "Send a message",
+        "webhookId": "44a52cd1-8cae-4a7c-a5d8-4d67e952d945",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "documentId": {
+            "__rl": true,
+            "value": "1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI",
+            "mode": "list",
+            "cachedResultName": "Andreas Stephan-Signups",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI/edit#gid=0"
+          },
+          "event": "rowAdded",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "5fd34285-5203-4d41-bcdb-d08a00be1b03",
+        "name": "New Entry in LotteryWins Spreadsheet",
+        "credentials": {
+          "googleSheetsTriggerOAuth2Api": {
+            "id": "SqKRVqGJXBxwLjHC",
+            "name": "DL School Automations Google Sheets Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Connect your own LotteryWins Sheet",
+          "height": 80,
+          "width": 176
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -32,
+          -112
+        ],
+        "typeVersion": 1,
+        "id": "f423aab8-03f0-4ba4-a153-8885a67aa757",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI",
+            "mode": "list",
+            "cachedResultName": "Andreas Stephan-Signups",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "ID": "={{ $('New Entry in LotteryWins Spreadsheet').item.json.ID }}",
+              "Status": "200",
+              "Automation Timestamp": "={{ $now }}",
+              "Message": "={{ $json.labelIds[0] }}"
+            },
+            "matchingColumns": [
+              "ID"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Name",
+                "displayName": "Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "EventName",
+                "displayName": "EventName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "TicketPrice",
+                "displayName": "TicketPrice",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Status",
+                "displayName": "Status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Message",
+                "displayName": "Message",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Automation Timestamp",
+                "displayName": "Automation Timestamp",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          432,
+          0
+        ],
+        "id": "e4609ac3-bc4a-4b5d-aed2-73b5afcfaf33",
+        "name": "Update Status",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Connect your own LotteryWins Sheet",
+          "height": 80,
+          "width": 176
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          400,
+          -112
+        ],
+        "typeVersion": 1,
+        "id": "42b55b70-591b-41a7-bb2b-3668ebb33498",
+        "name": "Sticky Note1"
+      }
+    ],
+    "connections": {
+      "Send a message": {
+        "main": [
+          [
+            {
+              "node": "Update Status",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "New Entry in LotteryWins Spreadsheet": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false,
+      "timeSavedMode": "fixed",
+      "callerPolicy": "workflowsFromSameOwner",
+      "timeSavedPerExecution": 1,
+      "errorWorkflow": "oZy3vc0yli2xdR45"
+    },
+    "staticData": {
+      "node:New Entry in LotteryWins": {
+        "documentId": "15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g",
+        "sheetId": 0,
+        "lastIndexChecked": 2
+      },
+      "node:New Entry in LotteryWins Spreadsheet": {
+        "documentId": "1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI",
+        "sheetId": 0,
+        "lastIndexChecked": 3
+      }
+    },
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "8f1f863f-a226-4942-9467-0ded9bb9ae7c",
+    "activeVersionId": null,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:52:33.398Z",
+        "createdAt": "2026-03-16T09:52:33.398Z",
+        "role": "workflow:owner",
+        "workflowId": "YaISNWlu30eV1Ko3",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": null,
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-03-16T20:14:20.338Z",
+    "createdAt": "2026-03-06T15:42:39.892Z",
+    "id": "bNNjdbAO5hhtJebn",
+    "name": "4 - FairTix- Switch FAQ/Manual (sheet based)",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=From: {{ $json.SenderName }} ({{ $json.SenderEmail }})\nSubject: {{ $json.Subject }}\n\n{{ $json.MessageBody }}",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "You are a support message classifier for FairTix, a fair ticket marketplace. Your job is to read an incoming customer support message and classify it into exactly ONE category and ONE sentiment.\n\n## Categories\n\n**FAQ** — The user is asking a question that can be answered from general FairTix knowledge: how the fair queue works, pricing transparency, ticket delivery, resale rules, verification process, purchase policies. Classify as FAQ even if the user is angry or frustrated — what matters is whether the QUESTION can be answered from standard information, not the user's tone.\n\n**Account/Verification** — The user has a problem with their specific account: can't log in, verification failing, need to change phone number, account locked, account missing, profile data issues. These require access to the user's account data to resolve.\n\n**Payment/Billing** — The user has a problem with a specific transaction: double charge, payment declined, refund request, pending charges, missing payment for a resale. These require access to transaction records to resolve.\n\n**Technical/Bug** — The user is experiencing a technical malfunction: app crashes, buttons not working, display errors, wrong information shown on their ticket, features not loading. These require investigation by the technical team.\n\n**Resale/Transfer** — The user has a question or problem specifically about reselling or transferring a ticket: listing not working, transfer process, resale eligibility issues. Note: general questions about resale RULES (like \"what is the resale cap?\") are FAQ. Problems with a SPECIFIC resale or transfer action are Resale/Transfer.\n\n**Feedback** — The user is sharing general feedback, praise, suggestions, or feature requests. They are not asking a question and do not have a problem to solve.\n\n## Sentiment\n\n**positive** — The user is happy, grateful, enthusiastic, or complimentary.\n**neutral** — The user is calm and informational. No strong emotion either way.\n**frustrated** — The user is annoyed, worried, or impatient but still communicating constructively.\n**angry** — The user is hostile, using caps/exclamation marks, making threats (e.g., chargebacks, negative reviews), or expressing outrage.\n\n## Rules\n\n1. Choose exactly ONE category based on what ACTION is needed to resolve the message — not based on the user's tone.\n2. Choose exactly ONE sentiment based on the user's emotional state.\n3. If a message could fit multiple categories, choose the one that best describes the PRIMARY issue the user needs resolved.\n4. If a message contains both a question AND a problem (e.g., \"How does resale work AND my listing was removed\"), classify by the PROBLEM — the question is secondary.\n5. Estimate your confidence as a decimal between 0.0 and 1.0. Use 0.85+ when the classification is clear. Use 0.5-0.7 when the message is ambiguous or could fit multiple categories.\n\n## Examples\n\nUser: \"How does the fair queue work? Does it matter when I join?\"\n→ {\"category\": \"FAQ\", \"sentiment\": \"neutral\", \"confidence\": 0.95, \"rationale\": \"User is asking a general question about the fair queue process.\"}\n\nUser: \"I'M SO SICK OF THIS. I entered the queue FOUR TIMES and never got selected. Your system is broken.\"\n→ {\"category\": \"FAQ\", \"sentiment\": \"angry\", \"confidence\": 0.75, \"rationale\": \"Despite the anger, the underlying question is about how the random selection works and why they weren't chosen. No specific account action needed.\"}\n\nUser: \"I tried to verify my phone but the code never arrives. I've tried three times with my +48 number.\"\n→ {\"category\": \"Account/Verification\", \"sentiment\": \"frustrated\", \"confidence\": 0.9, \"rationale\": \"User has a specific verification problem tied to their account and phone number.\"}\n\nUser: \"I see two charges on my credit card but only bought one ticket. Order FT-20260412-8834.\"\n→ {\"category\": \"Payment/Billing\", \"sentiment\": \"neutral\", \"confidence\": 0.95, \"rationale\": \"Specific transaction issue requiring access to payment records.\"}\n\nUser: \"The app crashes every time I try to open my ticket. Android, Pixel 8.\"\n→ {\"category\": \"Technical/Bug\", \"sentiment\": \"frustrated\", \"confidence\": 0.95, \"rationale\": \"Technical malfunction requiring investigation by the dev team.\"}\n\nUser: \"My resale listing was removed with no explanation. I was within the price cap.\"\n→ {\"category\": \"Resale/Transfer\", \"sentiment\": \"angry\", \"confidence\": 0.85, \"rationale\": \"Problem with a specific resale action, not a general question about resale rules.\"}\n\nUser: \"Just wanted to say thanks — the fair queue experience was amazing. No stress, no panic. You have a fan for life.\"\n→ {\"category\": \"Feedback\", \"sentiment\": \"positive\", \"confidence\": 0.95, \"rationale\": \"User is sharing praise with no question or problem to resolve.\"}\n\n## Output format\n\nRespond with ONLY a valid JSON object. No preamble, no explanation, no markdown formatting, no backticks. Just the raw JSON.\n\n{\"category\": \"...\", \"sentiment\": \"...\", \"confidence\": 0.0, \"rationale\": \"...\"}"
+              }
+            ]
+          },
+          "batching": {}
+        },
+        "id": "8a31c17c-99cf-4287-a460-02b96f00d728",
+        "name": "Classify Message",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          432,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o",
+            "mode": "list",
+            "cachedResultName": "Support Requests",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "ID": "={{ $json.ID }}",
+              "Category": "={{ $json.category }}",
+              "Confidence": "={{ $json.confidence }}",
+              "Rationale": "={{ $json.rationale }}",
+              "Sentiment": "={{ $json.sentiment }}"
+            },
+            "matchingColumns": [
+              "ID"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "SenderName",
+                "displayName": "SenderName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "SenderEmail",
+                "displayName": "SenderEmail",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "MessageBody",
+                "displayName": "MessageBody",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Category",
+                "displayName": "Category",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Sentiment",
+                "displayName": "Sentiment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Confidence",
+                "displayName": "Confidence",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Rationale",
+                "displayName": "Rationale",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "4101a7f4-2f7d-42d1-bae1-d3c3a327d8e9",
+        "name": "Write Classification",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1136,
+          -352
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "claude-sonnet-4-6",
+            "mode": "list",
+            "cachedResultName": "Claude Sonnet 4.6"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
+        "position": [
+          432,
+          240
+        ],
+        "id": "01183bd0-923a-438d-8960-1bf88756d1bd",
+        "name": "Anthropic Chat Model",
+        "credentials": {
+          "anthropicApi": {
+            "id": "MCwj9jMzCKpt3nyj",
+            "name": "Anthropic account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "  {\n    \"ID\": 1,\n    \"SenderName\": \"Lena Bergström\",\n    \"SenderEmail\": \"customer@fairtix.example.com\",\n    \"Subject\": \"Charged twice for Arctic Monkeys ticket??\",\n    \"MessageBody\": \"Hi FairTix team,\\n\\nI completed my purchase for the Arctic Monkeys show in Berlin yesterday and I can see TWO charges of €55.00 on my credit card statement. I only bought one ticket (which is all you allow anyway). Can you please check this and refund the duplicate charge? I've attached a screenshot of my bank statement. My order number is FT-20260412-8834.\\n\\nThanks,\\nLena\",\n    \"Category\": \"\",\n    \"Sentiment\": \"\",\n    \"Confidence\": \"\",\n    \"Rationale\": \"\"\n  }"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          576,
+          240
+        ],
+        "id": "70ae1233-531f-4fc2-99c6-47e63492c240",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "claude-haiku-4-5-20251001",
+            "mode": "list",
+            "cachedResultName": "Claude Haiku 4.5"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
+        "position": [
+          1872,
+          304
+        ],
+        "id": "b8a3c476-ccb0-4078-9dbf-00590e607a90",
+        "name": "Anthropic Chat Model1",
+        "credentials": {
+          "anthropicApi": {
+            "id": "MCwj9jMzCKpt3nyj",
+            "name": "Anthropic account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "documentURL": "=1JXtpHvta3-rsZZSrK2yqIIWrrHkpDoTOsKsy-xiI43A"
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          1344,
+          -64
+        ],
+        "id": "ce097b72-c07a-497c-b05b-c861c8ef188f",
+        "name": "Get FAQ contents",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "jHJX7J9R6GiFVQVA",
+            "name": "Google Docs account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineAll",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          1584,
+          80
+        ],
+        "id": "73111a0e-a4cc-42ca-a43b-64f7b8006c34",
+        "name": "Merge"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.category }}",
+                      "rightValue": "FAQ",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "879a9522-50d1-47ae-b590-3d7037ad95f6"
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "d8ac6020-8e41-4552-b294-7c9dbaf9a9fb",
+                      "leftValue": "={{ $json.category }}",
+                      "rightValue": "Payment/Billing",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          1152,
+          192
+        ],
+        "id": "39ec187d-c568-4435-9a65-1b03d10d61cc",
+        "name": "FAQ / Manual Switch"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "8b55f080-65a8-4ad3-a1e4-689e3ac40c76",
+                "name": "category",
+                "value": "={{ $json.output.category }}",
+                "type": "string"
+              },
+              {
+                "id": "cc7f3269-b143-47e4-b1b9-c086155219c3",
+                "name": "sentiment",
+                "value": "={{ $json.output.sentiment }}",
+                "type": "string"
+              },
+              {
+                "id": "5466c7c0-385a-4557-93cd-5dbce61107d0",
+                "name": "confidence",
+                "value": "={{ $json.output.confidence }}",
+                "type": "number"
+              },
+              {
+                "id": "7f5a7958-128a-4961-9933-000906bf0358",
+                "name": "rationale",
+                "value": "={{ $json.output.rationale }}",
+                "type": "string"
+              },
+              {
+                "id": "11f83669-4ca5-49ab-b33b-4418eb9328f2",
+                "name": "ID",
+                "value": "={{ $('New Support Message Received').item.json.ID }}",
+                "type": "number"
+              },
+              {
+                "id": "ab04372d-a201-43c0-a3e1-a66c75d85fda",
+                "name": "MessageBody",
+                "value": "={{ $('New Support Message Received').item.json.MessageBody }}",
+                "type": "string"
+              },
+              {
+                "id": "c82daee2-e306-436a-9549-3c6a3043c361",
+                "name": "SenderName",
+                "value": "={{ $('New Support Message Received').item.json.SenderName }}",
+                "type": "string"
+              },
+              {
+                "id": "4429b3df-5b1b-44d8-ad14-8f102727f7f9",
+                "name": "Subject",
+                "value": "={{ $('New Support Message Received').item.json.Subject }}",
+                "type": "string"
+              },
+              {
+                "id": "2053ee27-488f-4daf-91a8-716fa8f54859",
+                "name": "SenderEmail",
+                "value": "={{ $('New Support Message Received').item.json.SenderEmail }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          816,
+          0
+        ],
+        "id": "f3c38ec3-812f-4717-90ad-195e6dc2b8de",
+        "name": "Data Mapping"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.MessageBody }},\n{{ $json.Subject }}\n\nMy name is {{ $json.SenderName }}",
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=You are a friendly FairTix support agent. Answer the user's question using ONLY the FAQ document below. If the question is not covered by the FAQ, say \"I'm not sure about that — let me connect you with a team member who can help.\"  Be warm, concise, and specific. Use the user's first name if available. Do not invent information that isn't in the FAQ:\n\n{{ $json.content }}"
+              }
+            ]
+          },
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          1872,
+          80
+        ],
+        "id": "ba3cf345-0e88-4072-83c5-2d4b0707ace6",
+        "name": "Create FAQ Answer Email"
+      },
+      {
+        "parameters": {
+          "sendTo": "ops@fairtix.example.com",
+          "subject": "={{ $('Classify Message').item.json.output.category }} - {{ $json.Subject }}",
+          "message": "=New support ticket requiring human attention:\n\nCategory:{{ $('Classify Message').item.json.output.category }} \nSentiment: {{ $('Classify Message').item.json.output.sentiment }}\nConfidence: {{ $('Classify Message').item.json.output.confidence }}  \n\nFrom: {{ $json.SenderName }} ({{ $json.SenderEmail }}) \nSubject: {{ $json.Subject }}  \n\nOriginal Message: \n{{ $json.MessageBody }}  \n\nAI Assessment:\n{{ $('Classify Message').item.json.output.rationale }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          1664,
+          640
+        ],
+        "id": "13646cce-3073-410a-a194-fd2bcef40b15",
+        "name": "Notify Support Team",
+        "webhookId": "3bf15364-bed6-453e-ac86-ae6f398827f2",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "documentId": {
+            "__rl": true,
+            "value": "1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o",
+            "mode": "list",
+            "cachedResultName": "Support Requests",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list"
+          },
+          "event": "rowAdded",
+          "options": {}
+        },
+        "id": "a9df5b6a-4366-4353-b3c7-2ae6d8b325a4",
+        "name": "New Support Message Received",
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "credentials": {
+          "googleSheetsTriggerOAuth2Api": {
+            "id": "SqKRVqGJXBxwLjHC",
+            "name": "DL School Automations Google Sheets Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o",
+            "mode": "list",
+            "cachedResultName": "Support Requests",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "ID": "={{ $('FAQ / Manual Switch').item.json.ID }}",
+              "Response": "={{ $json.text }}"
+            },
+            "matchingColumns": [
+              "ID"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "SenderName",
+                "displayName": "SenderName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "SenderEmail",
+                "displayName": "SenderEmail",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "MessageBody",
+                "displayName": "MessageBody",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Category",
+                "displayName": "Category",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Sentiment",
+                "displayName": "Sentiment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Confidence",
+                "displayName": "Confidence",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Rationale",
+                "displayName": "Rationale",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Response",
+                "displayName": "Response",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "ceae46aa-4065-4fba-bca4-f9083c07d331",
+        "name": "add response text to sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2272,
+          80
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Write an automated response email text for FAQ categories",
+          "height": 80
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1856,
+          -32
+        ],
+        "typeVersion": 1,
+        "id": "2ff7985c-a2bd-4bc4-8bdc-8d0a4dbd89e4",
+        "name": "Sticky Note"
+      }
+    ],
+    "connections": {
+      "Classify Message": {
+        "main": [
+          [
+            {
+              "node": "Data Mapping",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Anthropic Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Write Classification": {
+        "main": [
+          []
+        ]
+      },
+      "Anthropic Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Create FAQ Answer Email",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get FAQ contents": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Create FAQ Answer Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "FAQ / Manual Switch": {
+        "main": [
+          [
+            {
+              "node": "Get FAQ contents",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ],
+          [
+            {
+              "node": "Notify Support Team",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Data Mapping": {
+        "main": [
+          [
+            {
+              "node": "Write Classification",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "FAQ / Manual Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create FAQ Answer Email": {
+        "main": [
+          [
+            {
+              "node": "add response text to sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "New Support Message Received": {
+        "main": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "add response text to sheet": {
+        "main": [
+          []
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "4843ee06-fada-4fcc-9fec-f55f7c9cde68",
+    "activeVersionId": null,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:52:23.455Z",
+        "createdAt": "2026-03-16T09:52:23.455Z",
+        "role": "workflow:owner",
+        "workflowId": "bNNjdbAO5hhtJebn",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": null,
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-03-16T20:14:14.302Z",
+    "createdAt": "2026-03-06T11:30:33.283Z",
+    "id": "doo7oPoKUzaX6hTx",
+    "name": "2 - FairTix - LotteryWin",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "sendTo": "={{ $json.Email }}",
+          "subject": "={{ $json.EventName }} - You won!",
+          "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; background-color: #ffffff;\">\n\n  <!-- Header -->\n  <div style=\"background-color: #1a1a2e; padding: 32px 24px; text-align: center; border-radius: 8px 8px 0 0;\">\n    <h1 style=\"color: #ffffff; font-size: 24px; margin: 0; font-weight: 700; letter-spacing: -0.5px;\">🎫 FairTix</h1>\n    <p style=\"color: #a0a0b8; font-size: 13px; margin: 8px 0 0 0;\">Tickets for fans, not bots.</p>\n  </div>\n\n  <!-- Main Content -->\n  <div style=\"background-color: #f8f8fc; padding: 32px 24px;\">\n\n    <!-- Celebration Banner -->\n    <div style=\"background: linear-gradient(135deg, #16a34a, #15803d); padding: 24px; border-radius: 8px; text-align: center; margin-bottom: 24px;\">\n      <p style=\"color: #bbf7d0; font-size: 14px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">Fair Queue Result</p>\n      <h2 style=\"color: #ffffff; font-size: 28px; margin: 0; font-weight: 700;\">You got the ticket! 🎉</h2>\n    </div>\n\n    <!-- Greeting -->\n    <p style=\"color: #1a1a2e; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;\">\n      Hey {{ $json.Name }},\n    </p>\n    <p style=\"color: #1a1a2e; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;\">\n      Great news — the Fair Queue selected you for <strong>{{ $json.EventName }}</strong>! Your ticket is reserved and waiting for you.\n    </p>\n\n    <!-- Ticket Details Card -->\n    <div style=\"background-color: #ffffff; border: 1px solid #e2e2ee; border-radius: 8px; padding: 24px; margin-bottom: 24px;\">\n      <table style=\"width: 100%; border-collapse: collapse;\">\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Event</td>\n          <td style=\"padding: 8px 0; color: #1a1a2e; font-size: 15px; font-weight: 600; text-align: right;\">{{ $json.EventName }}</td>\n        </tr>\n        <tr>\n          <td colspan=\"2\" style=\"border-bottom: 1px solid #f0f0f5;\"></td>\n        </tr>\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Total Price</td>\n          <td style=\"padding: 8px 0; color: #1a1a2e; font-size: 15px; font-weight: 600; text-align: right;\">€{{ $json.TicketPrice }}</td>\n        </tr>\n        <tr>\n          <td colspan=\"2\" style=\"border-bottom: 1px solid #f0f0f5;\"></td>\n        </tr>\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Hidden Fees</td>\n          <td style=\"padding: 8px 0; color: #16a34a; font-size: 15px; font-weight: 600; text-align: right;\">€0.00 ✓</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Transparent Pricing Note -->\n    <div style=\"background-color: #f0fdf4; border-left: 3px solid #16a34a; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 24px;\">\n      <p style=\"color: #15803d; font-size: 13px; margin: 0; line-height: 1.5;\">\n        <strong>All-in pricing.</strong> The price above is exactly what you'll pay. No service fees, no processing charges, no surprises at checkout.\n      </p>\n    </div>\n\n    <!-- CTA Button -->\n    <div style=\"text-align: center; margin-bottom: 24px;\">\n      <a href=\"https://fairtix.demo/checkout\" style=\"display: inline-block; background-color: #1a1a2e; color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 6px; font-size: 15px; font-weight: 600;\">Complete Your Purchase →</a>\n    </div>\n\n    <p style=\"color: #6b6b80; font-size: 13px; text-align: center; margin: 0;\">\n      You have <strong>24 hours</strong> to complete your purchase before your spot is released.\n    </p>\n  </div>\n\n  <!-- Footer -->\n  <div style=\"background-color: #1a1a2e; padding: 20px 24px; text-align: center; border-radius: 0 0 8px 8px;\">\n    <p style=\"color: #a0a0b8; font-size: 12px; margin: 0; line-height: 1.6;\">\n      FairTix — Verified humans only. Fair queue. Transparent pricing.<br>\n      You're receiving this because you entered the Fair Queue for {{ $json.EventName }}.\n    </p>\n  </div>\n\n</div>",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          208,
+          0
+        ],
+        "id": "67045fbb-f1d7-45fd-921c-756c2b516827",
+        "name": "Send a message",
+        "webhookId": "126fa91a-4845-44ef-b6bb-270f48b168a4",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "documentId": {
+            "__rl": true,
+            "value": "1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI",
+            "mode": "list",
+            "cachedResultName": "Andreas Stephan-Signups",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI/edit#gid=0"
+          },
+          "event": "rowAdded",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "7ce2d709-5e81-476f-aa7b-ffc8be2d59b4",
+        "name": "New Entry in LotteryWins Spreadsheet",
+        "credentials": {
+          "googleSheetsTriggerOAuth2Api": {
+            "id": "SqKRVqGJXBxwLjHC",
+            "name": "DL School Automations Google Sheets Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Connect your own LotteryWins Sheet",
+          "height": 80,
+          "width": 176
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -32,
+          -112
+        ],
+        "typeVersion": 1,
+        "id": "db792491-669b-40cb-a523-5685bcd0b19e",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI",
+            "mode": "list",
+            "cachedResultName": "Andreas Stephan-Signups",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "ID": "={{ $('New Entry in LotteryWins Spreadsheet').item.json.ID }}",
+              "Status": "200",
+              "Automation Timestamp": "={{ $now }}",
+              "Message": "={{ $json.labelIds[0] }}"
+            },
+            "matchingColumns": [
+              "ID"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Name",
+                "displayName": "Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "EventName",
+                "displayName": "EventName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "TicketPrice",
+                "displayName": "TicketPrice",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Status",
+                "displayName": "Status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Message",
+                "displayName": "Message",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Automation Timestamp",
+                "displayName": "Automation Timestamp",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          432,
+          0
+        ],
+        "id": "8acc8231-3587-417b-8832-da7f2dd104fa",
+        "name": "Update Status",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Connect your own LotteryWins Sheet",
+          "height": 80,
+          "width": 176
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          400,
+          -112
+        ],
+        "typeVersion": 1,
+        "id": "d0e03042-c18f-4ff5-a0f5-02f08e074899",
+        "name": "Sticky Note1"
+      }
+    ],
+    "connections": {
+      "Send a message": {
+        "main": [
+          [
+            {
+              "node": "Update Status",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "New Entry in LotteryWins Spreadsheet": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false,
+      "timeSavedMode": "fixed",
+      "callerPolicy": "workflowsFromSameOwner",
+      "timeSavedPerExecution": 1,
+      "errorWorkflow": "oZy3vc0yli2xdR45"
+    },
+    "staticData": {
+      "node:New Entry in LotteryWins": {
+        "documentId": "15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g",
+        "sheetId": 0,
+        "lastIndexChecked": 2
+      },
+      "node:New Entry in LotteryWins Spreadsheet": {
+        "documentId": "1BQ9bYCC7-UgATbRdHvHZo-TiB4QTfXoGu24ISGikmRI",
+        "sheetId": 0,
+        "lastIndexChecked": 3
+      }
+    },
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "cc3f198e-71cd-4ecb-9c43-94bb45ba19e9",
+    "activeVersionId": null,
+    "triggerCount": 1,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:51:25.654Z",
+        "createdAt": "2026-03-16T09:51:25.654Z",
+        "role": "workflow:owner",
+        "workflowId": "doo7oPoKUzaX6hTx",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": null,
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-03-18T07:33:11.993Z",
+    "createdAt": "2026-03-14T16:05:18.529Z",
+    "id": "eCwQlVIPMa9yxbry",
+    "name": "3 - FairTix- Support-Classifier",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=From: {{ $json.from.value[0].name }}\nSubject:{{ $json.subject }} \n{{ $json.text }}",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "You are a support message classifier for FairTix, a fair ticket marketplace. Your job is to read an incoming customer support message and classify it into exactly ONE category and ONE sentiment.\n\n## Categories\n\n**FAQ** — The user is asking a question that can be answered from general FairTix knowledge: how the fair queue works, pricing transparency, ticket delivery, resale rules, verification process, purchase policies. Classify as FAQ even if the user is angry or frustrated — what matters is whether the QUESTION can be answered from standard information, not the user's tone.\n\n**Account/Verification** — The user has a problem with their specific account: can't log in, verification failing, need to change phone number, account locked, account missing, profile data issues. These require access to the user's account data to resolve.\n\n**Payment/Billing** — The user has a problem with a specific transaction: double charge, payment declined, refund request, pending charges, missing payment for a resale. These require access to transaction records to resolve.\n\n**Technical/Bug** — The user is experiencing a technical malfunction: app crashes, buttons not working, display errors, wrong information shown on their ticket, features not loading. These require investigation by the technical team.\n\n**Resale/Transfer** — The user has a question or problem specifically about reselling or transferring a ticket: listing not working, transfer process, resale eligibility issues. Note: general questions about resale RULES (like \"what is the resale cap?\") are FAQ. Problems with a SPECIFIC resale or transfer action are Resale/Transfer.\n\n**Feedback** — The user is sharing general feedback, praise, suggestions, or feature requests. They are not asking a question and do not have a problem to solve.\n\n## Sentiment\n\n**positive** — The user is happy, grateful, enthusiastic, or complimentary.\n**neutral** — The user is calm and informational. No strong emotion either way.\n**frustrated** — The user is annoyed, worried, or impatient but still communicating constructively.\n**angry** — The user is hostile, using caps/exclamation marks, making threats (e.g., chargebacks, negative reviews), or expressing outrage.\n\n## Rules\n\n1. Choose exactly ONE category based on what ACTION is needed to resolve the message — not based on the user's tone.\n2. Choose exactly ONE sentiment based on the user's emotional state.\n3. If a message could fit multiple categories, choose the one that best describes the PRIMARY issue the user needs resolved.\n4. If a message contains both a question AND a problem (e.g., \"How does resale work AND my listing was removed\"), classify by the PROBLEM — the question is secondary.\n5. Estimate your confidence as a decimal between 0.0 and 1.0. Use 0.85+ when the classification is clear. Use 0.5-0.7 when the message is ambiguous or could fit multiple categories.\n\n## Examples\n\nUser: \"How does the fair queue work? Does it matter when I join?\"\n→ {\"category\": \"FAQ\", \"sentiment\": \"neutral\", \"confidence\": 0.95, \"rationale\": \"User is asking a general question about the fair queue process.\"}\n\nUser: \"I'M SO SICK OF THIS. I entered the queue FOUR TIMES and never got selected. Your system is broken.\"\n→ {\"category\": \"FAQ\", \"sentiment\": \"angry\", \"confidence\": 0.75, \"rationale\": \"Despite the anger, the underlying question is about how the random selection works and why they weren't chosen. No specific account action needed.\"}\n\nUser: \"I tried to verify my phone but the code never arrives. I've tried three times with my +48 number.\"\n→ {\"category\": \"Account/Verification\", \"sentiment\": \"frustrated\", \"confidence\": 0.9, \"rationale\": \"User has a specific verification problem tied to their account and phone number.\"}\n\nUser: \"I see two charges on my credit card but only bought one ticket. Order FT-20260412-8834.\"\n→ {\"category\": \"Payment/Billing\", \"sentiment\": \"neutral\", \"confidence\": 0.95, \"rationale\": \"Specific transaction issue requiring access to payment records.\"}\n\nUser: \"The app crashes every time I try to open my ticket. Android, Pixel 8.\"\n→ {\"category\": \"Technical/Bug\", \"sentiment\": \"frustrated\", \"confidence\": 0.95, \"rationale\": \"Technical malfunction requiring investigation by the dev team.\"}\n\nUser: \"My resale listing was removed with no explanation. I was within the price cap.\"\n→ {\"category\": \"Resale/Transfer\", \"sentiment\": \"angry\", \"confidence\": 0.85, \"rationale\": \"Problem with a specific resale action, not a general question about resale rules.\"}\n\nUser: \"Just wanted to say thanks — the fair queue experience was amazing. No stress, no panic. You have a fan for life.\"\n→ {\"category\": \"Feedback\", \"sentiment\": \"positive\", \"confidence\": 0.95, \"rationale\": \"User is sharing praise with no question or problem to resolve.\"}\n\n## Output format\n\nRespond with ONLY a valid JSON object. No preamble, no explanation, no markdown formatting, no backticks. Just the raw JSON.\n\n{\"category\": \"...\", \"sentiment\": \"...\", \"confidence\": 0.0, \"rationale\": \"...\"}"
+              }
+            ]
+          },
+          "batching": {
+            "batchSize": 1,
+            "delayBetweenBatches": 1000
+          }
+        },
+        "id": "c4bb75e3-87e2-429e-bec5-97467fcc6a3b",
+        "name": "Classify Message",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          432,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "claude-sonnet-4-6",
+            "mode": "list",
+            "cachedResultName": "Claude Sonnet 4.6"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
+        "position": [
+          368,
+          240
+        ],
+        "id": "e47ea77a-219b-4461-bc43-84344f7becf6",
+        "name": "Anthropic Chat Model",
+        "credentials": {
+          "anthropicApi": {
+            "id": "MCwj9jMzCKpt3nyj",
+            "name": "Anthropic account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\"FAQ\", \"Account/Verification\", \"Payment/Billing\", \"Technical/Bug\", \"Resale/Transfer\", \"Feedback\"],\n      \"description\": \"The primary support category based on what action is needed to resolve the message\"\n    },\n    \"sentiment\": {\n      \"type\": \"string\",\n      \"enum\": [\"positive\", \"neutral\", \"frustrated\", \"angry\"],\n      \"description\": \"The emotional tone of the message\"\n    },\n    \"confidence\": {\n      \"type\": \"number\",\n      \"description\": \"Classification confidence from 0.0 to 1.0\"\n    },\n    \"rationale\": {\n      \"type\": \"string\",\n      \"description\": \"Brief explanation of why this category was chosen\"\n    }\n  },\n  \"required\": [\"category\", \"sentiment\", \"confidence\", \"rationale\"]\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          576,
+          240
+        ],
+        "id": "b8efd09e-3e32-44c2-9563-2a853ce09987",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "8b55f080-65a8-4ad3-a1e4-689e3ac40c76",
+                "name": "category",
+                "value": "={{$json.output.category}}",
+                "type": "string"
+              },
+              {
+                "id": "cc7f3269-b143-47e4-b1b9-c086155219c3",
+                "name": "sentiment",
+                "value": "={{ $json.output.sentiment }}",
+                "type": "string"
+              },
+              {
+                "id": "5466c7c0-385a-4557-93cd-5dbce61107d0",
+                "name": "confidence",
+                "value": "={{ $json.output.confidence }}",
+                "type": "number"
+              },
+              {
+                "id": "7f5a7958-128a-4961-9933-000906bf0358",
+                "name": "rationale",
+                "value": "={{ $json.output.rationale }}",
+                "type": "string"
+              },
+              {
+                "id": "ab04372d-a201-43c0-a3e1-a66c75d85fda",
+                "name": "MessageBody",
+                "value": "={{ $('Get many messages').item.json.text }}",
+                "type": "string"
+              },
+              {
+                "id": "c82daee2-e306-436a-9549-3c6a3043c361",
+                "name": "SenderName",
+                "value": "={{ $('Get many messages').item.json.from.value[0].name.substr(19) }}",
+                "type": "string"
+              },
+              {
+                "id": "4429b3df-5b1b-44d8-ad14-8f102727f7f9",
+                "name": "Subject",
+                "value": "={{ $('Get many messages').item.json.subject }}",
+                "type": "string"
+              },
+              {
+                "id": "2053ee27-488f-4daf-91a8-716fa8f54859",
+                "name": "SenderEmail",
+                "value": "={{ $('Get many messages').item.json.to.text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          816,
+          0
+        ],
+        "id": "7b172257-b955-42a0-9fd0-95545e55d2eb",
+        "name": "Data Mapping"
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1-7ClbKmIA1HTtrop-ybJAImcl9MovFzMzDjFBqvrkVQ",
+            "mode": "list",
+            "cachedResultName": "Andreas Stephan-Support-Messages",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-7ClbKmIA1HTtrop-ybJAImcl9MovFzMzDjFBqvrkVQ/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-7ClbKmIA1HTtrop-ybJAImcl9MovFzMzDjFBqvrkVQ/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "MessageBody": "={{ $json.MessageBody }}",
+              "SenderName": "={{ $json.SenderName }}",
+              "SenderEmail": "={{ $json.SenderEmail }}",
+              "Subject": "={{ $json.Subject }}",
+              "Category": "={{ $json.category }}",
+              "Sentiment": "={{ $json.sentiment }}",
+              "Confidence": "={{ $json.confidence }}",
+              "Rationale": "={{ $json.rationale }}",
+              "UpdatedAt": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "SenderName"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "SenderName",
+                "displayName": "SenderName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "SenderEmail",
+                "displayName": "SenderEmail",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "MessageBody",
+                "displayName": "MessageBody",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Category",
+                "displayName": "Category",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Sentiment",
+                "displayName": "Sentiment",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Confidence",
+                "displayName": "Confidence",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Rationale",
+                "displayName": "Rationale",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Response",
+                "displayName": "Response",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "CreatedAt",
+                "displayName": "CreatedAt",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "UpdatedAt",
+                "displayName": "UpdatedAt",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "70b9adf9-f457-4082-a759-7e44773d568f",
+        "name": "Write Classification to MessagesSheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1136,
+          0
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Connect your personal target sheet",
+          "height": 80,
+          "width": 176
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1104,
+          -96
+        ],
+        "typeVersion": 1,
+        "id": "53190cd2-9b7e-42d5-b11c-c22b3f426c8a",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "content": "Fallback: Use Google Sheet if Gmail fails",
+          "height": 80,
+          "width": 176
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -80,
+          432
+        ],
+        "typeVersion": 1,
+        "id": "0430eb8d-ff7b-4046-823f-aed6fe9725f6",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 1
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          -32,
+          0
+        ],
+        "id": "a4471dd4-b604-4d8c-8bd8-3a94a65fb48f",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "limit": 25,
+          "simple": false,
+          "filters": {
+            "q": "subject: Support Request"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          208,
+          0
+        ],
+        "id": "0e3b2b1c-3493-4009-8ac7-40e54a8a4e46",
+        "name": "Get many messages",
+        "webhookId": "1860b8c5-2dd1-488a-8820-c809681f31d1",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "documentId": {
+            "__rl": true,
+            "value": "1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o",
+            "mode": "list",
+            "cachedResultName": "Support Requests",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hCyuHO74iH7Aqbdc0GxcNsC9NqI0shBM3bf3-bZ6I9o/edit#gid=0"
+          },
+          "event": "rowAdded",
+          "options": {}
+        },
+        "id": "d1fa38e8-e118-4009-8b09-6d1c2510004d",
+        "name": "New Support Message in Google Sheet",
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "typeVersion": 1,
+        "position": [
+          -48,
+          240
+        ],
+        "credentials": {
+          "googleSheetsTriggerOAuth2Api": {
+            "id": "SqKRVqGJXBxwLjHC",
+            "name": "DL School Automations Google Sheets Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "Connect your personal target sheet",
+          "height": 80,
+          "width": 176
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          448,
+          -112
+        ],
+        "typeVersion": 1,
+        "id": "f1018243-5945-4333-8cde-ddcd59670ed1",
+        "name": "Sticky Note"
+      }
+    ],
+    "connections": {
+      "Classify Message": {
+        "main": [
+          [
+            {
+              "node": "Data Mapping",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Anthropic Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Data Mapping": {
+        "main": [
+          [
+            {
+              "node": "Write Classification to MessagesSheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Write Classification to MessagesSheet": {
+        "main": [
+          []
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get many messages",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many messages": {
+        "main": [
+          [
+            {
+              "node": "Classify Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "6a279d90-6f4a-4f84-90a2-42c93099b091",
+    "activeVersionId": null,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:51:58.452Z",
+        "createdAt": "2026-03-16T09:51:58.452Z",
+        "role": "workflow:owner",
+        "workflowId": "eCwQlVIPMa9yxbry",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": null,
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-03-16T20:14:11.104Z",
+    "createdAt": "2026-03-15T11:21:10.211Z",
+    "id": "iexTQ62mSzMxOL0T",
+    "name": "00 - Common node types",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          -48
+        ],
+        "id": "64e6d208-63a3-4e4a-bef9-484905138bad",
+        "name": "When clicking ‘Execute workflow’"
+      },
+      {
+        "parameters": {
+          "path": "694c71c6-ce90-4beb-9d30-687ec2db59c7",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          160
+        ],
+        "id": "a2ea90f5-736a-4d4c-a5fe-add761adaeac",
+        "name": "Webhook",
+        "webhookId": "694c71c6-ce90-4beb-9d30-687ec2db59c7"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {}
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          0,
+          336
+        ],
+        "id": "f94a841f-ff45-47a1-bb96-3eddb91e31dd",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "b637d81f-34b6-4e2e-bf2d-d34e584ff48b",
+                "leftValue": "",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          32,
+          704
+        ],
+        "id": "c899f66d-c576-45ed-87e8-a5013918b48a",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "28285969-ca67-4044-81af-a63c1d3169e0"
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          32,
+          880
+        ],
+        "id": "eb392298-02cc-44d4-abcb-d9a7ffe23029",
+        "name": "Switch"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "e17cc647-4a92-44ea-bc61-1f62628fb052",
+                "leftValue": "",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.3,
+        "position": [
+          48,
+          1088
+        ],
+        "id": "ccd2afb2-680b-4e9f-8408-2c9a35bd4cba",
+        "name": "Filter"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          64,
+          1408
+        ],
+        "id": "db43c731-7728-4441-bfe9-0bb4639d1338",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          64,
+          1600
+        ],
+        "id": "6509be5e-e607-4a74-b528-cb7328fefc38",
+        "name": "Split Out"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          80,
+          1776
+        ],
+        "id": "b4aebff2-d671-4f20-8a9a-b29f90a02a5a",
+        "name": "Merge"
+      },
+      {
+        "parameters": {
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          48,
+          2272
+        ],
+        "id": "84d5dc12-85c8-49df-af2f-a4d37c38c15c",
+        "name": "Basic LLM Chain"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          48,
+          2480
+        ],
+        "id": "c94903dc-bef2-4353-86c5-cd50860ca7a2",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          144,
+          2800
+        ],
+        "id": "7d951dab-aeb0-466e-a756-29f24d3b02b9",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "content": "# Trigger Nodes\nUse these to start your workflows"
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -336,
+          96
+        ],
+        "typeVersion": 1,
+        "id": "d4897c93-aa99-4f6d-9267-b19bb84f8259",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": "# Logic Nodes\nUse these to handle different  make decisions in your workflows"
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -256,
+          912
+        ],
+        "typeVersion": 1,
+        "id": "177841a0-0ecb-49c5-869a-90109f41757b",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "content": "# Data Nodes\nUse these to transform and manipulate data structures"
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -288,
+          1536
+        ],
+        "typeVersion": 1,
+        "id": "aba28463-0c29-4ed6-b9d4-075eb3e3ab5d",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "content": "# AI Nodes\nUse these to talk to LLMs"
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -288,
+          2304
+        ],
+        "typeVersion": 1,
+        "id": "9c90bad9-f1c4-4b7a-933b-ca211f1d1f51",
+        "name": "Sticky Note3"
+      },
+      {
+        "parameters": {
+          "content": "# Application Nodes\nSome examples of very common use cases"
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -240,
+          2864
+        ],
+        "typeVersion": 1,
+        "id": "d39001c1-4058-4a30-a543-ff16b93baa77",
+        "name": "Sticky Note4"
+      },
+      {
+        "parameters": {
+          "content": "## Manual trigger\nClick to run. No webhook, no schedule, just a button. Use this when you're building and testing so you can run the workflow instantly without waiting for a real trigger.",
+          "width": 400
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          224,
+          -80
+        ],
+        "typeVersion": 1,
+        "id": "851b8d8c-83fa-4685-a382-4d68ce2d8587",
+        "name": "Sticky Note5"
+      },
+      {
+        "parameters": {
+          "content": "## Webhook Trigger\nCreates a URL that receives data from anywhere. Forms, payment systems, other apps. This is your universal \"start\" button.",
+          "width": 400
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          240,
+          144
+        ],
+        "typeVersion": 1,
+        "id": "6028b1d8-2e00-4af9-be9f-2cace967fff5",
+        "name": "Sticky Note6"
+      },
+      {
+        "parameters": {
+          "content": "## Schedule Trigger\n= Cronjob - Runs workflows at specific times. Daily reports at 9am. Weekly backups every Sunday. Hourly data syncs.",
+          "height": 128,
+          "width": 400
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          240,
+          352
+        ],
+        "typeVersion": 1,
+        "id": "43fefc55-282b-4f34-94c1-f7fbdbea5a9b",
+        "name": "Sticky Note7"
+      },
+      {
+        "parameters": {
+          "content": "Create, modify or removes data fields.",
+          "height": 80,
+          "width": 400
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          304,
+          1408
+        ],
+        "typeVersion": 1,
+        "id": "688b1d08-f2df-48d5-8d8c-98c86c755ade",
+        "name": "Sticky Note8"
+      },
+      {
+        "parameters": {
+          "content": "Takes an array and turns it into individual items. Essential for processing lists.",
+          "height": 80,
+          "width": 400
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          320,
+          1616
+        ],
+        "typeVersion": 1,
+        "id": "b0c8d69a-ab0b-4ba7-9e03-84f378d60b6b",
+        "name": "Sticky Note9"
+      },
+      {
+        "parameters": {
+          "content": "Takes an array and turns it into individual items. Essential for processing lists.",
+          "height": 80,
+          "width": 400
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          336,
+          1792
+        ],
+        "typeVersion": 1,
+        "id": "fcf4a3d8-cf39-4001-bb2b-a4676d18898e",
+        "name": "Sticky Note10"
+      },
+      {
+        "parameters": {
+          "content": "AI Agent can use tools and memory, more advanced",
+          "height": 80,
+          "width": 400
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          400,
+          2480
+        ],
+        "typeVersion": 1,
+        "id": "3e9c4057-59ab-4c55-9310-2a6947d79b0f",
+        "name": "Sticky Note11"
+      },
+      {
+        "parameters": {
+          "content": "System prompt and user prompt - basic LM usage",
+          "height": 80,
+          "width": 368
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          384,
+          2272
+        ],
+        "typeVersion": 1,
+        "id": "f37d4bec-4716-461e-b362-6730ae1d51e9",
+        "name": "Sticky Note12"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": ""
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": ""
+          }
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          144,
+          3232
+        ],
+        "id": "2369744b-442e-4ed5-b858-89f800ed8e37",
+        "name": "Get row(s) in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "otherOptions": {}
+        },
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.4,
+        "position": [
+          144,
+          3440
+        ],
+        "id": "b25d8060-e8a8-4a74-9463-186196c5304d",
+        "name": "Send a message",
+        "webhookId": "de73b9e9-88a9-426d-a082-a8e73ea86c30"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          144,
+          3024
+        ],
+        "id": "bd73d9eb-ead0-46a2-a829-6fd10cd4428a",
+        "name": "Send a message1",
+        "webhookId": "ec982c2c-d89c-4051-af53-228afc557153",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      }
+    ],
+    "connections": {},
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "staticData": null,
+    "meta": null,
+    "pinData": {},
+    "versionId": "141bbf25-5ccf-4980-802b-85d4716ef991",
+    "activeVersionId": null,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:50:46.706Z",
+        "createdAt": "2026-03-16T09:50:46.706Z",
+        "role": "workflow:owner",
+        "workflowId": "iexTQ62mSzMxOL0T",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": null,
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-03-16T20:14:15.795Z",
+    "createdAt": "2026-03-14T15:58:45.113Z",
+    "id": "mL9fPJJCilGma1SJ",
+    "name": "2b - FairTix - LotteryWin With Error Handling",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "sendTo": "={{ $json.Email }}",
+          "subject": "={{ $json.EventName }} - You won!",
+          "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; background-color: #ffffff;\">\n\n  <!-- Header -->\n  <div style=\"background-color: #1a1a2e; padding: 32px 24px; text-align: center; border-radius: 8px 8px 0 0;\">\n    <h1 style=\"color: #ffffff; font-size: 24px; margin: 0; font-weight: 700; letter-spacing: -0.5px;\">🎫 FairTix</h1>\n    <p style=\"color: #a0a0b8; font-size: 13px; margin: 8px 0 0 0;\">Tickets for fans, not bots.</p>\n  </div>\n\n  <!-- Main Content -->\n  <div style=\"background-color: #f8f8fc; padding: 32px 24px;\">\n\n    <!-- Celebration Banner -->\n    <div style=\"background: linear-gradient(135deg, #16a34a, #15803d); padding: 24px; border-radius: 8px; text-align: center; margin-bottom: 24px;\">\n      <p style=\"color: #bbf7d0; font-size: 14px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;\">Fair Queue Result</p>\n      <h2 style=\"color: #ffffff; font-size: 28px; margin: 0; font-weight: 700;\">You got the ticket! 🎉</h2>\n    </div>\n\n    <!-- Greeting -->\n    <p style=\"color: #1a1a2e; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;\">\n      Hey {{ $json.Name }},\n    </p>\n    <p style=\"color: #1a1a2e; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;\">\n      Great news — the Fair Queue selected you for <strong>{{ $json.EventName }}</strong>! Your ticket is reserved and waiting for you.\n    </p>\n\n    <!-- Ticket Details Card -->\n    <div style=\"background-color: #ffffff; border: 1px solid #e2e2ee; border-radius: 8px; padding: 24px; margin-bottom: 24px;\">\n      <table style=\"width: 100%; border-collapse: collapse;\">\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Event</td>\n          <td style=\"padding: 8px 0; color: #1a1a2e; font-size: 15px; font-weight: 600; text-align: right;\">{{ $json.EventName }}</td>\n        </tr>\n        <tr>\n          <td colspan=\"2\" style=\"border-bottom: 1px solid #f0f0f5;\"></td>\n        </tr>\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Total Price</td>\n          <td style=\"padding: 8px 0; color: #1a1a2e; font-size: 15px; font-weight: 600; text-align: right;\">€{{ $json.TicketPrice }}</td>\n        </tr>\n        <tr>\n          <td colspan=\"2\" style=\"border-bottom: 1px solid #f0f0f5;\"></td>\n        </tr>\n        <tr>\n          <td style=\"padding: 8px 0; color: #6b6b80; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;\">Hidden Fees</td>\n          <td style=\"padding: 8px 0; color: #16a34a; font-size: 15px; font-weight: 600; text-align: right;\">€0.00 ✓</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Transparent Pricing Note -->\n    <div style=\"background-color: #f0fdf4; border-left: 3px solid #16a34a; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 24px;\">\n      <p style=\"color: #15803d; font-size: 13px; margin: 0; line-height: 1.5;\">\n        <strong>All-in pricing.</strong> The price above is exactly what you'll pay. No service fees, no processing charges, no surprises at checkout.\n      </p>\n    </div>\n\n    <!-- CTA Button -->\n    <div style=\"text-align: center; margin-bottom: 24px;\">\n      <a href=\"https://fairtix.demo/checkout\" style=\"display: inline-block; background-color: #1a1a2e; color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 6px; font-size: 15px; font-weight: 600;\">Complete Your Purchase →</a>\n    </div>\n\n    <p style=\"color: #6b6b80; font-size: 13px; text-align: center; margin: 0;\">\n      You have <strong>24 hours</strong> to complete your purchase before your spot is released.\n    </p>\n  </div>\n\n  <!-- Footer -->\n  <div style=\"background-color: #1a1a2e; padding: 20px 24px; text-align: center; border-radius: 0 0 8px 8px;\">\n    <p style=\"color: #a0a0b8; font-size: 12px; margin: 0; line-height: 1.6;\">\n      FairTix — Verified humans only. Fair queue. Transparent pricing.<br>\n      You're receiving this because you entered the Fair Queue for {{ $json.EventName }}.\n    </p>\n  </div>\n\n</div>",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          208,
+          0
+        ],
+        "id": "82d57115-850c-4020-82a8-d0b19ecd73c5",
+        "name": "Send a message",
+        "webhookId": "8128efdf-a101-4903-8332-753afc7ee257",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        },
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "documentId": {
+            "__rl": true,
+            "value": "15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g",
+            "mode": "list",
+            "cachedResultName": "FairTix Signups",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g/edit#gid=0"
+          },
+          "event": "rowAdded",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "20a45db9-065e-4fa3-8d78-dec929a3c365",
+        "name": "New Entry in LotteryWins",
+        "credentials": {
+          "googleSheetsTriggerOAuth2Api": {
+            "id": "SqKRVqGJXBxwLjHC",
+            "name": "DL School Automations Google Sheets Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g",
+            "mode": "list",
+            "cachedResultName": "FairTix Signups",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Status": "200",
+              "Message": "Mail sent!",
+              "ID": "={{ $('New Entry in LotteryWins').item.json.ID }}",
+              "Automation Timestamp": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "ID"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Name",
+                "displayName": "Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "EventName",
+                "displayName": "EventName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "TicketPrice",
+                "displayName": "TicketPrice",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Status",
+                "displayName": "Status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Message",
+                "displayName": "Message",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Automation Timestamp",
+                "displayName": "Automation Timestamp",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          416,
+          -96
+        ],
+        "id": "fccfc0db-1b32-4e82-a333-ae3e9b41c565",
+        "name": "Success update",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g",
+            "mode": "list",
+            "cachedResultName": "FairTix Signups",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Status": "500",
+              "Message": "={{ $json.error }}",
+              "ID": "={{ $json.ID }}",
+              "Automation Timestamp": "={{ $now }}"
+            },
+            "matchingColumns": [
+              "ID"
+            ],
+            "schema": [
+              {
+                "id": "ID",
+                "displayName": "ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Name",
+                "displayName": "Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "EventName",
+                "displayName": "EventName",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "TicketPrice",
+                "displayName": "TicketPrice",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Status",
+                "displayName": "Status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Message",
+                "displayName": "Message",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Automation Timestamp",
+                "displayName": "Automation Timestamp",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          416,
+          80
+        ],
+        "id": "73eb7193-8303-41a4-bc11-4897a8db6c23",
+        "name": "Error update",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "s4gBWNRmilbUZssp",
+            "name": "Google Sheets Account DL Automations"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Send a message": {
+        "main": [
+          [
+            {
+              "node": "Success update",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Error update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "New Entry in LotteryWins": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "staticData": {
+      "node:New Entry in LotteryWins": {
+        "documentId": "15hxBHnxRHVjjljW1aV_DmCQkxomC412kyR7i0-6TX6g",
+        "sheetId": 0,
+        "lastIndexChecked": 2
+      }
+    },
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "c45e870b-8e2d-4ace-9210-0a9c39cd418c",
+    "activeVersionId": null,
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:51:38.334Z",
+        "createdAt": "2026-03-16T09:51:38.334Z",
+        "role": "workflow:owner",
+        "workflowId": "mL9fPJJCilGma1SJ",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": null,
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-03-16T20:14:23.264Z",
+    "createdAt": "2026-03-15T19:47:44.217Z",
+    "id": "oZy3vc0yli2xdR45",
+    "name": "5 - Generic Error Workflow",
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.errorTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "62561c04-2c13-4a78-9123-625a830ce17a",
+        "name": "Error Trigger"
+      },
+      {
+        "parameters": {
+          "sendTo": "ops@fairtix.example.com",
+          "subject": "Error in Workflow!",
+          "emailType": "text",
+          "message": "=Hi, \n\nyour workflow {{ $json.workflow.name }} just threw this error:\n{{ $json.execution.url }}\n{{ $json.execution.error.message }}\n{{ $json.execution.error.stack }}\n\nlast Node: {{ $json.execution.lastNodeExecuted }}",
+          "options": {
+            "senderName": "Automation Errors"
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          208,
+          0
+        ],
+        "id": "4766e03f-4d5d-4475-acdd-cca3840bdee5",
+        "name": "Send a message",
+        "webhookId": "5da875ee-3421-4176-8fc5-5091672bf539",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "kFZTnYxPOgUwDjqS",
+            "name": "DL-School-Automations Gmail"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Error Trigger": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate",
+      "availableInMCP": false
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "1ecf3186-58eb-4e40-81af-510c1d6fb8d8",
+    "activeVersionId": "1ecf3186-58eb-4e40-81af-510c1d6fb8d8",
+    "triggerCount": 0,
+    "shared": [
+      {
+        "updatedAt": "2026-03-16T09:52:43.825Z",
+        "createdAt": "2026-03-16T09:52:43.825Z",
+        "role": "workflow:owner",
+        "workflowId": "oZy3vc0yli2xdR45",
+        "projectId": "ywdgAaabWH2kVVRo"
+      }
+    ],
+    "activeVersion": {
+      "updatedAt": "2026-03-15T19:53:45.000Z",
+      "createdAt": "2026-03-15T19:51:16.431Z",
+      "versionId": "1ecf3186-58eb-4e40-81af-510c1d6fb8d8",
+      "workflowId": "oZy3vc0yli2xdR45",
+      "nodes": [
+        {
+          "parameters": {},
+          "type": "n8n-nodes-base.errorTrigger",
+          "typeVersion": 1,
+          "position": [
+            0,
+            0
+          ],
+          "id": "62561c04-2c13-4a78-9123-625a830ce17a",
+          "name": "Error Trigger"
+        },
+        {
+          "parameters": {
+            "sendTo": "ops@fairtix.example.com",
+            "subject": "Error in Workflow!",
+            "emailType": "text",
+            "message": "=Hi, \n\nyour workflow {{ $json.workflow.name }} just threw this error:\n{{ $json.execution.url }}\n{{ $json.execution.error.message }}\n{{ $json.execution.error.stack }}\n\nlast Node: {{ $json.execution.lastNodeExecuted }}",
+            "options": {
+              "senderName": "Automation Errors"
+            }
+          },
+          "type": "n8n-nodes-base.gmail",
+          "typeVersion": 2.2,
+          "position": [
+            208,
+            0
+          ],
+          "id": "4766e03f-4d5d-4475-acdd-cca3840bdee5",
+          "name": "Send a message",
+          "webhookId": "5da875ee-3421-4176-8fc5-5091672bf539",
+          "credentials": {
+            "gmailOAuth2": {
+              "id": "kFZTnYxPOgUwDjqS",
+              "name": "DL-School-Automations Gmail"
+            }
+          }
+        }
+      ],
+      "connections": {
+        "Error Trigger": {
+          "main": [
+            [
+              {
+                "node": "Send a message",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "authors": "Andreas Stephan",
+      "name": "Version 1ecf3186",
+      "description": "",
+      "autosaved": true
+    },
+    "tags": [
+      {
+        "updatedAt": "2026-03-15T13:46:16.191Z",
+        "createdAt": "2026-03-15T13:46:16.191Z",
+        "id": "l5Iq4EJZIaNxvYeM",
+        "name": "Reference"
+      }
+    ]
+  }
+]

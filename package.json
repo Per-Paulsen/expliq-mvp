@@ -9,7 +9,10 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "redact-fairtix": "npx tsx scripts/redact-fairtix.ts",
+    "capture-demo-fixtures": "npx tsx scripts/capture-demo-fixtures.ts",
+    "seed-demo": "npx tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

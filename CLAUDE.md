@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Live:** Portfolio-deploy at https://expliq-mvp.vercel.app — pre-seeded demo (`demo@example.com` / `demo`) with daily 03:00 UTC reset. **Read `DEPLOY-PORTFOLIO.md` before changes that affect login / landing / middleware / cron / seed.** The demo pattern is mirrored in apiq-mvp.
+
 ## Commands
 
 ```bash

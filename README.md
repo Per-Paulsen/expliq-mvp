@@ -1,6 +1,6 @@
 # Expliq AI
 
-**Automation intelligence platform for no/low-code workflows.** A governance dashboard that helps RevOps teams understand the impact, ownership, and risk exposure of their automation stack — n8n, Zapier, and similar platforms — through a single pane of glass.
+**Automation intelligence platform for no/low-code workflows.** A governance dashboard that helps RevOps teams understand the impact, ownership, and risk exposure of their automation stack (n8n, Zapier, and similar platforms) through a single pane of glass.
 
 > ▶️ **Live MVP:** [expliq-mvp.vercel.app](https://expliq-mvp.vercel.app)
 

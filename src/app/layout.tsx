@@ -15,8 +15,25 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Expliq",
-  description: "Automation Intelligence",
+  metadataBase: new URL("https://expliq-mvp.vercel.app"),
+  title: "Expliq — Automation Intelligence",
+  description:
+    "See what's working, what's broken, and what to build next. Governance dashboard for no/low-code automation stacks.",
+  openGraph: {
+    title: "Expliq — Automation Intelligence",
+    description:
+      "See what's working, what's broken, and what to build next. Governance dashboard for no/low-code automation stacks.",
+    url: "https://expliq-mvp.vercel.app",
+    siteName: "Expliq",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Expliq — Automation Intelligence",
+    description:
+      "See what's working, what's broken, and what to build next.",
+  },
 };
 
 export default function RootLayout({

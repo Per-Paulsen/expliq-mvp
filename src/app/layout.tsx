@@ -27,12 +27,22 @@ export const metadata: Metadata = {
     siteName: "Expliq",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Expliq — Automation Intelligence",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Expliq — Automation Intelligence",
     description:
       "See what's working, what's broken, and what to build next.",
+    images: ["/og-image.png"],
   },
 };
 

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image-v2.png",
         width: 1200,
         height: 630,
         alt: "Expliq — Automation Intelligence",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: "Expliq — Automation Intelligence",
     description:
       "See what's working, what's broken, and what to build next.",
-    images: ["/og-image.png"],
+    images: ["/og-image-v2.png"],
   },
 };
 

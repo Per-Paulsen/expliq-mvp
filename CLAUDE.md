@@ -4,6 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Live:** Portfolio-deploy at https://expliq-mvp.vercel.app — pre-seeded demo (`demo@example.com` / `demo`) with daily 03:00 UTC reset. **Read `DEPLOY-PORTFOLIO.md` before changes that affect login / landing / middleware / cron / seed.** The demo pattern is mirrored in apiq-mvp.
 
+## Deploy & Branch Discipline
+
+**`main` IS production.** Vercel auto-deploys production from `main` via the
+GitHub integration: every push/merge to `main` goes live at
+`https://expliq-mvp.vercel.app` immediately. Only git-tracked files on `main`
+ship. Feature branches auto-deploy to isolated **preview** URLs only.
+
+- **Never push work-in-progress to `main`.** Build features (e.g. Epics 18-20)
+  on a feature branch, validate on its Vercel preview, merge to `main` only when
+  demo-mode-safe. Follow the **pre-merge checklist** in `DEPLOY-PORTFOLIO.md`
+  (preview verified, prod env vars set first, DB migration planned, demo-mode
+  preserved, CI green).
+- **Never `git add .`.** Local dev artifacts (`screenshots/`, `.playwright-mcp/`,
+  `.claude/projects/`, `.claude/settings.local.json`) are gitignored; stage
+  feature files by path only.
+- The live demo must not change except by an intentional, checklist-cleared
+  merge to `main`.
+
 ## Commands
 
 ```bash

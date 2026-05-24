@@ -50,3 +50,10 @@ next-env.d.ts
 n8n-api-examples/fairtix/**/*.json
 # Allow analysis markdown files
 !n8n-api-examples/fairtix/**/*.md
+
+# Local dev artifacts: never commit, never deploy (see DEPLOY-PORTFOLIO.md).
+# Production builds from `main` via Vercel git-integration; only tracked files ship.
+/screenshots/
+.playwright-mcp/
+.claude/projects/
+.claude/settings.local.json

@@ -1,0 +1,18 @@
+# .vercelignore: what `vercel` CLI must NOT upload.
+#
+# NOTE: Production normally deploys from `main` via the Vercel GitHub
+# integration, which only ships git-tracked files (so .gitignore already
+# governs that path). This file is defense-in-depth for the legacy
+# `vercel --prod` CLI path, which would otherwise tar the whole working dir.
+#
+# Do NOT add scripts/ (src/lib/seed-demo.ts reads scripts/seed-fixtures/*.json at runtime).
+
+# Local dev artifacts
+screenshots/
+.playwright-mcp/
+.claude/
+
+# Internal docs / planning (not needed by the build or runtime)
+specs/
+research/
+n8n-api-examples/

@@ -1,0 +1,33 @@
+name: PR Checks
+
+# Thin caller for the central reusable workflows in Per-Paulsen/ci-workflows.
+# Logic lives centrally; this file just references it. Update the central repo and
+# this repo picks it up on the next run. Setup: ANTHROPIC_API_KEY repo secret +
+# the Claude GitHub App (https://github.com/apps/claude).
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Caller must grant the union of what the reusable workflows need; a called workflow
+# cannot have more permission than its caller. Without this the run fails at startup.
+permissions:
+  contents: write # autofix commits fixes back
+  pull-requests: write # claude-review comments
+  issues: write # claude-review
+  id-token: write # claude-review OIDC token
+
+jobs:
+  ci:
+    uses: Per-Paulsen/ci-workflows/.github/workflows/node-ci.reusable.yml@main
+  autofix:
+    if: github.event_name == 'pull_request'
+    uses: Per-Paulsen/ci-workflows/.github/workflows/autofix.reusable.yml@main
+  gitleaks:
+    uses: Per-Paulsen/ci-workflows/.github/workflows/gitleaks.reusable.yml@main
+  review:
+    if: github.event_name == 'pull_request'
+    uses: Per-Paulsen/ci-workflows/.github/workflows/claude-review.reusable.yml@main
+    secrets: inherit

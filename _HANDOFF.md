@@ -4,52 +4,44 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: CI hardening + plugin skills DONE; one restart unblocks skills + n8n-MCP (Epic 18)
+# Handoff: Verify n8n-MCP on epic-18 branch, then close Epic 18 Phase 0
 
-**Generated**: 2026-05-24 21:30  ·  **Branch**: main (Epic-18 work on `feature/epic-18-n8n-support-triage`)  ·  **Status**: Ready for next session
+**Generated**: 2026-05-25 00:30  ·  **Branch**: feature/epic-18-n8n-support-triage  ·  **Status**: Ready for next session (after restart)
 
 ## Goal
 
-Two threads converged on **one Claude Code restart**: (1) the CI/PR-check system is built and merged; its new plugin skills (`/ship`, `/ci-init`) only load after a restart. (2) Epic 18 (n8n AI support triage) is still waiting on the n8n-MCP, which needs the same restart (env vars). A clean restart unblocks both, then Epic 18 Phase 0 closes and Phase 1a (RAG) begins.
+Close **Epic 18 Phase 0** (self-hosted n8n AI support triage, portfolio piece) by confirming the n8n-MCP server connects, then begin **Phase 1a (RAG)** per the runbook. This session is being handed off specifically so a restart on THIS branch loads the n8n MCP (MCP servers load only at session startup).
 
 ## Current State
 
-- **CI system — DONE, merged to main:**
-  - Central `Per-Paulsen/ci-workflows@v1` (public): 4 reusable workflows — `node-ci` (npm ci + `type-check` blocking + eslint non-blocking + vitest), `autofix` (eslint --fix + commit-back), `gitleaks`, `claude-review` (advisory, `continue-on-error` step).
-  - expliq-mvp migrated to a thin `pr-checks.yml` caller (PRs #1, #2, #3 all merged). All checks green.
-  - **Branch protection on `main`**: `ci / Lint & Test` + `gitleaks / Secret scan` required; admin bypass on (`enforce_admins:false`); review/autofix advisory.
-- **Plugin — pushed + cache-synced, NOT yet loaded here:**
-  - `per-claude-skills` has `/ship` + `/ci-init` (latest commit `4b1d0fb`). Cache at `~/.claude/plugins/marketplaces/per-claude-skills` is a GitHub clone, verified at `4b1d0fb`, both skills present.
-  - **Not in this session's skill list** — new skill folders are only discovered at startup; `/reload-plugins` does NOT pick them up. Restart required.
-- **n8n-MCP (Epic 18) — blocked on restart:** infra live (`https://178-105-184-130.sslip.io`), `.mcp.json` + `setx` env set, but THIS claude.exe inherited a stale env from a Cursor process running since May 20 (pre-`setx`). `claude mcp list` → `n8n ✗ Failed to connect (Missing env vars)`.
-- **AGENTS.md** adoption decided (not implemented) — see Open Questions.
+- **On `feature/epic-18-n8n-support-triage`.** `.mcp.json` here has the `n8n` server (`npx n8n-mcp`, env `N8N_API_URL`/`N8N_API_KEY` from `${N8N_MCP_API_URL}`/`${N8N_MCP_API_KEY}`). On `main` it is figma-only by design.
+- **Env vars present** in the shell: `N8N_MCP_API_URL=https://178-105-184-130.sslip.io/api/v1`, `N8N_MCP_API_KEY` (267-char JWT). The old stale-Cursor-env blocker is gone.
+- **n8n box already verified healthy** (direct curl, this session): `GET /workflows --ssl-no-revoke` returns `HTTP 200` `{"data":[],"nextCursor":null}` = 0 workflows (matches runbook expectation). So Phase 0 is substantively passing; only the MCP-path confirmation remains.
+- **n8n MCP NOT yet loaded**: the running session started on `main`. A restart on this branch is required.
+- **Two detours DONE today (on `main`, merged into this branch via `e69280d`):**
+  - Deploy hygiene: PR #4 merged, prod deploy READY, live demo `HTTP 200`. main now structurally protected (gitignore + .vercelignore + docs).
+  - Plugin fix: `per-claude-skills` bumped to v1.1.0; `ship` + `ci-init` skills now load and work.
+- **Stash `stash@{0}`** holds unrelated wip (`.claude/skills/dev/SKILL.md`, `.env.example`, `specs/*` edits, deleted `scripts/seed-r2-data.ts`). NOT part of epic-18. Recover with `git stash pop` if/when wanted.
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| Commit-back `autofix` kept (vs pre-commit hook) | Centrally distributable for a solo dev; pre-commit needs per-repo husky |
-| Pin consumers to `@v1`, never `@main` | A bad push to ci-workflows would break all consumers; move v1 on release |
-| review/autofix non-blocking via `continue-on-error` **on the reusable step** | `continue-on-error` on a reusable-CALLING job = `startup_failure`; must be on the step inside the reusable |
-| Light branch protection (admin bypass) | Real gate for Vercel-production main without solo lockout |
-| Adopt `AGENTS.md` + thin `CLAUDE.md` that `@AGENTS.md`-imports it | Claude Code does NOT read AGENTS.md natively (verified); portable to Cursor/Copilot. No symlink (Windows). |
+| n8n-MCP config stays on the epic-18 branch, never on `main` | `main` auto-deploys to the public demo; n8n is per-user at runtime, not app-level (see DEPLOY-PORTFOLIO.md) |
+| Left the floating wip stashed, not committed | It is unrelated to epic-18; keeps the working tree clean for the MCP verification |
 
 ## Open Questions / Pending
 
-- **AGENTS.md adoption** — captured in global `Dev/_TODO.md` (bilinked to the "Achse 2" item). Pattern: AGENTS.md source-of-truth + CLAUDE.md `@AGENTS.md`. Not implemented; bake into the starter.
-- **Personal starter repo + `/new-project` skill** — researched (SOTA = one starter repo + local scaffold OR `gh repo create --template`), deferred. See repo-bootstrapping research.
-- **Roll `/ci-init` to other GitHub repos** — shared discovery step with the gitleaks-distribution TODO.
-- **Epic 18 Phase 1a (RAG)** — after Phase 0 closes (MCP verified), per the runbook.
+- Fate of the stashed wip (specs/env/`SKILL.md`/deleted seed-r2-data.ts) — commit where, or discard? Decide separately from epic-18.
+- Untracked housekeeping: root `{GUID}.png` strays, `scripts/research-spike-v9-*.ts`, `research/*` new files. Not gitignored; decide keep vs ignore.
 
 ## Next Step
 
-After a **clean restart** (fully quit Cursor so the main process re-reads the registry, OR launch Claude Code from a terminal opened fresh via the Start menu so `setx` env is inherited): in the new session, verify BOTH — (1) `ship` + `ci-init` appear in the skills list, and (2) `claude mcp list` shows `n8n ✓ Connected`, then list the box's workflows via the MCP (expect 0). If both pass, **Epic 18 Phase 0 is closed → start Phase 1a (RAG)** per the runbook.
+After restarting Claude Code **on this branch**, run `claude mcp list` and expect `n8n ✓ Connected`, then list the box's workflows via the n8n MCP (expect 0). If both pass, **Epic 18 Phase 0 is closed → start Phase 1a (RAG)** per `specs/18-n8n-ai-support-triage-runbook.md`. (First `npx n8n-mcp` run may download the package, brief delay.)
 
 ## References
 
-- **Research (expliq-mvp/research/)**: `ai-pr-review-state-of-the-art-...`, `github-actions-best-practices-...`, `repo-bootstrapping-state-of-the-art-...` (all 2026-05-24)
-- **Design doc**: `Dev/_resources/ci-distribution-across-repos-2026-05-24.md`
-- **Memory**: `project_ci_github_actions` (CI setup + all GitHub Actions gotchas), `project_epic18_infra` (n8n coordinates), `feedback_selective_commits` (never `git add .`)
-- **Epic 18 runbook**: `specs/18-n8n-ai-support-triage-runbook.md` (Phase 0 + 1a)
-- **Repos**: `github.com/Per-Paulsen/ci-workflows` (`@v1`), `github.com/Per-Paulsen/per-claude-skills` (`4b1d0fb`)
-- **Recent commits**: `3409058` (PR #3), `1717af2` (#2), `bf3e4d5` (#1)
+- **Runbook**: `specs/18-n8n-ai-support-triage-runbook.md` (Phase 0 + 1a); specs `18/19/20-*.md`
+- **Memory**: `project-epic18-infra` (n8n box coords), `reference-plugin-update-mechanism` (plugin update gotcha), `project-deploy-topology` (main=prod), `feedback-selective-commits` (never `git add .`), `feedback-recommend-dont-pad`
+- **n8n box**: https://178-105-184-130.sslip.io (API at `/api/v1`)
+- **Recent commits**: `e69280d` (hygiene into epic-18), `9f99092` (PR #4 merge), `39e4102` (deploy hygiene)

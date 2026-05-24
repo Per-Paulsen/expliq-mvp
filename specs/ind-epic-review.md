@@ -836,6 +836,100 @@ Epic 15 had 11 commits with significant pipeline and UI changes:
 
 ---
 
+# Individual Epic Review — 2026-04-06 (pass 3, post-Epic 16)
+
+## Summary
+- Specs reviewed: 09-hardening, 17-settings-seed-polish
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 05.5, 06, 07, 08, 10, 11, 12, 13, 14, 15, 16
+- Specs skipped (already refined): none
+- Specs modified: none
+- Specs clean: 09-hardening, 17-settings-seed-polish
+
+## Trigger
+
+Epic 16 (Detail) completed. `16-detail-results.md` added. Both remaining specs (09, 17) were stale — missing this results file from their incorporated list.
+
+## 09 — Production Hardening
+
+### Findings
+
+**No changes needed.** Epic 09 is already deferred (`status/deferred`). Its scope has been progressively absorbed by R2 epics:
+
+- Error boundaries: all route-level `error.tsx` files now exist (Dashboard, Process Map, Opportunities, Detail, Settings). Epic 16 added the last one (`automations/[id]/error.tsx`).
+- Loading states: each R2 page epic (13-16) implemented its own empty/analyzing/failed states.
+- Server action hardening: R2 server actions follow structured `{ success, error }` pattern.
+- Rate limiting: sync button debouncing implemented in Epic 10/15.
+
+The spec correctly notes in its resolved open questions: "R2 page epics (12-17) handle their own error boundaries and loading states." This remains accurate post-Epic 16.
+
+### Changes applied
+
+- None (spec is deferred and accurate)
+- Brainstorming marker updated with `16-detail-results.md`
+
+## 17 — Settings + Seed + Polish
+
+### Findings
+
+All checked against codebase after Epic 16:
+
+1. **R1 cleanup list still accurate** — All 13 R1 files listed in the spec still exist and are orphaned (no R2 imports). One edge case: `src/lib/actions/automation.ts` still imports `EditFormState` from `automation-detail-types.ts` — this action file itself is R1 and should be deleted or refactored.
+
+2. **Dashboard normalization gap still exists** — `dashboard-data.ts` lines ~552/565 cast `r.tier` directly as `"act-now" | "investigate" | "explore"` without calling `normalizeTier()`. Epic 16 exported `normalizeTier()` as a shared utility, making the fix trivial, but the fix itself was not applied. The spec's "Known normalization gap" note is still accurate and actionable.
+
+3. **Detail page loading state partially handled** — Epic 16's page.tsx checks `if (!data.businessNarrative)` and shows "not analyzed yet." This covers per-automation state. The spec's AC #9 ("Detail page shows available per-automation data even if workspace analysis is still running") describes a more nuanced behavior — showing partial sections with skeletons — which is a valid polish item for Epic 17.
+
+4. **R1 skipped tests still present** — 9 test files with 14 `describe.skip` blocks remain. Spec's AC #24-25 (delete R1 tests, no describe.skip remains) are still valid and needed.
+
+5. **No structural issues in spec** — All ACs are testable, scope is clear, no hidden scope creep. The normalization gap note added in the prior refinement pass is accurate and now easier to fix since `normalizeTier()` is exported.
+
+### Changes applied
+
+- None (spec is accurate, all findings confirm existing scope items)
+- Brainstorming marker updated with `16-detail-results.md`
+
+---
+
+# Individual Epic Review — 2026-05-24 (pass 11)
+
+> Trigger: Epic 18 split into 18/19/20 (Round-9 decision). First within-epic pass on the new epics 19 and 20.
+
+## Summary
+- Specs reviewed: 19, 20
+- Specs skipped (completed epics): 01, 02, 03, 04, 05, 05.5, 06, 07, 08, 10, 11, 12, 13, 14, 15, 16, 17
+- Specs skipped (deferred): 09 (`status/deferred`)
+- Specs skipped (already refined): 18 (refined this session via two `/refine` passes — `## Refinement Applied` present; just rewritten to M1 during the split)
+- Specs modified: 19, 20
+- Specs clean: none
+
+> Mode note: results files exist for 01-17, so phase-detection is technically "in-dev mode". But epics 18/19/20 have no results of their own and their refinement is split-driven, not results-driven, so the `Results incorporated:` staleness mechanism does not apply. Pre-dev `## Refinement Applied` markers were written to 19/20 brainstorming. Codebase assumptions were verified minutes earlier in the Epic-18 R9 `/refine` pass (Supabase/PGVector, no existing rate-limit infra + serverless caveat, session shape, server-action convention, `(app)` layout, `.mcp.json`/`.env`) and are inherited by 19/20.
+
+## 19 — Agentic Triage Actions
+
+### Findings
+- **Vague workflow export filename** (untestable AC): AC 6 said the workflow is re-exported to `support-answer.workflow.json` "(or a clearly-named agentic version)" — ambiguous, not verifiable.
+  - **Change**: pinned the agentic export to `n8n/support-agent.workflow.json` (the agentic successor to Epic 18's `support-answer.workflow.json`); named the same file in the Workflow-change scope.
+- No other within-epic issues. The delta-on-18 assumptions (extend the answer workflow; add `actionsTaken` to the Server Action/widget) are grounded in Epic 18. Design choices (urgent branch, rate-limit store) are already captured as Open Questions, not escalated.
+
+### Changes applied
+- AC 6: concrete export filename `n8n/support-agent.workflow.json`.
+- Scope (Workflow change): named the agentic export file.
+
+## 20 — n8n MCP Server Door
+
+### Findings
+- **Tool sub-workflow artifacts not exported** (missing AC clarity): scope factors logic into reusable tool sub-workflows but did not state they are committed for reproducibility (every other n8n workflow in the family is exported + committed).
+  - **Change**: AC 1 now states the tool sub-workflows are exported as committed workflow JSON.
+- No other within-epic issues. ACs were already made concrete/testable in the Epic-18 R9 pass (grounded non-empty answer; unauth refused). Design choices (MCP auth scheme, write-tool exposure) are already Open Questions.
+
+### Changes applied
+- AC 1: tool sub-workflows exported as committed workflow JSON.
+
+## No NEEDS CONFIRMATION items
+All remaining design decisions in 19/20 are already tracked as Open Questions. Phase 2 not required.
+
+---
+
 ## Related
 
 - [Cross-Epic Review](cross-epic-review.md)

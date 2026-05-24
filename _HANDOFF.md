@@ -4,51 +4,52 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: Epic 18/19/20 — n8n AI Support Triage (planning complete, build next)
+# Handoff: CI hardening + plugin skills DONE; one restart unblocks skills + n8n-MCP (Epic 18)
 
-**Generated**: 2026-05-24  ·  **Branch**: main (build work belongs on `feature/epic-18-n8n-support-triage`)  ·  **Status**: Ready for next session
+**Generated**: 2026-05-24 21:30  ·  **Branch**: main (Epic-18 work on `feature/epic-18-n8n-support-triage`)  ·  **Status**: Ready for next session
 
 ## Goal
 
-Portfolio artifact for an **n8n Product Builder** application (deadline ~1 week). A chat/support widget in Expliq's live demo → self-hosted n8n → **RAG-grounded answer** (M1), with **agentic sandbox actions** (M2) and an **MCP Server door** for Claude Desktop/Code (M3) as additive milestones. Ship M1 first; it is a complete, demoable piece on its own.
+Two threads converged on **one Claude Code restart**: (1) the CI/PR-check system is built and merged; its new plugin skills (`/ship`, `/ci-init`) only load after a restart. (2) Epic 18 (n8n AI support triage) is still waiting on the n8n-MCP, which needs the same restart (env vars). A clean restart unblocks both, then Epic 18 Phase 0 closes and Phase 1a (RAG) begins.
 
 ## Current State
 
-- **Specs complete + refined, no code yet.** Spec family: `specs/18-n8n-ai-support-triage.md` (M1 RAG answer), `specs/19-agentic-triage-actions.md` (M2), `specs/20-n8n-mcp-server-door.md` (M3). Each has a brainstorming file; shared decision history (Rounds 1-9) is in `specs/18-...-brainstorming.md`.
-- **Runbook written:** `specs/18-n8n-ai-support-triage-runbook.md` — Phase 0 + 1a step-by-step (Hetzner + Ollama + n8n + MCP + pgvector + KB + indexer + answer workflow).
-- **Refinement done this session:** `/refine` ×2 on Epic 18, `/refine_all_ind` (pass 11), `/refine_all` (2026-05-24). No open `NEEDS CONFIRMATION`.
-- **Not started:** no Hetzner box, no n8n instance, no `n8n/` dir, no `support-widget.tsx`/`actions/support.ts`, no feature branch.
-- **Working tree:** this session's spec/doc files are **committed** (Epic 18/19/20 specs + brainstorming + runbook + review passes + this handoff). ~128 pre-existing items remain uncommitted on `main` (screenshots, `.claude/projects/`, `.playwright-mcp/`, deleted `scripts/seed-r2-data.ts`, settings) — left untouched.
+- **CI system — DONE, merged to main:**
+  - Central `Per-Paulsen/ci-workflows@v1` (public): 4 reusable workflows — `node-ci` (npm ci + `type-check` blocking + eslint non-blocking + vitest), `autofix` (eslint --fix + commit-back), `gitleaks`, `claude-review` (advisory, `continue-on-error` step).
+  - expliq-mvp migrated to a thin `pr-checks.yml` caller (PRs #1, #2, #3 all merged). All checks green.
+  - **Branch protection on `main`**: `ci / Lint & Test` + `gitleaks / Secret scan` required; admin bypass on (`enforce_admins:false`); review/autofix advisory.
+- **Plugin — pushed + cache-synced, NOT yet loaded here:**
+  - `per-claude-skills` has `/ship` + `/ci-init` (latest commit `4b1d0fb`). Cache at `~/.claude/plugins/marketplaces/per-claude-skills` is a GitHub clone, verified at `4b1d0fb`, both skills present.
+  - **Not in this session's skill list** — new skill folders are only discovered at startup; `/reload-plugins` does NOT pick them up. Restart required.
+- **n8n-MCP (Epic 18) — blocked on restart:** infra live (`https://178-105-184-130.sslip.io`), `.mcp.json` + `setx` env set, but THIS claude.exe inherited a stale env from a Cursor process running since May 20 (pre-`setx`). `claude mcp list` → `n8n ✗ Failed to connect (Missing env vars)`.
+- **AGENTS.md** adoption decided (not implemented) — see Open Questions.
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| Split one mega-epic into 18 (M1) / 19 (M2) / 20 (M3) | Each independently demoable; M1 is the deadline MVP |
-| RAG lives in Epic 18; 19/20 reuse it | "Ask Expliq, get grounded answer" is the M1 vertical |
-| Embeddings = self-hosted Ollama (`nomic-embed-text`, 768-dim) | Full self-host story for n8n; OpenAI `text-embedding-3-small` is the fallback (swap needs KB re-index) |
-| Vector store = Supabase PGVector (n8n-managed table) | Reuse existing DB; no Prisma model / no migration |
-| Hosting = Hetzner CX22 (4GB+) + Docker Compose + Caddy | Public HTTPS for the webhook; answer LLM stays Claude/OpenRouter |
-| n8n-MCP = stdio in `.mcp.json` with `${ENV}` | HTTP-header env expansion is buggy; stdio `env` works; no committed secret |
-| Outbound = Server Action (secret server-side); widget B-sync + multi-turn | Webhook URL/secret never in client; agentic writes (M2) hit **sandboxes only** |
-| `main` = Vercel auto-deploy prod | Never push WIP to main; build on `feature/epic-18-n8n-support-triage`, test on preview |
+| Commit-back `autofix` kept (vs pre-commit hook) | Centrally distributable for a solo dev; pre-commit needs per-repo husky |
+| Pin consumers to `@v1`, never `@main` | A bad push to ci-workflows would break all consumers; move v1 on release |
+| review/autofix non-blocking via `continue-on-error` **on the reusable step** | `continue-on-error` on a reusable-CALLING job = `startup_failure`; must be on the step inside the reusable |
+| Light branch protection (admin bypass) | Real gate for Vercel-production main without solo lockout |
+| Adopt `AGENTS.md` + thin `CLAUDE.md` that `@AGENTS.md`-imports it | Claude Code does NOT read AGENTS.md natively (verified); portable to Cursor/Copilot. No symlink (Windows). |
 
 ## Open Questions / Pending
 
-- Provision Hetzner box + subdomain `n8n.<domain>` (not done).
-- M2 sandbox prereqs: throwaway GitHub repo, test Linear board, Slack workspace + private channel + tokens.
-- Confirm exact Ollama model + box RAM headroom during Phase 0.
-- Rate limit is best-effort in-memory (serverless caveat); KV/Upstash deferred.
-- ~128 pre-existing uncommitted items remain on `main` (screenshots / session-data / settings) — Per to handle separately if desired.
+- **AGENTS.md adoption** — captured in global `Dev/_TODO.md` (bilinked to the "Achse 2" item). Pattern: AGENTS.md source-of-truth + CLAUDE.md `@AGENTS.md`. Not implemented; bake into the starter.
+- **Personal starter repo + `/new-project` skill** — researched (SOTA = one starter repo + local scaffold OR `gh repo create --template`), deferred. See repo-bootstrapping research.
+- **Roll `/ci-init` to other GitHub repos** — shared discovery step with the gitleaks-distribution TODO.
+- **Epic 18 Phase 1a (RAG)** — after Phase 0 closes (MCP verified), per the runbook.
 
 ## Next Step
 
-Start **Phase 0** from the runbook: create the Hetzner CX22 + point `n8n.<domain>` DNS at it, then bring up Docker Compose (n8n + Caddy + Ollama) per `specs/18-n8n-ai-support-triage-runbook.md` §0.1-0.3. Per runs the console steps; Claude guides + fills the runbook gaps. (This is interactive ops, NOT a `/dev` run — `/dev` comes at Phase 2.)
+After a **clean restart** (fully quit Cursor so the main process re-reads the registry, OR launch Claude Code from a terminal opened fresh via the Start menu so `setx` env is inherited): in the new session, verify BOTH — (1) `ship` + `ci-init` appear in the skills list, and (2) `claude mcp list` shows `n8n ✓ Connected`, then list the box's workflows via the MCP (expect 0). If both pass, **Epic 18 Phase 0 is closed → start Phase 1a (RAG)** per the runbook.
 
 ## References
 
-- **Specs**: `specs/18-n8n-ai-support-triage.md` (+ `-runbook.md`, `-brainstorming.md`), `specs/19-agentic-triage-actions.md`, `specs/20-n8n-mcp-server-door.md`
-- **Reviews**: `specs/ind-epic-review.md` (pass 11), `specs/cross-epic-review.md` (2026-05-24 pass)
-- **Memory**: `project-epic18-n8n-triage`, `project-deploy-topology` (main = auto-deploy prod)
-- **Origin**: `dl-ai-expliq/exercise_19` (task), `exercise_22` (KB+guardrails), `exercise_20` (agent safety)
-- **External**: github.com/czlonkowski/n8n-mcp · docs.n8n.io/hosting/installation/server-setups/hetzner
+- **Research (expliq-mvp/research/)**: `ai-pr-review-state-of-the-art-...`, `github-actions-best-practices-...`, `repo-bootstrapping-state-of-the-art-...` (all 2026-05-24)
+- **Design doc**: `Dev/_resources/ci-distribution-across-repos-2026-05-24.md`
+- **Memory**: `project_ci_github_actions` (CI setup + all GitHub Actions gotchas), `project_epic18_infra` (n8n coordinates), `feedback_selective_commits` (never `git add .`)
+- **Epic 18 runbook**: `specs/18-n8n-ai-support-triage-runbook.md` (Phase 0 + 1a)
+- **Repos**: `github.com/Per-Paulsen/ci-workflows` (`@v1`), `github.com/Per-Paulsen/per-claude-skills` (`4b1d0fb`)
+- **Recent commits**: `3409058` (PR #3), `1717af2` (#2), `bf3e4d5` (#1)

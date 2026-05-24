@@ -8,6 +8,42 @@
 > same demo pattern (pre-seeded workspace + daily reset cron + one-click
 > auto-login) but with project-specific data fixtures.
 
+## Deploy model & branch discipline (READ FIRST)
+
+**Production = the `main` branch.** Vercel auto-deploys production from `main`
+via the GitHub integration: **every push to `main` goes live immediately** at
+`https://expliq-mvp.vercel.app`. Verified against the Vercel deployment history
+(every production deploy carries `githubCommitRef: main`, `githubDeployment: 1`).
+
+- **Only git-tracked files on `main` reach production.** Vercel clones the repo
+  at the pushed commit; untracked files (local dev artifacts) never ship.
+- **Feature branches auto-deploy to isolated Preview URLs**, never to production
+  (preview deploys carry `target: null`). Build and validate there first.
+- **Local dev artifacts are gitignored** so they can never be committed to `main`
+  or shipped: `screenshots/`, `.playwright-mcp/`, `.claude/projects/`,
+  `.claude/settings.local.json`. `.vercelignore` is defense-in-depth for the
+  legacy `vercel --prod` CLI path. Do **not** `git add .`; stage by path.
+
+### Golden rule
+
+Never push work-in-progress to `main`; it ships to the public demo at once.
+Do all feature work (e.g. Epics 18-20) on a feature branch, validate on its
+Vercel **preview** deploy, then merge to `main` only when demo-mode-safe.
+
+### Pre-merge-to-`main` checklist
+
+Before merging any feature (e.g. 18-20) into `main`:
+
+1. **Preview verified**: the branch's Vercel preview URL works end-to-end.
+2. **Prod env vars set first**: add any NEW required env vars in the Vercel
+   project (Production) *before* merge, or the production build/runtime breaks.
+3. **DB migration planned**: if the feature adds Prisma models/columns, run the
+   migration against the production DB as part of the release (not after).
+4. **Demo-mode preserved**: the demo-owned files below still behave (landing
+   banner, auto-login, cron reset, seed). See "Files owned by the portfolio deploy".
+5. **CI green**: branch-protection required checks (`ci / Lint & Test`,
+   `gitleaks / Secret scan`) pass on the PR.
+
 ## Live state (since 2026-05-03)
 
 | Item | Value |
@@ -51,8 +87,15 @@ this doc.
 
 - **No Turnstile / anti-bot on signup** — expliq's design choice. Anyone can sign up; cost-bounded by per-workspace `$10/24h` LLM cap.
 - **Same DB for dev + prod** — workspace-scoping isolates the demo workspace, but other dev test-workspaces coexist in the same Postgres. If a user signs up on prod, their workspace lives next to dev test data. Acceptable for a portfolio piece; revisit if user-volume grows.
-- **`.env` in deployment artifact** — local `.env` gets shipped with `vercel --prod`. Vercel-set env vars override at runtime, but the file is present in `process.cwd()`. Risk is bounded by Vercel-platform isolation; acceptable for now.
-- **No CI/CD pipeline** — only manual `vercel --prod` deploys. GitHub-Vercel integration is set up at the project level but auto-deploy-on-push state is unknown; safe assumption: explicit `vercel --prod` after each push.
+- **`.env` not shipped via git-integration**: `.env*` is gitignored, so the
+  production git-integration deploy never includes it (prod env vars are set in
+  the Vercel project). The legacy `vercel --prod` CLI path *would* tar a local
+  `.env`; `.vercelignore` does not exclude it, so avoid CLI deploys with a
+  populated local `.env`.
+- **CI/CD**: PR checks run via central reusable workflows
+  (`Per-Paulsen/ci-workflows@v1`): `ci / Lint & Test` + `gitleaks / Secret scan`
+  are required on `main` (branch protection, admin-bypass on). Production deploys
+  automatically on every push/merge to `main` (see "Deploy model" above).
 - **Demo workspace has no `ConnectorConfig`** — n8n-Sync buttons in the dashboard will fall through with "no connector configured" UX. Visitor cannot trigger live n8n API calls. By design.
 
 ## Operations

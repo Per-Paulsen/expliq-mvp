@@ -1,0 +1,7 @@
+178-105-184-130.sslip.io {
+	reverse_proxy n8n:5678 {
+		# Disable response buffering: required for n8n's SSE/WebSocket editor push
+		# (research delta — prevents "Connection lost" in the workflow editor)
+		flush_interval -1
+	}
+}

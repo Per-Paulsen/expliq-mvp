@@ -1,0 +1,48 @@
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - n8n
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    environment:
+      # --- Public host (sslip.io derives from the box IP; no DNS record needed) ---
+      - N8N_HOST=178-105-184-130.sslip.io
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://178-105-184-130.sslip.io/
+      - N8N_EDITOR_BASE_URL=https://178-105-184-130.sslip.io/
+      # --- Behind Caddy reverse proxy (research deltas) ---
+      - N8N_PROXY_HOPS=1
+      # --- Persistence / API ---
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_PUBLIC_API_DISABLED=false
+      - N8N_RUNNERS_ENABLED=true
+      - GENERIC_TIMEZONE=Europe/Berlin
+      # --- Embeddings backend (same compose network) ---
+      - OLLAMA_HOST=http://ollama:11434
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama_models:/root/.ollama
+
+volumes:
+  caddy_data:
+  caddy_config:
+  n8n_data:
+  ollama_models:

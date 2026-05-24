@@ -1533,6 +1533,55 @@ Changes applied:
 
 ---
 
+# Cross-Epic Review — 2026-05-24 (Epic 18 split into 18/19/20)
+
+> Trigger: Epic 18 (n8n AI Support Triage) was split along milestone seams into Epic 18 (M1, RAG answer), [Epic 19](19-agentic-triage-actions.md) (M2, agentic actions), [Epic 20](20-n8n-mcp-server-door.md) (M3, MCP server door). First cross-epic pass over this new family. Completed epics 01-17 are read-only; 09 is deferred. Codebase facts inherited from the R9 `/refine` + pass-11 `/refine_all_ind` verifications (minutes old).
+
+## Summary
+- Total specs reviewed: 3 unbuilt (18, 19, 20); 01-17 + 09 read-only
+- Specs modified: 19, 20
+- Specs clean: 18
+
+## Mental model (the 18/19/20 chain)
+- **Producer/consumer:** 18 establishes the n8n host + RAG + answer workflow + the widget + the Server Action + the webhook contract `{category, reply}`. 19 extends the workflow into an AI Agent and the response into `{category, reply, actionsTaken, slackSummary}`. 20 factors RAG (+ the 19 action) into reusable tool sub-workflows and re-exposes them via an MCP Server Trigger.
+- **Dependency direction:** 18 ← 19 ← 20 (20 depends on 19 only for the optional write tool). All forward dependencies are satisfied; no forward-dependency gaps.
+
+## Changes by Epic
+
+### 18 — Support Widget + RAG Answer (M1)
+Clean. Base of the chain; it forward-references 19 correctly (the Response-contract line already notes "Epic 19 extends this with actionsTaken[] + slackSummary"). No cross-epic issue.
+
+### 19 — Agentic Triage Actions (M2)
+- **Issue**: `DEPLOY-PORTFOLIO.md` is updated by BOTH Epic 18 (env vars + corrected "never at app-level" note + deploy-note fix) and Epic 19 (agentic/sandbox touchpoint) — risk of duplicated/conflicting edits (duplicated scope).
+  - **Involved epics**: 18, 19
+  - **Change**: AC 10 now states the Epic-19 update is *additive* to Epic 18's and must not duplicate it. Ownership split: 18 = env vars + deploy-note correction; 19 = agentic outbound + sandbox touchpoint.
+
+### 20 — n8n MCP Server Door (M3)
+- **Issue**: Factoring RAG + triage into shared tool sub-workflows is a **backward touch** on Epics 18/19 — their workflows must be refactored to delegate to the sub-workflows rather than inline the logic, then re-exported. Implied ("reused by both front doors") but not stated as a backward impact (backward impact).
+  - **Involved epics**: 18, 19, 20
+  - **Change**: Scope point 1 now explicitly states Epic 20 refactors Epic 18's answer workflow (and Epic 19's agent workflow, if the write tool is exposed) to delegate to the sub-workflows, re-exporting them, and notes this is why Epic 20 builds last.
+  - **Cascade**: none into the 18/19 spec files — the refactor happens during Epic 20's build and is owned by Epic 20's scope. Documented here for build-order clarity.
+
+## Cross-Epic Consistency Verified
+| Concern | Epics | Status |
+|---|---|---|
+| Webhook payload shape (message, history, context{pagePath, automationId, workspaceId}, user{email}, timestamp) | 18→19→20 | Consistent |
+| Response contract evolution (`{category,reply}` → `+actionsTaken,slackSummary`) | 18→19 | Consistent (19 explicitly extends) |
+| Action `type` enum (github-issue, linear-ticket, slack, none) | 19 | Consistent; ticketing on Linear (not Jira) per R9 |
+| Tool sub-workflow names (`answer_expliq_question`, `file_support_request`) | 18/19→20 | Consistent |
+| Workflow file lifecycle (support-answer M1 → support-agent M2 → support-mcp-server M3 + indexer) | 18,19,20 | Consistent; support-agent is the agentic successor of support-answer |
+| Safety model (server-only webhook, sandbox targets, best-effort rate limit, audit) | 18 (base) → 19 (write actions + hardening) | Consistent |
+| Design system + `(app)` shell reuse | 12 (completed) → 18 | Consistent (widget mounts in `(app)` layout, uses tokens) |
+| Schema: no new Prisma model / no migration (PGVector n8n-managed; history ephemeral) | 18,19,20 | Consistent with `prisma/schema.prisma` |
+| Build order: M1 (18) shippable first, 19/20 additive | 18→19→20 | Consistent |
+
+## Cascading Changes
+None into lower-milestone spec files. Epic 20's backward touch on the 18/19 workflows is owned by Epic 20's scope and noted for build-order clarity (20 builds last).
+
+No `NEEDS CONFIRMATION` items — both findings were structural clarifications applied directly. The 18/19/20 family is cross-epic consistent and ready for implementation.
+
+---
+
 ## Related
 
 - [Individual Epic Review](ind-epic-review.md)

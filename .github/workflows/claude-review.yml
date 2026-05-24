@@ -1,0 +1,68 @@
+name: Claude PR Review
+
+# Independent, fresh-context AI review of every PR against main, using Anthropic's
+# official action with a pay-as-you-go API key (unaffected by the 2026-06-15 Agent SDK
+# credit-pool change that applies to subscription-plan usage).
+#
+# This is NON-BLOCKING by design: it posts review comments but is not a required check.
+# Deterministic gates (CI workflow: lint + test; Vercel preview: build) decide green/red.
+# Rationale + tradeoffs: research/ai-pr-review-state-of-the-art-research-2026-05-24.md.
+#
+# SETUP (one-time): add an `ANTHROPIC_API_KEY` repository secret
+#   Settings → Secrets and variables → Actions → New repository secret.
+# Until that secret exists, the review step is skipped (the job stays green, no red X).
+# Optional: run `/install-github-app` in the Claude Code CLI to also enable `@claude`
+# mentions in PR/issue comments (not required for this auto-review-on-PR flow).
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    name: Claude Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write # claude-code-action mints its GitHub token via OIDC; required or the action aborts
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so the action can diff against the base branch
+
+      - name: Claude review
+        if: env.ANTHROPIC_API_KEY != '' # no-op until the secret is configured
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ env.ANTHROPIC_API_KEY }}
+          claude_args: "--max-turns 12"
+          prompt: |
+            You are reviewing this pull request as an INDEPENDENT reviewer with fresh
+            context. The code may have been written by an AI agent; do not assume it is
+            correct. Your value is catching what the author (human or AI) missed.
+
+            Review priorities, highest first:
+            1. Correctness & logic bugs: wrong conditions, off-by-one, unhandled error
+               paths, race conditions, incorrect async/await, broken edge cases.
+            2. Security: injection, missing authz/authn checks, secret/PII exposure,
+               unsafe deserialization, missing workspaceId scoping on DB queries.
+            3. Data & API contracts: Prisma usage, Json field read/write narrowing,
+               server-action shape ({ success } | { error }, never throw to client),
+               async dynamic route params (must await params).
+            4. Adherence to this repo's conventions in CLAUDE.md and specs/ (auth via
+               getRequiredSession, prisma singleton from @/lib/prisma, import from
+               @/generated/prisma/client, LLM client lazy-init, design-guidelines.md).
+            5. Missing or weak test coverage for the changed behavior.
+
+            Rules:
+            - You CANNOT run the code. Tests and the Vercel build are the real gates;
+              flag suspected runtime issues but say they are unverified.
+            - Be concise and high-signal. Skip pure style nits (ESLint handles those).
+            - Only flag real issues; if the PR looks clean, say so briefly.
+            - For each finding give: file:line, severity (blocker / important / minor),
+              the problem, and a concrete fix. Use inline comments where possible.

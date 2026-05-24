@@ -11,6 +11,14 @@ on:
   push:
     branches: [main]
 
+# Caller must grant the union of what the reusable workflows need; a called workflow
+# cannot have more permission than its caller. Without this the run fails at startup.
+permissions:
+  contents: write # autofix commits fixes back
+  pull-requests: write # claude-review comments
+  issues: write # claude-review
+  id-token: write # claude-review OIDC token
+
 jobs:
   ci:
     uses: Per-Paulsen/ci-workflows/.github/workflows/node-ci.reusable.yml@main

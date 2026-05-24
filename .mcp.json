@@ -5,8 +5,8 @@
       "url": "https://mcp.figma.com/mcp"
     },
     "n8n": {
-      "command": "npx",
-      "args": ["n8n-mcp"],
+      "command": "n8n-mcp",
+      "args": [],
       "env": {
         "N8N_API_URL": "${N8N_MCP_API_URL}",
         "N8N_API_KEY": "${N8N_MCP_API_KEY}"

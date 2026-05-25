@@ -105,7 +105,12 @@ describe("sendSupportMessage", () => {
 
       const result = await sendSupportMessage(input);
 
-      expect(result).toEqual({ success: true, category: "bug", reply: "Fixed." });
+      expect(result).toEqual({
+        success: true,
+        category: "bug",
+        reply: "Fixed.",
+        actionsTaken: [],
+      });
 
       const body = JSON.parse(
         (fetchMock.mock.calls[0] as [string, { body: string }])[1].body
@@ -146,7 +151,7 @@ describe("sendSupportMessage", () => {
       expect(body.history).toEqual(longHistory.slice(-6));
     });
 
-    it("returns { success, category, reply } from the webhook response", async () => {
+    it("returns { success, category, reply, actionsTaken } from the webhook response", async () => {
       mockFetchOk("feature-request", "We will add that!");
 
       const result = await sendSupportMessage(makeInput());
@@ -155,6 +160,7 @@ describe("sendSupportMessage", () => {
         success: true,
         category: "feature-request",
         reply: "We will add that!",
+        actionsTaken: [],
       });
     });
 
@@ -177,6 +183,55 @@ describe("sendSupportMessage", () => {
         (fetchMock.mock.calls[0] as [string, { body: string }])[1].body
       );
       expect(body.context.workspaceId).toBe("ws-authoritative");
+    });
+  });
+
+  // A1b: actionsTaken parsed from the agentic (Epic 19) response contract
+  describe("A1b — actionsTaken from the agentic response", () => {
+    it("returns the actionsTaken array verbatim when the webhook includes it", async () => {
+      const actionsTaken = [
+        { type: "github-issue", ref: "https://github.com/Per-Paulsen/expliq-support-sandbox/issues/2" },
+      ];
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            category: "bug",
+            reply: "Filed as a bug.",
+            actionsTaken,
+            slackSummary: "internal-only audit text",
+          }),
+        })
+      );
+
+      const result = await sendSupportMessage(makeInput());
+
+      expect(result).toEqual({
+        success: true,
+        category: "bug",
+        reply: "Filed as a bug.",
+        actionsTaken,
+      });
+    });
+
+    it("defaults actionsTaken to [] when the webhook omits it", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ category: "question", reply: "Here you go." }),
+        })
+      );
+
+      const result = await sendSupportMessage(makeInput());
+
+      expect(result).toEqual({
+        success: true,
+        category: "question",
+        reply: "Here you go.",
+        actionsTaken: [],
+      });
     });
   });
 

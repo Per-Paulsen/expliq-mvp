@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { MessageCircle, Send, X, Loader2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-import { sendSupportMessage } from "@/lib/actions/support";
+import { sendSupportMessage, type ActionTaken } from "@/lib/actions/support";
 
 // ── Types ─────────────────────────────────────────────────
 
@@ -15,6 +15,7 @@ interface Message {
   role: Role;
   content: string;
   category?: string;
+  actionsTaken?: ActionTaken[];
 }
 
 type SendState = "idle" | "sending" | "error";
@@ -38,6 +39,42 @@ function CategoryBadge({ category }: { category: string }) {
       {label}
     </span>
   );
+}
+
+// ── "What was done" line ──────────────────────────────────
+
+// Only surfaceable actions map to a label; "slack" is internal audit only
+// and "none" surfaces nothing.
+const ACTION_LABELS: Record<string, string> = {
+  "github-issue": "Filed as a bug report",
+  "linear-ticket": "Logged as a feature request",
+};
+
+function surfaceableAction(
+  actionsTaken: ActionTaken[] | undefined
+): ActionTaken | null {
+  if (!actionsTaken) return null;
+  return actionsTaken.find((a) => a.type in ACTION_LABELS) ?? null;
+}
+
+function ActionTakenLine({ action }: { action: ActionTaken }) {
+  const label = ACTION_LABELS[action.type];
+  const className = "text-xs text-[#6b7280]";
+
+  if (action.ref) {
+    return (
+      <a
+        href={action.ref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(className, "underline underline-offset-2 hover:text-[#111827]")}
+      >
+        {label}
+      </a>
+    );
+  }
+
+  return <span className={className}>{label}</span>;
 }
 
 // ── Support Widget ────────────────────────────────────────
@@ -135,6 +172,7 @@ export function SupportWidget() {
           role: "assistant",
           content: result.reply,
           category: result.category,
+          actionsTaken: result.actionsTaken,
         },
       ]);
     }
@@ -274,6 +312,11 @@ export function SupportWidget() {
                 >
                   {msg.content}
                 </div>
+                {msg.role === "assistant" &&
+                  (() => {
+                    const action = surfaceableAction(msg.actionsTaken);
+                    return action ? <ActionTakenLine action={action} /> : null;
+                  })()}
               </div>
             ))}
 

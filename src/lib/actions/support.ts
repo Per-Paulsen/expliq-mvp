@@ -12,8 +12,10 @@ export interface SupportMessage {
   automationId: string | null;
 }
 
+export type ActionTaken = { type: string; ref: string | null };
+
 export type SupportResult =
-  | { success: true; category: string; reply: string }
+  | { success: true; category: string; reply: string; actionsTaken: ActionTaken[] }
   | { error: string };
 
 // ── Rate limiter ───────────────────────────────────────
@@ -103,7 +105,15 @@ export async function sendSupportMessage(
     }
 
     const json = await res.json();
-    return { success: true, category: json.category, reply: json.reply };
+    const actionsTaken: ActionTaken[] = Array.isArray(json.actionsTaken)
+      ? json.actionsTaken
+      : [];
+    return {
+      success: true,
+      category: json.category,
+      reply: json.reply,
+      actionsTaken,
+    };
   } catch {
     return { error: "Could not reach the support service. Please try again." };
   }

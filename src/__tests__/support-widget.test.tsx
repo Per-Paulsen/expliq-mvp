@@ -161,6 +161,137 @@ describe("SupportWidget — A7: render + interaction", () => {
   });
 });
 
+describe("SupportWidget — A7: actionsTaken 'what was done' line", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("renders 'Filed as a bug report' as a link to the issue ref for a github-issue action", async () => {
+    const issueUrl =
+      "https://github.com/Per-Paulsen/expliq-support-sandbox/issues/2";
+    mockSendSupportMessage.mockResolvedValue({
+      success: true,
+      category: "bug",
+      reply: "We filed your report.",
+      actionsTaken: [{ type: "github-issue", ref: issueUrl }],
+    });
+
+    const user = userEvent.setup();
+    renderWidget();
+    await openPanel(user);
+
+    await user.type(getMessageInput(), "Something is broken");
+    await user.click(getSendButton());
+
+    await waitFor(() => {
+      expect(screen.getByText("Filed as a bug report")).toBeInTheDocument();
+    });
+
+    const link = screen.getByRole("link", { name: /filed as a bug report/i });
+    expect(link).toHaveAttribute("href", issueUrl);
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
+  it("renders 'Filed as a bug report' as plain text (no link) when ref is null", async () => {
+    mockSendSupportMessage.mockResolvedValue({
+      success: true,
+      category: "bug",
+      reply: "We filed your report.",
+      actionsTaken: [{ type: "github-issue", ref: null }],
+    });
+
+    const user = userEvent.setup();
+    renderWidget();
+    await openPanel(user);
+
+    await user.type(getMessageInput(), "Something is broken");
+    await user.click(getSendButton());
+
+    await waitFor(() => {
+      expect(screen.getByText("Filed as a bug report")).toBeInTheDocument();
+    });
+
+    expect(
+      screen.queryByRole("link", { name: /filed as a bug report/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not surface a 'what was done' line for a slack-only action (internal audit)", async () => {
+    mockSendSupportMessage.mockResolvedValue({
+      success: true,
+      category: "urgent",
+      reply: "We have alerted the team.",
+      actionsTaken: [{ type: "slack", ref: null }],
+    });
+
+    const user = userEvent.setup();
+    renderWidget();
+    await openPanel(user);
+
+    await user.type(getMessageInput(), "This is urgent");
+    await user.click(getSendButton());
+
+    await waitFor(() => {
+      expect(screen.getByText("We have alerted the team.")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText("Filed as a bug report")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Logged as a feature request")
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render a 'what was done' line when actionsTaken is empty", async () => {
+    mockSendSupportMessage.mockResolvedValue({
+      success: true,
+      category: "question",
+      reply: "Here is your answer.",
+      actionsTaken: [],
+    });
+
+    const user = userEvent.setup();
+    renderWidget();
+    await openPanel(user);
+
+    await user.type(getMessageInput(), "What does Expliq do?");
+    await user.click(getSendButton());
+
+    await waitFor(() => {
+      expect(screen.getByText("Here is your answer.")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText("Filed as a bug report")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Logged as a feature request")
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render a 'what was done' line when actionsTaken is omitted", async () => {
+    mockSendSupportMessage.mockResolvedValue({
+      success: true,
+      category: "question",
+      reply: "Plain answer, no actions.",
+    });
+
+    const user = userEvent.setup();
+    renderWidget();
+    await openPanel(user);
+
+    await user.type(getMessageInput(), "Just a question");
+    await user.click(getSendButton());
+
+    await waitFor(() => {
+      expect(screen.getByText("Plain answer, no actions.")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText("Filed as a bug report")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Logged as a feature request")
+    ).not.toBeInTheDocument();
+  });
+});
+
 describe("SupportWidget — A8: input behaviour", () => {
   beforeEach(() => {
     vi.clearAllMocks();

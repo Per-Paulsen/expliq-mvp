@@ -4,47 +4,46 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: Epic 18 M1 shipped + live — next is Epic 19 (M2, agentic actions)
+# Handoff: Epic 19 (M2) prerequisites COMPLETE — next is the workflow build via /dev
 
-**Generated**: 2026-05-25 · **Branch**: main · **Status**: Ready for next session
+**Generated**: 2026-05-25 21:15 · **Branch**: main · **Status**: Ready for next session
 
 ## Goal
 
-Build the n8n AI support widget as a 3-milestone series (portfolio piece for an n8n Product Builder application). **M1 (Epic 18) is done + live in production.** Next: M2 = Epic 19 (turn the RAG answer workflow into an agent that takes external write actions), then M3 = Epic 20 (native MCP server door).
+Build the n8n AI support widget as a 3-milestone series (portfolio piece for an n8n Product Builder application). M1 (Epic 18) is done + live. **M2 = Epic 19**: turn the answer-only workflow into an **AI Agent that also acts** (bug→GitHub issue, feature-request→Linear ticket, always→Slack audit, urgent→Slack alert) via **MCP Client nodes**. This session set up all Epic-19 prerequisites; next is building the workflow.
 
 ## Current State
 
-- **Epic 18 M1 — COMPLETE + LIVE** on `expliq-mvp.vercel.app`. Merged PR #5 (`d414b3e`), panel-position fix PR #6 (`9bb18f8`), results finalized PR #7 (`1b5af71`). All acceptance criteria (A1–A8, B9–B13, C14–C22, D23–D24) met. Full build log: `specs/18-n8n-ai-support-triage-results.md`.
-- Widget `src/components/support-widget.tsx` + server action `src/lib/actions/support.ts` are live; verified on prod with the demo session (`demo@example.com`/`demo`) → grounded answer + category badge over the live n8n webhook.
-- **n8n box** live `https://178-105-184-130.sslip.io`; answer workflow `hcTllLJwyQZcpO2O` (ACTIVE) + KB indexer. Details in memory `project_epic18_infra`.
-- **Vercel**: `N8N_SUPPORT_WEBHOOK_URL` + `N8N_SUPPORT_WEBHOOK_SECRET` set in **Preview + Production**. Vercel CLI installed + logged in (`per-paulsen`).
-- **Branches**: only `main` — all feature branches merged + deleted.
-- **Local-build quirk**: `npm run build`/`dev` need `NEXT_TURBOPACK_EXPERIMENTAL_USE_SYSTEM_TLS_CERTS=1` (Google-fonts TLS on this machine); Vercel unaffected.
-- **Working tree**: clean except long-parked untracked files (research spikes, bootcamp patches) — NOT epic-18, leave them.
+- **Epic 19 prerequisites COMPLETE (Phase 0).** Full log: `specs/19-agentic-triage-actions-results.md`.
+- **Sandbox targets:** GitHub repo `Per-Paulsen/expliq-support-sandbox` (private) · Slack private channel `support-triage-audit` (`C0B5YHCGH1T`, workspace `expliqgovernance.slack.com`) · Linear team `Expliq Support` (id `c48dd37e-f37f-48ca-a9be-6b6c6a2224d2`).
+- **n8n runtime credentials** (live box, for the workflow's MCP Client nodes): GitHub Bearer `ZBphLaYtMslOfeDE` (→api.githubcopilot.com), Linear Bearer `tyCijYT3lArGrC3W` (→mcp.linear.app), Slack OAuth2 `5ZgLobqHrckTpqhW` (→mcp.slack.com, **connected**).
+- **Session MCPs** (Claude-side, for setup only — NOT the workflow): Slack via claude.ai connector (`mcp__claude_ai_Slack__*`), Linear via `claude mcp add` user-scope, GitHub via `gh`/PAT.
+- **Secrets in `.env`** (gitignored): `GITHUB_SANDBOX_PAT`, `LINEAR_API_KEY`, `SLACK_OAUTH_CLIENT_ID`/`SLACK_OAUTH_CLIENT_SECRET`.
+- **Working tree:** untracked this-session deliverables `specs/19-agentic-triage-actions-results.md` + `research/official-mcp-servers-...md` (commit with the Epic 19 PR), plus long-parked research-spikes + 2 screenshots (`{...}.png`) — leave those.
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| `per-claude-skills` → **v1.3.0** | `/dev` + `/patch` now branch-guard (never commit to `main`; derive a feature branch from the spec/slug, use an existing feature branch as-is) + stage by explicit path; `/ship` adds Step 6 that asks to merge after green checks (never auto-merges). Source: `C:\Users\perpa\Dev\per-claude-skills`. |
-| Policy A: doc/results updates ride with their code PR | One rule (everything via PR), no "direct to main" carve-out for docs. |
-| Remote Control on globally | `remoteControlAtStartup` + `daemonColdStart:ask` + push notifs in `~/.claude/settings.json` (active next session; say "ja" to the persistent-daemon prompt). |
-| Build log / IDs → results file, never memory | Per's rule — see memory `feedback_no_build_log_in_memory`. |
+| Workflow arch = **MCP Client nodes → external MCP servers** | Per confirmed; matches spec domain terms. NOT native n8n nodes. |
+| `urgent` = own branch; rate-limit = best-effort in-memory | Per chose urgent-branch; KV is spec Out-of-Scope. |
+| Slack: claude.ai connector (session) + custom Slack OAuth app + `mcpOAuth2Api` (n8n) | Slack MCP lacks DCR. authorizationCode, user scopes `chat:write channels:read groups:read`, authUrl `slack.com/oauth/v2_user/authorize`. |
+| Linear MCP via direct `claude mcp add` | Linear MCP supports DCR. |
 
 ## Open Questions / Pending
 
-- **Epic 19 (M2) not started.** Confirm its sandbox prerequisites first (per the runbook): a GitHub sandbox repo, a Linear test board, a Slack workspace + private channel + tokens.
-- Epic 19 extends the response contract (`actionsTaken[]` + `slackSummary`) → the widget renders only `reply` + `category` today; will need extension.
-- Rate limit is best-effort in-memory (KV/Upstash deferred, spec-acknowledged).
-- Parked untracked files (research spikes, bootcamp patches) — decide separately, not epic-18.
+- **Slack n8n→MCP live call not yet exercised** — OAuth connect succeeded, but the agent actually posting via the MCP Client node is validated when the workflow runs in `/dev`.
+- Native `githubApi` cred `ZZDNvvAvVOpTdTwS` is redundant with the GitHub Bearer cred — tidy at `/dev`.
+- Response-contract extension (`actionsTaken[]` + `slackSummary`) + widget rendering — part of `/dev`.
+- Untracked `research/`+`specs/19-...-results.md` ride with the Epic 19 PR; the 2 root `.png` screenshots are local — leave or delete.
 
 ## Next Step
 
-Open `specs/19-agentic-triage-actions.md`, confirm the M2 sandbox prerequisites (GitHub / Linear / Slack test targets) are in place, then run `/dev specs/19-agentic-triage-actions.md` — it now auto-branches from `main` (no manual branch step needed).
+Run `/dev specs/19-agentic-triage-actions.md` (fresh session) — it auto-branches from `main`, builds the AI Agent + MCP Client nodes on the three n8n creds above, extends the response contract + widget, updates `DEPLOY-PORTFOLIO.md`, and appends its build phases to `specs/19-agentic-triage-actions-results.md`.
 
 ## References
 
-- **Results / build log**: `specs/18-n8n-ai-support-triage-results.md` · **Specs**: `specs/19-agentic-triage-actions.md`, `specs/20-n8n-mcp-server-door.md` · **Runbook**: `specs/18-n8n-ai-support-triage-runbook.md`
-- **Memory**: `project_epic18_infra` (box + workflow id), `feedback_no_build_log_in_memory`, `feedback_surface_scope_decisions`, `feedback_selective_commits`
-- **Plugin**: `per-claude-skills` v1.3.0 (source `C:\Users\perpa\Dev\per-claude-skills`, marketplace pulls from its `main`)
-- **Recent commits**: `1b5af71` results-finalize · `9bb18f8` panel-fix · `d414b3e` epic-18 merge
+- **Results / build log**: `specs/19-agentic-triage-actions-results.md` (Phase 0) · **Spec**: `specs/19-agentic-triage-actions.md` · **Runbook**: `specs/18-n8n-ai-support-triage-runbook.md`
+- **Research**: `research/official-mcp-servers-slack-github-linear-research-2026-05-25.md` (MCP/connector mechanics, DCR, Slack-OAuth config)
+- **Memory**: `project_epic18_infra` (box + n8n host `178-105-184-130.sslip.io`), `reference_claude_code_mcp_connector_auth`, `feedback_no_build_log_in_memory`, `feedback_surface_scope_decisions`
+- **Recent commits**: `aea5080` vercel ignored-build-step · `47a464e` prior handover (Epic 18)

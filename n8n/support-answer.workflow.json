@@ -141,6 +141,102 @@
         "respondWith": "json",
         "responseBody": "={{ $json.output }}"
       }
+    },
+    {
+      "id": "doc-overview",
+      "name": "Doc: Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        -360
+      ],
+      "parameters": {
+        "width": 1340,
+        "height": 150,
+        "color": 4,
+        "content": "## Expliq Support — RAG Answer\nServes the in-app support widget. On each request: retrieve the most relevant KB chunks from the dedicated Supabase pgvector store (`expliq_kb_vectors`, written by the **KB Indexer** workflow), then Claude composes a grounded, classified answer. Synchronous round-trip → `{ category, reply }`. Answers ONLY from retrieved context; never invents Expliq facts."
+      }
+    },
+    {
+      "id": "doc-1-webhook",
+      "name": "Doc: 1 Webhook",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        -180
+      ],
+      "parameters": {
+        "width": 240,
+        "height": 150,
+        "color": 5,
+        "content": "### 1. Webhook\nPOST `/expliq-support`, Header-Auth `x-webhook-secret` (a request without it is rejected, 403). Responds via the Respond node when the chain finishes. `onError: continueRegularOutput` so it always sends a response."
+      }
+    },
+    {
+      "id": "doc-2-retrieve",
+      "name": "Doc: 2 Retrieve",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -180
+      ],
+      "parameters": {
+        "width": 260,
+        "height": 150,
+        "color": 5,
+        "content": "### 2. Retrieve\nPGVector \"load\" over `expliq_kb_vectors`. The query is the user message, embedded with Ollama (`nomic-embed-text`, 768-dim — the SAME model as the indexer, so vectors are comparable). Returns the top 4 nearest chunks."
+      }
+    },
+    {
+      "id": "doc-3-build-context",
+      "name": "Doc: 3 Build context",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -180
+      ],
+      "parameters": {
+        "width": 240,
+        "height": 150,
+        "color": 5,
+        "content": "### 3. Build context\nCode node: joins the retrieved chunks into one `context` string and carries the original message + conversation history forward (read back from the Webhook item)."
+      }
+    },
+    {
+      "id": "doc-4-answer",
+      "name": "Doc: 4 Answer",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -180
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 150,
+        "color": 5,
+        "content": "### 4. Answer\nBasic LLM Chain → Claude via OpenRouter (`anthropic/claude-sonnet-4`). Grounded: answer ONLY from `context`; exact \"I don't have enough information\" fallback; never invent. Structured Output Parser enforces `{ category, reply }` (category ∈ bug | feature-request | question | urgent)."
+      }
+    },
+    {
+      "id": "doc-5-respond",
+      "name": "Doc: 5 Respond",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        -180
+      ],
+      "parameters": {
+        "width": 220,
+        "height": 150,
+        "color": 5,
+        "content": "### 5. Respond\nReturns `{ category, reply }` as JSON to the caller (the Expliq same-origin Server Action)."
+      }
     }
   ],
   "connections": {

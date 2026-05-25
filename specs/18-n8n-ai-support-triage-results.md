@@ -113,7 +113,10 @@ for MCP-built workflows: any field that must interpolate an expression has to be
   inactive, only the editor's test URL (`/webhook-test/...`) responds.
 - Manual webhook triggers can't be fired via the n8n public API — drive live tests with an HTTP POST.
 
+### Documentation
+6 doc sticky-notes on the canvas (overview + one per stage: Webhook, Retrieve, Build context, Answer, Respond),
+matching the KB Indexer's documented style. Included in the committed export.
+
 ### Known gaps / not done here (by design)
-- No doc sticky-notes yet on this workflow (the indexer has them) — optional portfolio polish.
 - If PGVector ever returns 0 rows (empty table), the Code node gets no input and downstream nodes don't run →
   webhook would hang. Not reachable with the populated KB (34 rows ≥ topK), so deferred.

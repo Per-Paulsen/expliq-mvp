@@ -6,8 +6,9 @@
 
 - **Phase 0** (self-hosted n8n + Ollama + n8n-MCP): DONE, verified end-to-end.
 - **Phase 1a / 1a.2** (KB authoring): DONE — `n8n/knowledge/*.md` committed (5 files), scope locked in brainstorming Round 10.
-- **Phase 1a / 1a.3** (indexer workflow): DONE, verified — 34 per-heading chunks (768-dim) in the dedicated Supabase pgvector store.
-- **Remaining:** indexer idempotency (self-clear), export indexer workflow JSON (1a.5), then 1a.4 (answer workflow), then Phases 2–4 (`/dev` widget slice → preview → prod).
+- **Phase 1a / 1a.3** (indexer workflow): DONE, verified — 34 per-heading chunks (768-dim) in the dedicated Supabase pgvector store. Idempotent (self-clear) + exported (`n8n/support-indexer.workflow.json`).
+- **Phase 1a / 1a.4–1a.5** (answer workflow): DONE, verified end-to-end — see "The answer workflow" section below. Built, validated, activated, 3 live tests pass, exported (`n8n/support-answer.workflow.json`).
+- **Remaining:** Phases 2–4 (`/dev` widget slice → preview → prod).
 
 ## Key decisions & deviations from the runbook
 
@@ -52,3 +53,67 @@ Manual triggers cannot be fired via the n8n public API — run the indexer with 
 
 ## Reproducibility (clone / fresh box)
 The n8n-MCP global install + `.mcp.json` config are documented in the runbook. Once exported (1a.5), the workflow JSON under `n8n/` allows re-import. The dedicated Supabase + `RAG_DATABASE_URL` must be provisioned per D1.
+
+---
+
+## The answer workflow (1a.4 — DONE 2026-05-25)
+
+Name: **"Expliq Support — RAG Answer"** (id `hcTllLJwyQZcpO2O`, **active**). Public webhook live at
+`https://178-105-184-130.sslip.io/webhook/expliq-support`.
+
+Architecture — **deterministic retrieve-then-answer** (retrieval runs on every request, strongest grounding guarantee; matches the spec's "retriever over the PGVector store → Claude"):
+
+```
+Webhook (POST /expliq-support, v2.1, auth=headerAuth x-webhook-secret, responseMode=responseNode,
+         onError=continueRegularOutput)
+  → Retrieve KB chunks (PGVector v1.3, mode "load", table expliq_kb_vectors, prompt={{ $json.body.message }}, topK 4)
+       └─ ai_embedding: Embeddings Ollama (nomic-embed-text:latest, 768-dim) — SAME model as the indexer
+  → Build context (Code): joins the retrieved chunks into one `context` string + carries message/history
+       (reads the original payload via $('Webhook').first().json.body)
+  → Answer (Claude) (Basic LLM Chain v1.9, promptType "define", hasOutputParser)
+       ├─ ai_languageModel: OpenRouter Chat Model (anthropic/claude-sonnet-4)
+       └─ ai_outputParser: Structured Output Parser → { category, reply }
+       guardrails in prompt: answer ONLY from CONTEXT; exact "I don't have enough information to answer that."
+       fallback; never invent; concise; category ∈ {bug, feature-request, question, urgent}
+  → Respond to Webhook (respondWith json, body={{ $json.output }}) → { category, reply }
+```
+
+**Why a Code node + Basic LLM Chain (not the Q&A Chain or an Agent):** the Question-and-Answer Chain
+retrieves+answers but emits plain text, with no clean path to the structured `{category, reply}`; an AI Agent
+would make retrieval optional (weaker grounding). Deterministic retrieve → aggregate → single structured LLM
+call is the cleanest fit for the dual classify+answer output and guarantees grounding context every time.
+PGVector "load" returns the topK nearest neighbours regardless of similarity, so out-of-scope questions still
+retrieve 4 (irrelevant) chunks and the model judges them insufficient → the exact fallback (AC 18).
+
+### Credentials (on the box; no secrets in the repo)
+- Postgres `ru7V4Tzqrw6ZSvSf` (expliq-rag PGVector) + Ollama `SijHtsthwmtboAFE` — reused from the indexer.
+- **OpenRouter** `Mvk7IbLlE9GAOG9z` (openRouterApi) and **Header Auth** `Q9PLFpkotcPFTRRe` (httpHeaderAuth,
+  name `x-webhook-secret`) — created for this workflow via the n8n-MCP `n8n_manage_credentials`.
+- Webhook secret generated locally → gitignored `.env` (`N8N_SUPPORT_WEBHOOK_URL`, `N8N_SUPPORT_WEBHOOK_SECRET`).
+  Vercel prod env gets these in Phase 4.
+
+### D6 — n8n prompt fields interpolate `{{ }}` ONLY when the value starts with `=`
+First live test returned the fallback even though retrieval put the exact answer in chunk 1. Root cause: the
+Basic LLM Chain `text` was a plain (fixed-mode) string, so `{{ $json.context }}` was sent to the model
+**literally** instead of being interpolated → the model saw an empty placeholder and correctly said it had no
+info. Fix: prefix the `text` value with `=` so n8n treats it as an expression and renders `{{ }}`. General rule
+for MCP-built workflows: any field that must interpolate an expression has to be authored as `=...{{ ... }}...`.
+
+### Verification (live, AC 18 + 19)
+- **In-scope + secret** ("Why is an automation flagged critical?") → grounded reply containing the exact KB
+  fact (>20% error rate, or critical impact + silent detectability), `category: question`, HTTP 200.
+- **Out-of-scope + secret** ("What is the weather in Berlin today?") → exact
+  `"I don't have enough information to answer that."`, no hallucination, HTTP 200.
+- **No `x-webhook-secret` header** → HTTP **403** "Authorization data is wrong!" (rejected).
+
+### Gotchas for re-running
+- Windows `curl` (schannel) fails the box cert with `CRYPT_E_NO_REVOCATION_CHECK`; add `--ssl-no-revoke`
+  (TLS stays on, only the revocation check is skipped). The valid LE cert verifies fine elsewhere.
+- The production webhook URL (`/webhook/expliq-support`) only works while the workflow is **active**; when
+  inactive, only the editor's test URL (`/webhook-test/...`) responds.
+- Manual webhook triggers can't be fired via the n8n public API — drive live tests with an HTTP POST.
+
+### Known gaps / not done here (by design)
+- No doc sticky-notes yet on this workflow (the indexer has them) — optional portfolio polish.
+- If PGVector ever returns 0 rows (empty table), the Code node gets no input and downstream nodes don't run →
+  webhook would hang. Not reachable with the populated KB (34 rows ≥ topK), so deferred.

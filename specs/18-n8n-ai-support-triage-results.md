@@ -120,3 +120,39 @@ matching the KB Indexer's documented style. Included in the committed export.
 ### Known gaps / not done here (by design)
 - If PGVector ever returns 0 rows (empty table), the Code node gets no input and downstream nodes don't run →
   webhook would hang. Not reachable with the populated KB (34 rows ≥ topK), so deferred.
+
+---
+
+## Track 1 — Expliq code slice (Phase 2 — DONE 2026-05-25)
+
+Built via `/dev` with a 3-agent team (server action + tests; widget + tests; config/docs), lead-verified.
+
+### What was built
+- **`src/lib/actions/support.ts`** (`"use server"`) — `sendSupportMessage({ message, history, pagePath, automationId })`: trim/empty + max-2000 validation, best-effort in-memory rate limit (**8/min per session user id**, sliding 60s window), email via `prisma.user.findUnique` (NOT the session), POST to `N8N_SUPPORT_WEBHOOK_URL` with the hardcoded `x-webhook-secret` header, returns `{ success, category, reply } | { error }`, never throws, graceful on unset env / network failure / non-OK.
+- **`src/components/support-widget.tsx`** (`"use client"`) — floating teal launcher → native `<dialog>` modal. Multi-turn client state, Enter-sends/Shift+Enter-newline, char counter near 2000, Send disabled empty/over-limit, idle→sending→answered→error+retry states, category badge, focus to input on open + back to launcher on close, full-screen <768px, `prefers-reduced-motion`. Calls ONLY the server action.
+- **`src/components/ui/textarea.tsx`** — shadcn-style primitive (didn't exist).
+- Mounted `<SupportWidget />` in `src/app/(app)/layout.tsx` inside `SidebarInset`.
+- **`.env.example`** — added `N8N_SUPPORT_WEBHOOK_URL`, `N8N_SUPPORT_WEBHOOK_SECRET` (app-level) + `N8N_API_URL`, `N8N_API_KEY` (local-only MCP).
+- **`DEPLOY-PORTFOLIO.md`** — corrected the "N8N_* never at app-level" line (split per-user connector creds vs the app-level support webhook), added an outbound-integration touchpoint, corrected the stale `vercel --prod` manual-deploy notes (prod auto-deploys from `main`).
+- Tests: `src/__tests__/support-action.test.ts` (19, AC A1–A6) + `src/__tests__/support-widget.test.tsx` (14, AC A7–A8).
+
+### Decisions
+- **History cap = last 6 messages, enforced server-side** in the action (`input.history.slice(-6)`) — robust against client manipulation. Multi-turn kept as specified.
+- **Rate limit = 8/min per session user id**, best-effort in-memory module Map (does NOT survive serverless instance recycling — acceptable for M1 per spec; KV/Upstash deferred).
+- **Native `<dialog>` + `showModal()`** instead of a Radix Dialog — gives Escape/focus-trap/`inert`/`::backdrop` for free, no new dependency, satisfies WCAG 2.2.
+- **`workspaceId` comes from the session** (authoritative), not the client; client sends only `pagePath` + `automationId`.
+
+### Verification
+- `npm run test`: **339/339 pass** (26 files), incl. the 33 new tests.
+- `npm run lint`: our new files are clean (one apostrophe-escape fix applied). Pre-existing lint errors in unrelated files (`scripts/research-spike-v9-*.ts` parked research, `opportunities-view.tsx`, `demo/page.tsx`, `detail-view.tsx`) left untouched — out of scope.
+- `npm run build`: **succeeds** — requires `NEXT_TURBOPACK_EXPERIMENTAL_USE_SYSTEM_TLS_CERTS=1` locally because `next/font/google` can't fetch fonts through this machine's TLS inspection (environment-only; Vercel builds fine). Our code compiles + type-checks clean.
+- **Live E2E (local dev → live n8n):** logged in as `seed-real@expliq.dev`, opened the widget on `/dashboard`, asked "Why is an automation flagged critical?" → rendered the grounded KB answer (">20% of its runs… critical business impact with silent detectability") with a **"Question" category badge**. Full Widget → Server Action → live n8n → Claude → pgvector round-trip confirmed. (Screenshot: `epic18-support-widget-e2e.png`, gitignored.)
+
+### AC status
+- A1–A8 (automated), B9–B13 (structural a11y/no-secret-in-client), C18–C19 (Track 2), **C20 verified locally** (the spec's C20 wants it on a Vercel preview → Phase 3), D23–D24 (branch + DEPLOY doc): met.
+- **Pending: Phase 3** (preview deploy e2e, AC C20) and **Phase 4** (set Vercel prod env, merge to `main`, AC C21).
+
+### Risks / notes for future epics
+- **Epic 19** extends the response contract with `actionsTaken[]` + `slackSummary` — the widget currently renders only `reply` + `category`; will need extension.
+- The local-build font-fetch TLS workaround (`NEXT_TURBOPACK_EXPERIMENTAL_USE_SYSTEM_TLS_CERTS=1`) is environment-specific; CI/Vercel are unaffected.
+- Rate limit is best-effort in-memory; a robust KV-backed limit is deferred (spec-acknowledged).

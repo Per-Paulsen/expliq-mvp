@@ -199,7 +199,9 @@ export function SupportWidget() {
           // Full-screen on mobile, floating card on desktop
           "w-full max-w-full h-full max-h-full",
           "sm:w-[400px] sm:max-w-[calc(100vw-2rem)] sm:h-auto sm:max-h-[calc(100vh-5rem)]",
-          "sm:fixed sm:bottom-24 sm:right-6 sm:m-0",
+          // Anchor bottom-right on desktop: reset the UA modal `inset:0` (top/left:0)
+          // so only bottom/right apply — otherwise top/left win and the panel pins top-left.
+          "sm:fixed sm:top-auto sm:left-auto sm:bottom-24 sm:right-6 sm:m-0",
           // Backdrop (Tailwind can't target ::backdrop directly; use backdrop pseudo styles via global CSS or inline)
           "backdrop:bg-black/40 backdrop:backdrop-blur-sm",
           // Respects reduced motion

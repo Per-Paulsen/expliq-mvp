@@ -156,3 +156,26 @@ Built via `/dev` with a 3-agent team (server action + tests; widget + tests; con
 - **Epic 19** extends the response contract with `actionsTaken[]` + `slackSummary` — the widget currently renders only `reply` + `category`; will need extension.
 - The local-build font-fetch TLS workaround (`NEXT_TURBOPACK_EXPERIMENTAL_USE_SYSTEM_TLS_CERTS=1`) is environment-specific; CI/Vercel are unaffected.
 - Rate limit is best-effort in-memory; a robust KV-backed limit is deferred (spec-acknowledged).
+
+---
+
+## Phase 3 + 4 — Go-Live + post-merge fix (DONE 2026-05-25)
+
+This finalizes the epic and supersedes the "Pending: Phase 3 / Phase 4" note in the Track-1 "AC status" above.
+
+### Phase 3 — preview e2e (AC C20 ✅)
+Opened **PR #5** → Vercel built a preview deploy. Set `N8N_SUPPORT_WEBHOOK_URL` + `N8N_SUPPORT_WEBHOOK_SECRET` in the Vercel **Preview** scope (without them the widget hits the graceful "service unavailable" path). The preview sits behind Vercel Deployment Protection → accessed via a `get_access_to_vercel_url` `_vercel_share` bypass link. Logged in as `seed-real@expliq.dev`, asked "What is the difference between Act Now, Investigate, and Explore?" → grounded KB answer + "Question" badge over the live n8n webhook. (Screenshot `screenshots/epic18-preview-phase3.png`, gitignored.)
+
+### Phase 4 — production go-live (AC C21 ✅)
+- Prod env: `N8N_SUPPORT_WEBHOOK_URL` + `N8N_SUPPORT_WEBHOOK_SECRET` confirmed in the Vercel **Production** scope (`vercel env ls`).
+- **PR #5 merged** → `main` (merge commit `d414b3e`) → Vercel auto-deployed production (`expliq-mvp.vercel.app`).
+- Verified on production with the **demo session** (`demo@example.com` / `demo`): asked "Can Expliq build or deploy a workflow for me?" → grounded reply ("…deploy them to your n8n instance directly from the Opportunities screen in one click…") + "QUESTION" badge. Full Widget → Server Action → live n8n → Claude → pgvector round-trip on prod. (Screenshot `screenshots/epic18-production-phase4.png`.)
+
+### Post-merge patch — support panel anchored bottom-right (PR #6)
+- **Bug:** on desktop the chat panel opened **top-left** instead of next to its bottom-right launcher.
+- **Cause:** a native modal `<dialog>` inherits `inset:0` (top/left:0) from the UA stylesheet; only `sm:bottom-24 sm:right-6` was set, so with a fixed width `top`/`left:0` won the cascade → pinned top-left.
+- **Fix:** added `sm:top-auto sm:left-auto` so only bottom/right apply → anchors at the launcher; mobile full-screen unchanged (`src/components/support-widget.tsx`).
+- **Verified:** 14 widget tests still pass; bounding box on prod (1920×893) = 39px from right edge, 96px from bottom, `left`/`top` no longer 0. **PR #6 merged** (`9bb18f8`), live on production. (Screenshot `screenshots/epic18-prod-position-fixed.png`.)
+
+### Final AC status — Epic 18 M1 COMPLETE + LIVE
+A1–A8, B9–B13, C14–C22, D23–D24 all met. The "ask Expliq, get a grounded answer" widget is live on `expliq-mvp.vercel.app` (demo-mode-safe: always visible, writes nothing to the Expliq DB). Next milestones: Epic 19 (M2 — agentic actions), Epic 20 (M3 — MCP server door).

@@ -5,16 +5,11 @@ import { usePathname } from "next/navigation";
 import { MessageCircle, Send, X, Loader2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-import { sendSupportMessage } from "@/lib/actions/support";
+import { sendSupportMessage, type ActionTaken } from "@/lib/actions/support";
 
 // ── Types ─────────────────────────────────────────────────
 
 type Role = "user" | "assistant";
-
-interface ActionTaken {
-  type: string;
-  ref: string | null;
-}
 
 interface Message {
   role: Role;
@@ -177,7 +172,7 @@ export function SupportWidget() {
           role: "assistant",
           content: result.reply,
           category: result.category,
-          actionsTaken: (result as { actionsTaken?: ActionTaken[] }).actionsTaken,
+          actionsTaken: result.actionsTaken,
         },
       ]);
     }

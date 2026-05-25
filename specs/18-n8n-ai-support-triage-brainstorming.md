@@ -739,4 +739,63 @@ Decision: **split** along the M1/M2/M3 seams. Done:
 - **[Epic 19 — Agentic Triage Actions (M2)](19-agentic-triage-actions.md)** created: AI Agent + MCP Client action tools (GitHub/Linear/Slack) against sandbox targets + rate-limit hardening. Depends on 18. Brainstorming: `19-...-brainstorming.md`.
 - **[Epic 20 — n8n MCP Server Door (M3)](20-n8n-mcp-server-door.md)** created: factor tools into sub-workflows + MCP Server Trigger door consumed by Claude Desktop/Code. Depends on 18 (+19 for the write tool). Brainstorming: `20-...-brainstorming.md`.
 
+## Round 10 — Knowledge-base scope locked (resolves Open Question 3)
+
+Phase 1a step 1a.2 ("author `n8n/knowledge/*.md`") hit Open Question 3 — *what goes into the KB for v1* was never decided. Locking it here so it can never re-surface as a point of confusion.
+
+### The confusion that was cleared up: "n8n" plays THREE roles
+
+A genuine ambiguity surfaced because the word "n8n" means three different things in this epic, and they got conflated:
+
+1. **n8n as the subject Expliq analyzes** — the user's own n8n instances/workflows are the *data* Expliq reasons about. **This is what users ask the widget about** (through Expliq's lens).
+2. **n8n as the implementation tech** — the workflow *behind* the chat widget is built in n8n (the RAG/answer workflow). Invisible plumbing; not a content topic.
+3. **n8n as a product/platform** — generic n8n help ("what does the HTTP node do", "how do I build a workflow"). **OUT of scope.**
+
+Two phrasings fed the over-reading and are hereby corrected in interpretation:
+- The spec's KB list says "plus **n8n-support topics**" — this does **not** mean generic n8n platform help. Read it **narrowly** as the **Expliq↔n8n integration usage** (connect an instance, API key, instance URL, tag selection, sync, deploy).
+- The epic is framed as a portfolio piece "for an n8n Product Builder application" — that describes *who the artifact is meant to impress*, **not** the widget's content domain.
+
+### Locked decision — what the widget answers
+
+The widget answers questions about **Expliq's output regarding the user's own n8n data**. Examples in scope:
+- "Why is this automation flagged *critical*?" / "What does *detectability: silent* mean?"
+- "What is my *next move*?" / "What does *Act Now* vs *Investigate* mean?"
+- "How do I connect / sync my n8n instance with Expliq? How do I deploy a recommendation?"
+
+Out of scope: "How do I build an n8n workflow?" and any generic n8n product/node tutorial.
+
+### The gray-zone resolution (the important nuance)
+
+Expliq itself **produces n8n-implementation hints** (e.g. a Recommendation's `implementationNotes`: *"Replace manual trigger in BlHTY3WMyrHpTYDK with a webhook trigger…"*). So follow-ups can drift toward generic n8n how-to. The boundary falls out of the RAG grounding mechanic itself: **the widget can only answer from what is in the KB.** Therefore:
+
+> **KB = Expliq's own output (including its `implementationNotes`) + Expliq concepts + Expliq↔n8n usage. No generic n8n knowledge. Expliq's own level of detail is the ceiling.**
+
+Behaviour this produces:
+- ✅ Relay/clarify what Expliq already says, at Expliq's detail level (the n8n-flavoured hints in recommendations are fine — they are Expliq's output).
+- ✅ Point to where to act in Expliq ("this recommendation is deployable from the Opportunities screen" — deployable recs need no n8n how-to; it's one click).
+- ⚠️ Deeper than Expliq phrased it (node fields, auth, paths) is **not** in the KB → the grounding guardrail returns "I don't have enough information", optionally with a soft "see n8n's docs" handoff. This is **correct** behaviour, not a coverage gap.
+- ❌ Generic n8n node tutorials Expliq never produced.
+
+### Source-of-truth principle (reliability)
+
+The KB grounds in **built reality**, not the PRD. PRD 2.0 is aspirational and diverges from what shipped (e.g. PRD calls a screen "Priorities"; the built route is `/opportunities`). Authoritative sources, in order: the running code + Prisma schema + the real demo data (committed `scripts/seed-fixtures/demo-data.json`, which is replayed into the live demo DB daily). PRD only fills gaps where code/data are silent.
+
+Real ground-truth values the KB uses:
+- **Built screens:** `/dashboard`, `/processes`, `/opportunities`, `/automations/[id]`, `/settings` (+ `/demo`, login/signup).
+- **Governance dot** (`src/lib/risk-engine.ts`): `healthy` / `attention` / `critical`, with the exact thresholds (critical = active & errorRate > 20%, or impact=critical & detectability=silent; attention = active & errorRate 5–20%, or inactive-but-run-within-30d, or impact critical/high without an error workflow).
+- **Impact** (enum): `critical / high / medium / low`. **Detectability** (free JSON, observed): `silent / partially-monitored / monitored`.
+- **Recommendation tiers:** `act now / investigate / explore`; types: `fix / build`; confidence: `data-driven / benchmark-based / ai-suggested`.
+
+### v1 KB file set
+
+| File | Content |
+|------|---------|
+| `expliq-features.md` | What each screen does: Dashboard (next move / what needs attention), Process Map (processes, coverage, maturity), Opportunities (ranked recommendations + Deploy), Detail (per-workflow business narrative), Settings (connect/sync n8n) |
+| `governance-signals.md` | The governance dot (healthy/attention/critical) + the exact rules from `risk-engine.ts` |
+| `risk-levels.md` | Impact (critical/high/medium/low), detectability (silent/partially-monitored/monitored), how they combine into a dot |
+| `faq.md` | Common user questions about reading their own analysis (the in-scope examples above) |
+| `connecting-n8n.md` | The Expliq↔n8n integration: instance URL, API key, tag selection, sync, deploy (the narrow "n8n-support topics") |
+
+This supersedes Open Question 3. The KB is product-output-centric; generic n8n platform help is explicitly excluded and handled by the grounding fallback.
+
 This file remains the shared decision-history record for all three (Rounds 1 to 9). Recommended next: `/refine_all` for cross-epic consistency across 18/19/20.

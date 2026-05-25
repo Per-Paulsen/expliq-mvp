@@ -175,6 +175,7 @@ When adding new epics that touch:
 - **New Vercel-Cron jobs** — append to `vercel.json` `crons` array, don't replace
 - **New `/api/*` routes** — if they're public/cron, add to `src/middleware.ts` matcher exception list
 - **Outbound integrations (Epic 18+)** — the `sendSupportMessage` Server Action (`src/lib/actions/support.ts`) makes a server-side outbound POST to the self-hosted n8n support webhook (`N8N_SUPPORT_WEBHOOK_URL`). If the n8n host changes (new domain, rotated secret), update both Vercel env vars (`N8N_SUPPORT_WEBHOOK_URL`, `N8N_SUPPORT_WEBHOOK_SECRET`) before deploying.
+- **Agentic triage (Epic 19)** — the n8n side of the same webhook is now agentic: the AI Agent performs sandboxed outbound writes (a GitHub issue in `Per-Paulsen/expliq-support-sandbox`, a Linear ticket in the "Expliq Support" team, and a Slack audit post to the private `support-triage-audit` channel). The Expliq app itself is unchanged in posture: it still only POSTs to the same `N8N_SUPPORT_WEBHOOK_URL` with the same secret, so **no new app-level env vars are required**. The response contract gained `actionsTaken[]` (parsed by the Server Action, surfaced in the widget); the internal `slackSummary` is never returned to the client.
 
 ## Sister deploy: apiq-mvp
 

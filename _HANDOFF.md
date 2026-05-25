@@ -4,44 +4,46 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: Verify n8n-MCP on epic-18 branch, then close Epic 18 Phase 0
+# Handoff: Epic 18 Phase 1a — build the answer workflow (1a.4)
 
-**Generated**: 2026-05-25 00:30  ·  **Branch**: feature/epic-18-n8n-support-triage  ·  **Status**: Ready for next session (after restart)
+**Generated**: 2026-05-25 · **Branch**: feature/epic-18-n8n-support-triage · **Status**: Ready for next session
 
 ## Goal
 
-Close **Epic 18 Phase 0** (self-hosted n8n AI support triage, portfolio piece) by confirming the n8n-MCP server connects, then begin **Phase 1a (RAG)** per the runbook. This session is being handed off specifically so a restart on THIS branch loads the n8n MCP (MCP servers load only at session startup).
+Build Epic 18 Phase 1a (RAG) for the n8n AI support widget: a self-hosted n8n workflow that answers user questions about **Expliq's output over the user's own n8n data**, grounded in a committed KB. Portfolio piece for an n8n Product Builder application. The indexer (write side) is done; next is the answer workflow (read side).
 
 ## Current State
 
-- **On `feature/epic-18-n8n-support-triage`.** `.mcp.json` here has the `n8n` server (`npx n8n-mcp`, env `N8N_API_URL`/`N8N_API_KEY` from `${N8N_MCP_API_URL}`/`${N8N_MCP_API_KEY}`). On `main` it is figma-only by design.
-- **Env vars present** in the shell: `N8N_MCP_API_URL=https://178-105-184-130.sslip.io/api/v1`, `N8N_MCP_API_KEY` (267-char JWT). The old stale-Cursor-env blocker is gone.
-- **n8n box already verified healthy** (direct curl, this session): `GET /workflows --ssl-no-revoke` returns `HTTP 200` `{"data":[],"nextCursor":null}` = 0 workflows (matches runbook expectation). So Phase 0 is substantively passing; only the MCP-path confirmation remains.
-- **n8n MCP NOT yet loaded**: the running session started on `main`. A restart on this branch is required.
-- **Two detours DONE today (on `main`, merged into this branch via `e69280d`):**
-  - Deploy hygiene: PR #4 merged, prod deploy READY, live demo `HTTP 200`. main now structurally protected (gitignore + .vercelignore + docs).
-  - Plugin fix: `per-claude-skills` bumped to v1.1.0; `ship` + `ci-init` skills now load and work.
-- **Stash `stash@{0}`** holds unrelated wip (`.claude/skills/dev/SKILL.md`, `.env.example`, `specs/*` edits, deleted `scripts/seed-r2-data.ts`). NOT part of epic-18. Recover with `git stash pop` if/when wanted.
+- **Phase 0** (n8n box + Ollama + n8n-MCP): DONE, verified. Box live `https://178-105-184-130.sslip.io`.
+- **1a.1 pgvector**: DONE — dedicated **2nd** Supabase project `expliq-rag` (NOT prod), `RAG_DATABASE_URL` in gitignored `.env`, pgvector 0.8.0.
+- **1a.2 KB**: DONE — `n8n/knowledge/*.md` (5 files) committed `cb0671b`. Scope locked in brainstorming **Round 10**.
+- **1a.3 indexer**: DONE — n8n workflow **"Expliq Support — KB Indexer"** (id `4VrcoPI5SmmEPheH`, manual, inactive). Idempotent (clear-table node), per-heading chunking (Code node), 6 doc sticky-notes. Verified: **34 distinct chunks, 768-dim, no duplicates**. Exported + committed `314056a` → `n8n/support-indexer.workflow.json`.
+- **n8n box creds**: Postgres `ru7V4Tzqrw6ZSvSf`, Ollama `SijHtsthwmtboAFE`. Vector table `expliq_kb_vectors`.
+- **n8n-MCP**: connected. If it drops mid-session, type `/mcp` → reconnect (no full restart).
+- Build decisions/deviations recorded in `specs/18-n8n-ai-support-triage-results.md` (D1–D5).
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| n8n-MCP config stays on the epic-18 branch, never on `main` | `main` auto-deploys to the public demo; n8n is per-user at runtime, not app-level (see DEPLOY-PORTFOLIO.md) |
-| Left the floating wip stashed, not committed | It is unrelated to epic-18; keeps the working tree clean for the MCP verification |
+| (D1–D5) | See `specs/18-...-results.md` — don't re-derive. RAG store off prod DB; KB via GitHub Contents API; per-heading Code node; Supabase pooler `allowUnauthorizedCerts`; indexer in n8n for compat + portfolio. |
+| Impl detail → repo results file, NOT memory | Per user: keep auto-memory lean; build log lives in `specs/18-...-results.md`. |
+| Run manual workflows via n8n UI "Execute"; verify via direct pgvector query | n8n_test_workflow can't fire manual triggers. |
 
 ## Open Questions / Pending
 
-- Fate of the stashed wip (specs/env/`SKILL.md`/deleted seed-r2-data.ts) — commit where, or discard? Decide separately from epic-18.
-- Untracked housekeeping: root `{GUID}.png` strays, `scripts/research-spike-v9-*.ts`, `research/*` new files. Not gitignored; decide keep vs ignore.
+- **1a.4 design choices** to confirm before building: LLM model (spec default `anthropic/claude-sonnet-4` via OpenRouter; `OPENROUTER_API_KEY`/`OPENROUTER_MODEL` in `.env`); category enum (`bug | feature-request | question | urgent`); generate `N8N_SUPPORT_WEBHOOK_SECRET` (needed by the Phase-2 Server Action too).
+- Parked, NOT epic-18 (decide separately): `stash@{0}`, `scripts/research-spike-v9-*.ts`, `research/*.md`, `specs/patches/bootcamp-analysis-*`, `specs/research-spike-results/v9/`.
+- Minor: pgvector `metadata.source` is loader-default "blob"; chunk attribution is in the in-text title prefix (fine).
 
 ## Next Step
 
-After restarting Claude Code **on this branch**, run `claude mcp list` and expect `n8n ✓ Connected`, then list the box's workflows via the n8n MCP (expect 0). If both pass, **Epic 18 Phase 0 is closed → start Phase 1a (RAG)** per `specs/18-n8n-ai-support-triage-runbook.md`. (First `npx n8n-mcp` run may download the package, brief delay.)
+Build **1a.4 — the answer workflow** in n8n via the MCP: `Webhook (POST /expliq-support, x-webhook-secret) → pgvector retriever (Ollama-embedded query over expliq_kb_vectors) → Claude via OpenRouter (classify + grounded answer, "I don't have enough information" fallback, never invent) → Respond to Webhook → { category, reply }`. **First** verify the needed nodes via the n8n-MCP (`get_node`: OpenRouter chat model, retrieval QA chain / agent, structured output parser, webhook, respondToWebhook), then present the plan + the 3 open decisions above before building. Reuse the existing Ollama + Postgres credentials.
 
 ## References
 
-- **Runbook**: `specs/18-n8n-ai-support-triage-runbook.md` (Phase 0 + 1a); specs `18/19/20-*.md`
-- **Memory**: `project-epic18-infra` (n8n box coords), `reference-plugin-update-mechanism` (plugin update gotcha), `project-deploy-topology` (main=prod), `feedback-selective-commits` (never `git add .`), `feedback-recommend-dont-pad`
-- **n8n box**: https://178-105-184-130.sslip.io (API at `/api/v1`)
-- **Recent commits**: `e69280d` (hygiene into epic-18), `9f99092` (PR #4 merge), `39e4102` (deploy hygiene)
+- **Spec**: `specs/18-n8n-ai-support-triage.md` (Track-2 answer workflow + acceptance) · **Runbook**: `specs/18-n8n-ai-support-triage-runbook.md` §1a.4–1a.5
+- **Results**: `specs/18-n8n-ai-support-triage-results.md` (D1–D5, indexer architecture, known gaps)
+- **Brainstorming Round 10**: KB scope (Expliq-output domain; generic n8n help out of scope)
+- **Memory**: `project_epic18_infra` (box + `/mcp` reconnect), `feedback_no_shortcuts_cleanest_solution`, `feedback_selective_commits` (never `git add .`)
+- **Recent commits**: `314056a` (indexer+export+results), `cb0671b` (KB+scope), `a7f459c` (.mcp.json global)

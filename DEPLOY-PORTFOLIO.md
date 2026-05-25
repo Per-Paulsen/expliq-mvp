@@ -62,7 +62,9 @@ Before merging any feature (e.g. 18-20) into `main`:
 
 Set: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL` (= `https://expliq-mvp.vercel.app`), `AUTH_TRUST_HOST` (= `true`), `ENCRYPTION_KEY`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `DEMO_MODE`, `CRON_SECRET`.
 
-NOT set: `TURNSTILE_*` (expliq has no anti-bot on signup), `N8N_*` (per-user via ConnectorConfig at runtime, never at app-level).
+NOT set: `TURNSTILE_*` (expliq has no anti-bot on signup), `N8N_API_URL` / `N8N_API_KEY` (per-user connector credentials live in ConnectorConfig at runtime, not app-level; local-only for build-time n8n-MCP authoring).
+
+Must be set before merging Epic 18: `N8N_SUPPORT_WEBHOOK_URL`, `N8N_SUPPORT_WEBHOOK_SECRET` (app-level; the support widget is a single shared channel, distinct from per-user connector auth).
 
 ## Files owned by the portfolio deploy
 
@@ -130,11 +132,13 @@ npm run capture-demo-fixtures
 # 2. Inspect the diff
 git diff scripts/seed-fixtures/demo-data.json
 
-# 3. Commit + push + redeploy
+# 3. Commit + push — production deploys automatically on merge to main
 git add scripts/seed-fixtures/
 git commit -m "chore: refresh demo fixtures from current pipeline"
 git push origin main
-npx vercel --prod
+# Vercel auto-deploys production from main via the GitHub integration.
+# Manual CLI deploy (npx vercel --prod) is not needed and should be avoided
+# (see "Deploy model" section above).
 
 # 4. Trigger reset to apply
 curl --ssl-no-revoke -H "Authorization: Bearer $CRON_SECRET" \
@@ -149,7 +153,7 @@ If `n8n-api-examples/fairtix/workflows-list.json` is updated:
 npm run redact-fairtix         # rewrites scripts/seed-fixtures/fairtix-workflows-redacted.json
 npm run capture-demo-fixtures  # re-runs LLM pipeline (~$1-2)
 git add scripts/seed-fixtures/ && git commit && git push
-npx vercel --prod
+# Production deploys automatically on merge to main via Vercel GitHub integration.
 ```
 
 ## Rollback / kill-switch
@@ -170,6 +174,7 @@ When adding new epics that touch:
 - **Sync flows (n8n connector / governance webhook)** — should be no-op for demo workspace because no `ConnectorConfig` is seeded; if you change behavior to require ConnectorConfig server-side, gate that with `DEMO_MODE` check
 - **New Vercel-Cron jobs** — append to `vercel.json` `crons` array, don't replace
 - **New `/api/*` routes** — if they're public/cron, add to `src/middleware.ts` matcher exception list
+- **Outbound integrations (Epic 18+)** — the `sendSupportMessage` Server Action (`src/lib/actions/support.ts`) makes a server-side outbound POST to the self-hosted n8n support webhook (`N8N_SUPPORT_WEBHOOK_URL`). If the n8n host changes (new domain, rotated secret), update both Vercel env vars (`N8N_SUPPORT_WEBHOOK_URL`, `N8N_SUPPORT_WEBHOOK_SECRET`) before deploying.
 
 ## Sister deploy: apiq-mvp
 

@@ -4,52 +4,46 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: CI hardening + plugin skills DONE; one restart unblocks skills + n8n-MCP (Epic 18)
+# Handoff: Epic 18 Phase 1a — build the answer workflow (1a.4)
 
-**Generated**: 2026-05-24 21:30  ·  **Branch**: main (Epic-18 work on `feature/epic-18-n8n-support-triage`)  ·  **Status**: Ready for next session
+**Generated**: 2026-05-25 · **Branch**: feature/epic-18-n8n-support-triage · **Status**: Ready for next session
 
 ## Goal
 
-Two threads converged on **one Claude Code restart**: (1) the CI/PR-check system is built and merged; its new plugin skills (`/ship`, `/ci-init`) only load after a restart. (2) Epic 18 (n8n AI support triage) is still waiting on the n8n-MCP, which needs the same restart (env vars). A clean restart unblocks both, then Epic 18 Phase 0 closes and Phase 1a (RAG) begins.
+Build Epic 18 Phase 1a (RAG) for the n8n AI support widget: a self-hosted n8n workflow that answers user questions about **Expliq's output over the user's own n8n data**, grounded in a committed KB. Portfolio piece for an n8n Product Builder application. The indexer (write side) is done; next is the answer workflow (read side).
 
 ## Current State
 
-- **CI system — DONE, merged to main:**
-  - Central `Per-Paulsen/ci-workflows@v1` (public): 4 reusable workflows — `node-ci` (npm ci + `type-check` blocking + eslint non-blocking + vitest), `autofix` (eslint --fix + commit-back), `gitleaks`, `claude-review` (advisory, `continue-on-error` step).
-  - expliq-mvp migrated to a thin `pr-checks.yml` caller (PRs #1, #2, #3 all merged). All checks green.
-  - **Branch protection on `main`**: `ci / Lint & Test` + `gitleaks / Secret scan` required; admin bypass on (`enforce_admins:false`); review/autofix advisory.
-- **Plugin — pushed + cache-synced, NOT yet loaded here:**
-  - `per-claude-skills` has `/ship` + `/ci-init` (latest commit `4b1d0fb`). Cache at `~/.claude/plugins/marketplaces/per-claude-skills` is a GitHub clone, verified at `4b1d0fb`, both skills present.
-  - **Not in this session's skill list** — new skill folders are only discovered at startup; `/reload-plugins` does NOT pick them up. Restart required.
-- **n8n-MCP (Epic 18) — blocked on restart:** infra live (`https://178-105-184-130.sslip.io`), `.mcp.json` + `setx` env set, but THIS claude.exe inherited a stale env from a Cursor process running since May 20 (pre-`setx`). `claude mcp list` → `n8n ✗ Failed to connect (Missing env vars)`.
-- **AGENTS.md** adoption decided (not implemented) — see Open Questions.
+- **Phase 0** (n8n box + Ollama + n8n-MCP): DONE, verified. Box live `https://178-105-184-130.sslip.io`.
+- **1a.1 pgvector**: DONE — dedicated **2nd** Supabase project `expliq-rag` (NOT prod), `RAG_DATABASE_URL` in gitignored `.env`, pgvector 0.8.0.
+- **1a.2 KB**: DONE — `n8n/knowledge/*.md` (5 files) committed `cb0671b`. Scope locked in brainstorming **Round 10**.
+- **1a.3 indexer**: DONE — n8n workflow **"Expliq Support — KB Indexer"** (id `4VrcoPI5SmmEPheH`, manual, inactive). Idempotent (clear-table node), per-heading chunking (Code node), 6 doc sticky-notes. Verified: **34 distinct chunks, 768-dim, no duplicates**. Exported + committed `314056a` → `n8n/support-indexer.workflow.json`.
+- **n8n box creds**: Postgres `ru7V4Tzqrw6ZSvSf`, Ollama `SijHtsthwmtboAFE`. Vector table `expliq_kb_vectors`.
+- **n8n-MCP**: connected. If it drops mid-session, type `/mcp` → reconnect (no full restart).
+- Build decisions/deviations recorded in `specs/18-n8n-ai-support-triage-results.md` (D1–D5).
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| Commit-back `autofix` kept (vs pre-commit hook) | Centrally distributable for a solo dev; pre-commit needs per-repo husky |
-| Pin consumers to `@v1`, never `@main` | A bad push to ci-workflows would break all consumers; move v1 on release |
-| review/autofix non-blocking via `continue-on-error` **on the reusable step** | `continue-on-error` on a reusable-CALLING job = `startup_failure`; must be on the step inside the reusable |
-| Light branch protection (admin bypass) | Real gate for Vercel-production main without solo lockout |
-| Adopt `AGENTS.md` + thin `CLAUDE.md` that `@AGENTS.md`-imports it | Claude Code does NOT read AGENTS.md natively (verified); portable to Cursor/Copilot. No symlink (Windows). |
+| (D1–D5) | See `specs/18-...-results.md` — don't re-derive. RAG store off prod DB; KB via GitHub Contents API; per-heading Code node; Supabase pooler `allowUnauthorizedCerts`; indexer in n8n for compat + portfolio. |
+| Impl detail → repo results file, NOT memory | Per user: keep auto-memory lean; build log lives in `specs/18-...-results.md`. |
+| Run manual workflows via n8n UI "Execute"; verify via direct pgvector query | n8n_test_workflow can't fire manual triggers. |
 
 ## Open Questions / Pending
 
-- **AGENTS.md adoption** — captured in global `Dev/_TODO.md` (bilinked to the "Achse 2" item). Pattern: AGENTS.md source-of-truth + CLAUDE.md `@AGENTS.md`. Not implemented; bake into the starter.
-- **Personal starter repo + `/new-project` skill** — researched (SOTA = one starter repo + local scaffold OR `gh repo create --template`), deferred. See repo-bootstrapping research.
-- **Roll `/ci-init` to other GitHub repos** — shared discovery step with the gitleaks-distribution TODO.
-- **Epic 18 Phase 1a (RAG)** — after Phase 0 closes (MCP verified), per the runbook.
+- **1a.4 design choices** to confirm before building: LLM model (spec default `anthropic/claude-sonnet-4` via OpenRouter; `OPENROUTER_API_KEY`/`OPENROUTER_MODEL` in `.env`); category enum (`bug | feature-request | question | urgent`); generate `N8N_SUPPORT_WEBHOOK_SECRET` (needed by the Phase-2 Server Action too).
+- Parked, NOT epic-18 (decide separately): `stash@{0}`, `scripts/research-spike-v9-*.ts`, `research/*.md`, `specs/patches/bootcamp-analysis-*`, `specs/research-spike-results/v9/`.
+- Minor: pgvector `metadata.source` is loader-default "blob"; chunk attribution is in the in-text title prefix (fine).
 
 ## Next Step
 
-After a **clean restart** (fully quit Cursor so the main process re-reads the registry, OR launch Claude Code from a terminal opened fresh via the Start menu so `setx` env is inherited): in the new session, verify BOTH — (1) `ship` + `ci-init` appear in the skills list, and (2) `claude mcp list` shows `n8n ✓ Connected`, then list the box's workflows via the MCP (expect 0). If both pass, **Epic 18 Phase 0 is closed → start Phase 1a (RAG)** per the runbook.
+Build **1a.4 — the answer workflow** in n8n via the MCP: `Webhook (POST /expliq-support, x-webhook-secret) → pgvector retriever (Ollama-embedded query over expliq_kb_vectors) → Claude via OpenRouter (classify + grounded answer, "I don't have enough information" fallback, never invent) → Respond to Webhook → { category, reply }`. **First** verify the needed nodes via the n8n-MCP (`get_node`: OpenRouter chat model, retrieval QA chain / agent, structured output parser, webhook, respondToWebhook), then present the plan + the 3 open decisions above before building. Reuse the existing Ollama + Postgres credentials.
 
 ## References
 
-- **Research (expliq-mvp/research/)**: `ai-pr-review-state-of-the-art-...`, `github-actions-best-practices-...`, `repo-bootstrapping-state-of-the-art-...` (all 2026-05-24)
-- **Design doc**: `Dev/_resources/ci-distribution-across-repos-2026-05-24.md`
-- **Memory**: `project_ci_github_actions` (CI setup + all GitHub Actions gotchas), `project_epic18_infra` (n8n coordinates), `feedback_selective_commits` (never `git add .`)
-- **Epic 18 runbook**: `specs/18-n8n-ai-support-triage-runbook.md` (Phase 0 + 1a)
-- **Repos**: `github.com/Per-Paulsen/ci-workflows` (`@v1`), `github.com/Per-Paulsen/per-claude-skills` (`4b1d0fb`)
-- **Recent commits**: `3409058` (PR #3), `1717af2` (#2), `bf3e4d5` (#1)
+- **Spec**: `specs/18-n8n-ai-support-triage.md` (Track-2 answer workflow + acceptance) · **Runbook**: `specs/18-n8n-ai-support-triage-runbook.md` §1a.4–1a.5
+- **Results**: `specs/18-n8n-ai-support-triage-results.md` (D1–D5, indexer architecture, known gaps)
+- **Brainstorming Round 10**: KB scope (Expliq-output domain; generic n8n help out of scope)
+- **Memory**: `project_epic18_infra` (box + `/mcp` reconnect), `feedback_no_shortcuts_cleanest_solution`, `feedback_selective_commits` (never `git add .`)
+- **Recent commits**: `314056a` (indexer+export+results), `cb0671b` (KB+scope), `a7f459c` (.mcp.json global)

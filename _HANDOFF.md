@@ -4,44 +4,59 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: Epic 19 (M2) DONE + live — next is Epic 20 (M3, MCP Server Door)
+# Handoff: Epic 20 (M3, MCP Server Door) refined — ready for `/dev`
 
-**Generated**: 2026-05-26 01:00 · **Branch**: main · **Status**: Ready for next session
+**Generated**: 2026-05-27 · **Branch**: main · **Status**: Ready for next session
 
 ## Goal
 
-Build the n8n AI support widget as a 3-milestone portfolio series for an n8n Product Builder application. M1 (Epic 18, answer-only) and **M2 (Epic 19, agentic actions) are now DONE + live on production.** Next: **M3 = Epic 20** — factor the RAG/triage tools into reusable sub-workflows and add a native **MCP Server Trigger** workflow that exposes them to Claude Desktop/Code (the interview demo door).
+Build **Epic 20 (M3)**, the final milestone of the 3-part n8n Product Builder portfolio series: expose the
+existing support brain via the native **MCP Server Trigger** as a second front door, so a capable AI client
+(Claude Desktop / Code) can call it as a tool. "One shared support brain, two consumption models: a human
+widget (webhook) and an AI agent (MCP)."
 
 ## Current State
 
-- **Epic 19 (M2) COMPLETE + LIVE.** PR #9 (`d2bd1ca`, code + workflow) + PR #10 (`254b0a3`, docs finalize) merged to `main`. Working tree clean.
-- **Live agentic workflow:** `Expliq Support — Agentic Triage` (id `B0YWkBWQa9NEfX9r`, active, path `/webhook/expliq-support-agent`). Retrieve-first RAG → AI Agent (Claude/OpenRouter) + GitHub MCP (`issue_write`) + Linear MCP (`save_issue`) → separate Format chain → deterministic structured Slack audit → respond. Contract `{ category, reply, actionsTaken[], slackSummary }`.
-- **Prod verified:** all 4 categories live (bug→GitHub issue, feature→Linear ticket, urgent→issue+`@here` Slack, question→answer only); prod `N8N_SUPPORT_WEBHOOK_URL` points at the agent path. Tests 346/346, build + lint green.
-- **Epic-18 answer workflow** (`hcTllLJwyQZcpO2O`) stays active as the rollback.
-- Full record: `specs/19-agentic-triage-actions-results.md`.
+- **Epic 20 spec is refined + architecture locked** (this session, via `/refine`). Spec + brainstorming
+  updated and **uncommitted** on `main`: `specs/20-n8n-mcp-server-door.md` (M),
+  `specs/20-n8n-mcp-server-door-brainstorming.md` (M, rounds 1–4 + Refinement Applied).
+- **Verified against reality:** reconciled with Epic 19's as-built workflow, checked the live n8n node
+  (`nodes-langchain.mcpTrigger` v2), and grounded in fresh MCP best-practice research.
+- **Epics 18 + 19 remain live + unchanged** on prod (`expliq-mvp.vercel.app`). Tests were 346/346 at Epic 19.
+- New uncommitted docs: `research/mcp-tool-design-best-practices-research-2026-05-27.md`,
+  `research/mcp-advantages-over-direct-api-research-2026-05-27.md`,
+  `research/mcp-vs-api-explained.md` (a long MCP-concepts teaching dialogue), `_TODO.md` (new, project-local).
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| Slack = native n8n node (bot token), NOT MCP | Slack's MCP rejects non-partner OAuth clients (no DCR); `mcp.slack.com` won't accept a custom-app token. Proven dead in a live probe. |
-| RAG = deterministic retrieve-first; structured output = separate Format chain | Research-backed hybrid: guarantees grounding + n8n's parser is unreliable on a tool-calling agent. Spec-literal "pure agent" was rejected. |
-| MCP Client tools = `include: selected` (1 tool each) | Full toolsets collapse agent tool-selection accuracy (research). |
-| 4 post-go-live classification tweaks applied to the live agent | urgent-vs-bug, bug-vs-question, feature-vs-question, prompt-injection hardening (public actioning endpoint). |
+| **Two tools, read/write separated** | `answer_expliq_question` (read-only RAG) + `file_support_request` (write, agent-backed). MCP best practice: separate query from mutation; one fused tool rejected. |
+| **Factoring touches ONLY the agent workflow** | The Epic-18 answer workflow stays a frozen, untouched rollback. Webhook delegates to `file_support_request`; contract stays byte-equivalent (new regression-guard AC6). |
+| **Write tool stays agent-backed (not primitives)** | Epic 19's agent enforces server-side guards a client can't replicate (injection hardening, one-action cap, classification, audit). Research-backed. |
+| **MCP node is Tools-only — Resources/Prompts NOT possible in n8n** | Verified on the live node (only auth + path props, `ai_tool` input). KB-as-Resource & Prompts showcase would need a custom TS MCP server; **rejected** to keep the pure-n8n portfolio story. |
+| **Auth = `bearerAuth`** | Claude Desktop/Code compatible; node default is `none`, so set explicitly. |
 
 ## Open Questions / Pending
 
-- **Epic 20 spec may have stale assumptions** given Epic 19's deviations (Slack = native node not MCP; tools not yet factored into sub-workflows; retrieve-first + separate format chain). Reconcile before building.
-- Sandbox test artifacts are accumulating (GitHub issues #2–#9, Linear EXP-5/EXP-6, Slack audit posts) — harmless + resettable, can be bulk-cleared anytime.
-- Redundant native `githubApi` cred `ZZDNvvAvVOpTdTwS` (from Phase 0) is unused by the workflow — can be deleted.
+- **Refine outputs are uncommitted on `main`** (spec + brainstorming + 3 research files + `_TODO.md`).
+  `/dev` will branch to `feature/epic-20-mcp-server-door` and carry them over; decide at `/dev` start whether
+  to commit the docs first or let the Epic-20 branch absorb them.
+- **Epic 20 prerequisites:** does the MCP Server Trigger need box-side setup first (a bearer-auth credential,
+  the path, factoring the shared sub-workflows)? Confirm at `/dev` start.
+- **Composition-demo follow-up** (Claude Code connecting Expliq + GitHub + Linear MCPs) is tracked in
+  `_TODO.md` as a **post-build** task; not part of the Epic-20 build itself.
 
 ## Next Step
 
-Open `specs/20-n8n-mcp-server-door.md` and, **before** `/dev`, run `/refine` (or `/refine_all`) to reconcile its assumptions with Epic 19's actual architecture (Slack via native node, retrieve-first + separate Format chain, GitHub/Linear via MCP Client tools, tools to be factored into sub-workflows). Then `/dev specs/20-n8n-mcp-server-door.md`.
+Run **`/dev specs/20-n8n-mcp-server-door.md`** to build the MCP Server Door: factor the agent logic into the
+two shared tool sub-workflows, add the `MCP Server Trigger` workflow (`bearerAuth`, both tools), keep the
+answer/rollback workflow untouched, and verify the widget contract stays byte-equivalent before cutover.
 
 ## References
 
-- **Results**: `specs/19-agentic-triage-actions-results.md` (full build log, Phases 0–4 + the 4 tweaks) · **Spec**: `specs/19-agentic-triage-actions.md` · **Next spec**: `specs/20-n8n-mcp-server-door.md`
-- **Research**: `research/n8n-agentic-rag-mcp-state-of-the-art-research-2026-05-25.md` (architecture rationale) · `research/official-mcp-servers-slack-github-linear-research-2026-05-25.md` (MCP/DCR mechanics)
-- **Memory**: `project_epic18_n8n_triage` (status footer + Slack-MCP finding), `project_epic18_infra` (box/host), `feedback_no_build_log_in_memory`
-- **Recent commits**: `254b0a3` docs finalize · `d2bd1ca` Epic 19 merge · `0c26c76` widget cast cleanup
+- **Spec**: `specs/20-n8n-mcp-server-door.md` · **Brainstorming**: `specs/20-n8n-mcp-server-door-brainstorming.md` (rounds 1–4)
+- **Research**: `research/mcp-tool-design-best-practices-research-2026-05-27.md` (read/write split, tool granularity, agent-as-tool verdict) · `research/mcp-advantages-over-direct-api-research-2026-05-27.md`
+- **Upstream results**: `specs/19-agentic-triage-actions-results.md`, `specs/18-n8n-ai-support-triage-results.md`
+- **Memory**: `project_epic18_n8n_triage`, `project_epic18_infra`, `feedback_no_build_log_in_memory`, `feedback_surface_scope_decisions`
+- **Recent commits**: `d2d4c5b` prior handover · `254b0a3` Epic 19 docs finalize · `d2bd1ca` Epic 19 merge

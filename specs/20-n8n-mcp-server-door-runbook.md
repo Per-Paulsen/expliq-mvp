@@ -1,7 +1,7 @@
 ---
 tags:
   - type/reference
-  - status/in-progress
+  - status/done
   - epic/20
   - exercise/19
 ---

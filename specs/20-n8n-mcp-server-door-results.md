@@ -1,7 +1,7 @@
 ---
 tags:
   - type/reference
-  - status/in-progress
+  - status/done
   - epic/20
   - exercise/19
 ---
@@ -75,4 +75,4 @@ All acceptance criteria verified end-to-end against the live box (n8n 2.56.0) an
   - **Widget cutover (go-live)** — repoint Vercel `N8N_SUPPORT_WEBHOOK_URL` to `/webhook/expliq-support-agent-v2`, preview-verify, merge to `main`; then optionally deactivate the old monolithic agent (keep as rollback). Per-driven.
   - **MCP-path audit context** is intentionally sparse (no user/workspace/page — the external client doesn't supply them); webhook-path audit stays full.
   - **Post-build composition demo** (Claude Code connecting Expliq + GitHub + Linear MCPs) remains the tracked `_TODO.md` item.
-  - **`.gitignore` for n8n trigger of `$fromAI`** — the MCP tool param surfaces as `required` even though the underlying field is optional; acceptable (client always supplies it).
+  - **Nit — `$fromAI`-mapped tool args surface as `required` in the MCP schema** (verified via `tools/list`: `file_support_request.inputSchema.required = ["message"]`, `answer_expliq_question.inputSchema.required = ["query"]`). The `Call n8n Sub-Workflow Tool` node auto-marks any `$fromAI(...)`-mapped arg as required; the trigger schema itself has no required-flag. Harmless — the MCP client always supplies the primary arg.

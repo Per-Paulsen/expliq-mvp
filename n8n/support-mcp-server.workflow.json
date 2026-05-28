@@ -1,0 +1,137 @@
+{
+    "name":  "Expliq Support — MCP Server",
+    "nodes":  [
+                  {
+                      "id":  "mcp",
+                      "name":  "MCP Server Trigger",
+                      "type":  "@n8n/n8n-nodes-langchain.mcpTrigger",
+                      "typeVersion":  2,
+                      "position":  [
+                                       0,
+                                       0
+                                   ],
+                      "parameters":  {
+                                         "path":  "expliq-support-mcp",
+                                         "authentication":  "bearerAuth"
+                                     },
+                      "credentials":  {
+                                          "httpBearerAuth":  {
+                                                                 "id":  "9FXAAcHjcQq3Pu1k",
+                                                                 "name":  "Expliq Support MCP Server (Bearer)"
+                                                             }
+                                      },
+                      "webhookId":  "ccfda93d-3729-4ea6-bbbd-6433657ba893"
+                  },
+                  {
+                      "id":  "toolAnswer",
+                      "name":  "answer_expliq_question",
+                      "type":  "@n8n/n8n-nodes-langchain.toolWorkflow",
+                      "typeVersion":  2.2,
+                      "position":  [
+                                       280,
+                                       200
+                                   ],
+                      "parameters":  {
+                                         "source":  "database",
+                                         "workflowId":  {
+                                                            "__rl":  true,
+                                                            "value":  "QEkcrvHaatPMpj0J",
+                                                            "mode":  "id",
+                                                            "cachedResultName":  "Expliq Support — answer_expliq_question"
+                                                        },
+                                         "description":  "Answer a question about Expliq (an automation-intelligence platform that analyzes a user\u0027s n8n workflows and surfaces governance signals, risk levels, business processes, and prioritized recommendations) using ONLY its official knowledge base. Read-only: returns a grounded answer plus a category. Takes no external action. Use for how-to and informational questions about Expliq.",
+                                         "workflowInputs":  {
+                                                                "mappingMode":  "defineBelow",
+                                                                "value":  {
+                                                                              "query":  "={{ $fromAI(\u0027query\u0027, \u0027The user question about Expliq to answer from the knowledge base\u0027, \u0027string\u0027) }}"
+                                                                          },
+                                                                "matchingColumns":  [
+
+                                                                                    ],
+                                                                "schema":  [
+                                                                               {
+                                                                                   "id":  "query",
+                                                                                   "displayName":  "query",
+                                                                                   "required":  false,
+                                                                                   "defaultMatch":  false,
+                                                                                   "display":  true,
+                                                                                   "type":  "string",
+                                                                                   "canBeUsedToMatch":  true
+                                                                               }
+                                                                           ],
+                                                                "attemptToConvertTypes":  false,
+                                                                "convertFieldsToString":  false
+                                                            }
+                                     }
+                  },
+                  {
+                      "id":  "toolFile",
+                      "name":  "file_support_request",
+                      "type":  "@n8n/n8n-nodes-langchain.toolWorkflow",
+                      "typeVersion":  2.2,
+                      "position":  [
+                                       280,
+                                       0
+                                   ],
+                      "parameters":  {
+                                         "source":  "database",
+                                         "workflowId":  {
+                                                            "__rl":  true,
+                                                            "value":  "3Mlx4jPSdle75zmW",
+                                                            "mode":  "id",
+                                                            "cachedResultName":  "Expliq Support — file_support_request"
+                                                        },
+                                         "description":  "File a support request about Expliq. Classifies the message into exactly one of bug, feature-request, question, or urgent, and takes AT MOST ONE category-appropriate action: a GitHub issue for a bug or urgent problem, a Linear ticket for a feature request, and no external action for a plain question. Returns the user-facing reply, the actions taken (with their references), and an internal audit summary. Use this when the user wants to report a problem, escalate an outage, or request a new capability.",
+                                         "workflowInputs":  {
+                                                                "mappingMode":  "defineBelow",
+                                                                "value":  {
+                                                                              "message":  "={{ $fromAI(\u0027message\u0027, \u0027The user support message to triage and act on\u0027, \u0027string\u0027) }}"
+                                                                          },
+                                                                "matchingColumns":  [
+
+                                                                                    ],
+                                                                "schema":  [
+                                                                               {
+                                                                                   "id":  "message",
+                                                                                   "displayName":  "message",
+                                                                                   "required":  false,
+                                                                                   "defaultMatch":  false,
+                                                                                   "display":  true,
+                                                                                   "type":  "string",
+                                                                                   "canBeUsedToMatch":  true
+                                                                               }
+                                                                           ],
+                                                                "attemptToConvertTypes":  false,
+                                                                "convertFieldsToString":  false
+                                                            }
+                                     }
+                  }
+              ],
+    "connections":  {
+                        "answer_expliq_question":  {
+                                                       "ai_tool":  [
+                                                                       [
+                                                                           {
+                                                                               "node":  "MCP Server Trigger",
+                                                                               "type":  "ai_tool",
+                                                                               "index":  0
+                                                                           }
+                                                                       ]
+                                                                   ]
+                                                   },
+                        "file_support_request":  {
+                                                     "ai_tool":  [
+                                                                     [
+                                                                         {
+                                                                             "node":  "MCP Server Trigger",
+                                                                             "type":  "ai_tool",
+                                                                             "index":  0
+                                                                         }
+                                                                     ]
+                                                                 ]
+                                                 }
+                    },
+    "settings":  {
+                     "executionOrder":  "v1"
+                 }
+}

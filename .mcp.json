@@ -11,6 +11,13 @@
         "N8N_API_URL": "${N8N_MCP_API_URL}",
         "N8N_API_KEY": "${N8N_MCP_API_KEY}"
       }
+    },
+    "doppler": {
+      "command": "npx",
+      "args": ["-y", "@dopplerhq/mcp-server"],
+      "env": {
+        "DOPPLER_TOKEN": "${DOPPLER_TOKEN}"
+      }
     }
   }
 }

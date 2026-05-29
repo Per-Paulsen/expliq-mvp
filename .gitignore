@@ -57,7 +57,12 @@ n8n-api-examples/fairtix/**/*.json
 .playwright-mcp/
 .claude/projects/
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
-# n8n box backups (encrypted credential exports) — never commit, even if _resources/ gets tracked.
-_resources/n8n-backups/
+# Internal ops/planning notes, migration plans, box scripts, encrypted backups.
+# All local-only — host/credential-IDs inside; never ship to public `main`.
+_resources/
 *.tgz
+
+# Epic-20 live-demo walkthrough — contains live n8n URLs; local-only.
+specs/20-n8n-mcp-server-door-demo.md

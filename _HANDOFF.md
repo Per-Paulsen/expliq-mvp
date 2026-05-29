@@ -4,49 +4,62 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: Epic 20 (MCP Server Door) built + verified — pending results review + widget cutover
+# Handoff: Doppler migration COMPLETE — only secret-rotation left
 
-**Generated**: 2026-05-27 22:10 · **Branch**: feature/epic-20-mcp-server-door · **Status**: Ready for next session
+**Generated**: 2026-05-29 17:45  ·  **Branch**: `main`  ·  **Status**: Ready for next session
+
+## Repo Snapshot
+
+> Script-collected (Step 2a). Source of truth — do not paraphrase.
+
+- **Branch**: `main` (ahead 0, behind 0 of `origin/main`)
+- **HEAD**: `e4221ed` — docs: align .env.example with Doppler + real var names (#16)
+- **Working tree**: 8 untracked, 2 modified (`.gitignore`, `_HANDOFF.md`), 0 staged
+- **Stash**: 1 entry (old: "session wip: specs/env/seed parked for epic-18 switch")
+- **Uncommitted paths**:
+  - Modified (to commit via PR): `.gitignore` (now ignores `.claude/scheduled_tasks.lock` + the whole `_resources/`), `_HANDOFF.md`
+  - Untracked, **pending individual triage** (user chose to do this pass next; unused scripts to be deleted): `scripts/research-spike-v9-{collect,enrich,run,test-single}.ts`, `specs/research-spike-results/v9/`, `specs/20-n8n-mcp-server-door-demo.md` (live URLs), `specs/patches/bootcamp-analysis-{explained.md,raw.json}` (email + cloud URL)
+- **Cleaned this session**: deleted a stray clipboard screenshot from repo root; gitignored `.claude/scheduled_tasks.lock`; gitignored the entire `_resources/` dir (6 internal ops/plan files with host+credential-IDs — local-only, off public `main`, no more git-status noise). Updated the `/handoff` skill (Step 2b) to force a per-untracked-file decision so artifacts stop drifting across sessions.
 
 ## Goal
 
-Finish **Epic 20 (M3)**, the last milestone of the n8n Product Builder portfolio series: expose the support brain via a native **MCP Server Trigger** as a second front door so a capable AI client (Claude Desktop/Code) can call it as tools. "One brain, two doors: human widget (webhook) + AI agent (MCP)."
+End the `.env`/Vercel/Hetzner secret fragmentation: every secret has exactly one home (Doppler or Windows-env), the local `.env` is empty, and the self-hosted n8n box is recoverable.
 
 ## Current State
 
-- **Build done + committed** on the feature branch: commit `a012fcd` ("feat: implement epic 20 — n8n MCP Server Door"), 6 files (4 workflow exports + runbook + results). No Expliq app-code changed; **live prod path untouched** (parallel build).
-- **Live on the box (n8n 2.56.0), all published/active:**
-  - `file_support_request` `3Mlx4jPSdle75zmW` (WRITE, agent-backed, fully inline = the showcase WF)
-  - `answer_expliq_question` `QEkcrvHaatPMpj0J` (READ, read-only RAG)
-  - delegating widget webhook `IuXf6YCFk85qxyu0` (path `/webhook/expliq-support-agent-v2`)
-  - MCP server `ZMnqIwsEiBgpOBOC` (path `/mcp/expliq-support-mcp`, bearerAuth, cred `9FXAAcHjcQq3Pu1k`)
-- **All ACs verified** (raw MCP-over-HTTP + webhook probes): AC2 both tools listed with named params (`message`/`query`); AC3 read grounded + write created GitHub issue #11 via MCP; AC4 unauth→403; AC6 widget byte-equivalent + audit context intact.
-- `.env` (gitignored): added `N8N_MCP_BEARER_TOKEN`.
-- Sandbox test artifacts (resettable): GitHub `expliq-support-sandbox` issues #10, #11.
+- **Doppler migration COMPLETE — all 3 surfaces done:**
+  - Surface 1 (app) → Doppler `expliq-mvp` (dev+prd; prd→Vercel). Live. Local dev = `doppler run -- npm run dev`.
+  - Surface 2 (MCP tooling) → Windows user-env (by design): `DOPPLER_TOKEN`, `N8N_MCP_API_KEY/URL` confirmed present.
+  - Surface 3 (n8n box) → Doppler `expliq-n8n-box/prd` (10 secrets: 8 box + `N8N_API_KEY` + `N8N_ENCRYPTION_KEY`) + the n8n credential store. Box boots via `doppler run`; box token is **read-only**.
+- **`.env` emptied** (pointer comment only); `.env.bak` **deleted** after a 19/19 home cross-check; `.env.example` cleaned + completed (PR #16).
+- **n8n off-box backup** taken + **restore TEST-VALIDATED** (throwaway container; restored cred values byte-match prod). Tarball in `_resources/n8n-backups/` (gitignored, PR #15). Re-run: `bash /opt/n8n/n8n-box-backup.sh <stamp>` + scp.
+- **Merged this session:** PR #15 (gitignore backups), PR #16 (.env.example). 2 dead n8n credentials deleted (now 8, all active).
+- Demo (`expliq-mvp.vercel.app`) functional throughout; box `/healthz` 200.
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| **Variante B — each tool carries its own retrieval block** (no shared `retrieve_kb`) | So `file_support_request` is ONE complete, self-contained workflow to show in the n8n application. AC1's "no dup between the two live front doors" still holds (both doors call the same 2 subs). Per-confirmed. |
-| **Named MCP params require defined trigger inputs** | passthrough triggers expose a generic `{input}`; so triggers define `query` / `message`(+audit fields). MCP maps the primary arg via `$fromAI`. |
-| **Prod-safe parallel build; cutover is a separate go-live** | Nothing touched prod; widget cutover (Vercel env repoint) is gated by DEPLOY-PORTFOLIO. |
+| Surface 3 = **backup**, not per-value centralization | Goal is recoverability; encryption key in Doppler + encrypted off-box export = full restore. (Per-value sync script exists + proven, not the path taken.) |
+| Box token **read-only** | `doppler run` only reads; one-time writes used the personal token. |
+| Backup **manual, no cron** | Box-local cron = false safety (dies with the box). Re-run on workflow change. |
+| `.env.example` = **app variables only** | It documents the Next.js app; box/MCP-foreign secrets do not belong in it. |
 
 ## Open Questions / Pending
 
-- **Results file review:** `specs/20-n8n-mcp-server-door-results.md` is a draft awaiting Per's OK (corrections appended, not overwritten). Epic not marked "done" until confirmed.
-- **Widget cutover (go-live, Per-driven):** repoint Vercel `N8N_SUPPORT_WEBHOOK_URL` → `/webhook/expliq-support-agent-v2`, preview-verify, merge to `main`; then optionally deactivate the old monolith agent `B0YWkBWQa9NEfX9r` (keep as rollback).
-- **Ship:** offer to open a PR for the branch via `/ship` (brings exports + docs to `main`; CI runs).
-- Post-build composition demo (Claude Code + Expliq + GitHub + Linear MCPs) stays a `_TODO.md` item.
+- **⚠️ SECURITY TODO (deferred by user): rotate 7 Surface-3 secrets.** Emptying `.env` needed a `Read` that pulled their plaintext into the agent transcript (local + gitignored, but via the model API): `HCLOUD_TOKEN`, `RAG_DATABASE_URL` (Supabase pw), `GITHUB_SANDBOX_PAT`, `LINEAR_API_KEY`, `SLACK_BOT_TOKEN`, `SLACK_OAUTH_CLIENT_ID/SECRET`. Rotate at source → set new in Doppler `expliq-n8n-box/prd` + n8n store via `n8n-box-credential-sync.sh`.
+- **8 untracked files pending individual triage** (explicit user choice, not silent deferral): the 4 `research-spike-v9-*.ts` + `research-spike-results/v9/` (unused spike — user said deletable), `specs/20-...-demo.md` (live URLs), `bootcamp-analysis-{explained,raw}` (email+cloud URL). Decide commit/delete/ignore per file.
+- 1 old stash; empty `dev`/`stg` configs in `expliq-n8n-box` (can't delete root configs; harmless).
 
 ## Next Step
 
-Ask Per to review `specs/20-n8n-mcp-server-door-results.md` and confirm (or give corrections to append); on his OK, mark Epic 20 done, then walk through the widget cutover (Vercel env repoint + `/ship` PR) together.
+Rotate the 7 leaked Surface-3 secrets: for each, generate a fresh value at the source, revoke the old, then run the rotate-and-set machinery (`_resources/n8n-box-credential-sync.sh` on the box, fed from Doppler `expliq-n8n-box/prd`). Start highest-impact: `RAG_DATABASE_URL` + `HCLOUD_TOKEN`. Do NOT rotate `N8N_ENCRYPTION_KEY`.
 
 ## References
 
-- **Spec / Brainstorming / Runbook / Results**: `specs/20-n8n-mcp-server-door{,-brainstorming,-runbook,-results}.md`
-- **Exports**: `n8n/support-{file-support-request,answer-expliq-question,widget-webhook,mcp-server}.workflow.json`
-- **Upstream results**: `specs/19-agentic-triage-actions-results.md`, `specs/18-n8n-ai-support-triage-results.md`
-- **Memory**: `project_epic18_n8n_triage`, `project_epic18_infra`, `feedback_no_build_log_in_memory`, `feedback_surface_scope_decisions`
-- **Recent commits**: `a012fcd` Epic 20 build · `e7a159d` Epic 20 docs · `9154c75` prior handover
+- **Plan + full build-log**: `_resources/surface3-n8n-box-plan-2026-05-28.md` (three dated STATUS sections at the end)
+- **Inventory**: `_resources/expliq-credential-inventory-2026-05-28.md` · **Migration plan**: `_resources/doppler-migration-plan-2026-05-28.md`
+- **Scripts** (on box at `/opt/n8n/`): `_resources/n8n-box-backup.sh`, `_resources/n8n-box-credential-sync.sh`
+- **Memory**: `project_doppler_migration` (lean status pointer)
+- **Recent commits**: `e4221ed` (#16 .env.example), `f1275a7` (#15 gitignore backups)
+- **SSH**: `ssh -i ~/.ssh/expliq_n8n_ed25519 root@178.105.184.130` · local doppler at `%LOCALAPPDATA%\Microsoft\WinGet\Packages\Doppler.doppler_*\doppler.exe` (not on PATH)

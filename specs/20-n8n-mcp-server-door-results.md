@@ -76,3 +76,18 @@ All acceptance criteria verified end-to-end against the live box (n8n 2.56.0) an
   - **MCP-path audit context** is intentionally sparse (no user/workspace/page — the external client doesn't supply them); webhook-path audit stays full.
   - **Post-build composition demo** (Claude Code connecting Expliq + GitHub + Linear MCPs) remains the tracked `_TODO.md` item.
   - **Nit — `$fromAI`-mapped tool args surface as `required` in the MCP schema** (verified via `tools/list`: `file_support_request.inputSchema.required = ["message"]`, `answer_expliq_question.inputSchema.required = ["query"]`). The `Call n8n Sub-Workflow Tool` node auto-marks any `$fromAI(...)`-mapped arg as required; the trigger schema itself has no required-flag. Harmless — the MCP client always supplies the primary arg.
+
+## Cutover restored after Doppler-migration defect (2026-05-29)
+
+> Supersedes the pending "Widget cutover (go-live)" note above. The cutover had in fact already been performed (~2026-05-28; see the project memory), then silently undone by the Doppler migration on the same day. This session restored it.
+
+**What had broken.** The Doppler migration (2026-05-28) created `N8N_SUPPORT_WEBHOOK_URL` and `N8N_SUPPORT_WEBHOOK_SECRET` in Doppler `prd` with **empty** values, then synced those empties to Vercel Production. Root cause: the migration sourced prod values from `vercel env pull`, which returns **empty** for Sensitive env vars, and the pre-flight "11/11 match" diff compared empty against empty and passed. Net effect: the prod widget returned `"Support service is not configured."` (Server Action `support.ts` env-check `!webhookUrl || !webhookSecret`) from ~2026-05-28 onward, so neither door fired.
+
+**Fix (this session, 2026-05-29).**
+- Fresh 64-char webhook secret generated locally (never sent through the model API), set identically in the n8n Header-Auth credential `Q9PLFpkotcPFTRRe` ("Expliq Support Webhook Secret", shared by all three webhook workflows) and in Doppler `prd` plus the Vercel **Preview** scope.
+- `N8N_SUPPORT_WEBHOOK_URL` set to the v2 path (`/webhook/expliq-support-agent-v2`) in Doppler `prd` and Vercel Preview.
+- Production redeployed via `vercel redeploy` (the Doppler-to-Vercel sync only writes the var, no auto-redeploy).
+- Verified live: demo session, a `bug` produced category "Bug" plus a grounded reply plus GitHub issue `expliq-support-sandbox#13`; n8n execution `52` ran on the delegating v2 workflow `IuXf6YCFk85qxyu0`, while the monolith `B0YWkBWQa9NEfX9r` was not triggered.
+- Old monolith `B0YWkBWQa9NEfX9r` **deactivated** (kept as rollback, not deleted); the Epic-18 RAG-answer workflow stays as a second rollback.
+
+**Lesson.** When migrating secrets, do not trust `vercel env pull` for Sensitive vars (it yields empty); verify actual running behavior, not just a value-diff.

@@ -108,6 +108,12 @@ Run a single test file: `npx vitest run src/__tests__/home.test.tsx`
 - Epic 10: Schema + extended sync (completed)
 - Epic 11: LLM Pipeline V2 (completed)
 - Epics 12-17: R2 screens + polish (pending)
+- **Epics 18-20: n8n Agentic Support Stack (done + live)** — portfolio artifact for an n8n Product Builder application. Self-hosted n8n on Hetzner (Docker + Caddy + sslip.io TLS) serves the Expliq support widget via **two front doors** to one shared "support brain":
+  - **Door 1 (widget webhook):** the Expliq help widget calls a private n8n webhook via a Next.js Server Action (URL + secret server-side only, never in the client bundle). Started in Epic 18 as RAG-only; became an AI Agent in Epic 19.
+  - **Door 2 (MCP Server, Epic 20):** native n8n MCP Server Trigger with bearer auth, exposed to AI clients (Claude Desktop / Claude Code).
+  - **Two reusable sub-workflows behind both doors:** `answer_expliq_question` (READ, RAG-grounded answer over `n8n/knowledge/*.md` → Supabase pgvector with Ollama `nomic-embed-text` embeddings on the n8n box) and `file_support_request` (WRITE, AI Agent on Claude Sonnet via OpenRouter that classifies + acts: `bug` → GitHub sandbox issue, `feature-request` → Linear ticket, `urgent` → Slack alert, `question` → RAG-only; always a Slack audit summary). WRITE response contract: `{ category, reply, actionsTaken[], slackSummary }`.
+  - **Spec files:** `specs/18-n8n-ai-support-triage*.md` (M1) + `specs/19-agentic-triage-actions*.md` (M2) + `specs/20-n8n-mcp-server-door*.md` (M3) — each with spec, brainstorming, results, and runbook where applicable.
+  - **App-side env keys:** `N8N_SUPPORT_WEBHOOK_URL`, `N8N_SUPPORT_WEBHOOK_SECRET` (`.env` + Vercel prod). Operational URLs / workflow IDs / sandbox targets live outside the repo (not committed).
 
 **Results files:** `specs/*-results.md` — decisions, deviations, risks from completed epics. Read these before implementing dependent specs.
 

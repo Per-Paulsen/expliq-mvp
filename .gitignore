@@ -57,3 +57,7 @@ n8n-api-examples/fairtix/**/*.json
 .playwright-mcp/
 .claude/projects/
 .claude/settings.local.json
+
+# n8n box backups (encrypted credential exports) — never commit, even if _resources/ gets tracked.
+_resources/n8n-backups/
+*.tgz

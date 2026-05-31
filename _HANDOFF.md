@@ -4,63 +4,59 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: n8n support stack — strategic research session (showcase direction set)
+# Handoff: Expliq core-features re-examination → portfolio-first v1 LOCKED
 
-**Generated**: 2026-05-30 18:40  ·  **Branch**: `main`  ·  **Status**: Ready for next session
+**Generated**: 2026-05-31 19:30  ·  **Branch**: `main`  ·  **Status**: Ready for next session
 
 ## Repo Snapshot
 
-> Script-collected (Step 2a). Source of truth, do not paraphrase.
+> Script-collected at handover time. Source of truth — `/pickup` compares against fresh git.
 
-- **Branch**: `main` (ahead 0, behind 0 of `origin/main`) — before this handover's commits
-- **HEAD**: `0e556c2` — docs: session handover (2026-05-30 00:11)
-- **Working tree**: 4 untracked, 1 modified, 0 staged
-- **Stash**: 1 entry (old: "session wip: specs/env/seed parked for epic-18 switch")
+- **Branch**: `main` (ahead 1, behind 0 of `origin/main`) — the docs commit `9ec8a8e`, UNPUSHED. (+ this handover commit, also local.)
+- **HEAD**: `9ec8a8e` — docs: Expliq core-features re-examination + offering exploration
+- **Working tree**: 1 untracked, 0 modified, 0 staged
+- **Stash**: 1 entry (old, pre-existing, unrelated)
 - **Uncommitted paths**:
-  - Memory: —
-  - Skills: —
-  - Config: —
-  - Docs: `_TODO.md` (modified); `specs/patches/ai-trust-showcase-plan.md`, `specs/patches/expliq-core-mcp-vision-brainstorming.md`, `specs/patches/formatter-deterministic-brainstorming.md`, `specs/patches/local-agentic-multiagent-vision-brainstorming.md` (untracked)
+  - Memory: — (memory files updated this session but live in `~/.claude`, not the repo)
+  - Docs: —
   - Code/WIP: —
-  - Suspicious: —
-  - Other: —
+  - Other: `{9C4E024D-...}.png` (the n8n Overview screenshot Per pasted as F4/F5 grounding; 190KB; decision pending)
 
 ## Goal
 
-Decide the strongest, application-relevant direction for evolving the live n8n agentic support stack, for an n8n AI Product Builder showcase. This was a research + decision session (no build yet); 4 /explore runs produced 5 research files in the Dev `_resources/`.
+Decide what Expliq's core product actually IS (the prd-2.0 "business opportunity engine" felt like an overshoot), and lock a concrete, grounded v1 feature set for a portfolio showcase (the n8n AI Product Builder application).
 
 ## Current State
 
-- **Direction set (AI-Trust showcase):** keep the existing SINGLE-agent + tools architecture; Claude stays the prod agent core. Headline = the "AI Trust" layer (evals + observability + guardrails). Plan: `specs/patches/ai-trust-showcase-plan.md` (5 phases + ops section, infra-elastic, self-hosted Langfuse, golden-dataset eval as the core must-have).
-- **Deliberately rejected** (with reasons, documented): multi-agent for triage (sequential = single-agent is senior; parked as a separate future learning project), local-LLM as prod core (kept only as optional eval-comparison candidate + local guardrail checks).
-- **Box fact corrected:** Hetzner cx23 = 2 vCPU / 4 GB (not 8 GB). n8n 2.56.0. Native Evaluation + Guardrails nodes confirmed present. Self-hosted Langfuse / a 32B need a bigger/separate box (infra is elastic).
-- **MCP clarified:** MCP = integration layer, NOT orchestrator; the composition demo is emergent agent orchestration (no gateway needed at 3 servers). The valuable "ask about MY governance data" agent belongs on a future **Expliq-Core MCP / in-app data agent**, NOT the support door (security: lethal trifecta). Securely buildable via auth-scoped tools + RLS backstop; in-app-agent first, MCP later; keep the UI (not MCP-only).
-- **7 research files written** to `C:\Users\perpa\Dev\_resources\` (all in `_research-index.md`), all dated 2026-05-30: local-llm-hosting-model-choice-agentic-n8n, multi-agent-orchestration-landscape, ai-trust-evals-observability-guardrails-n8n, mcp-gateways-orchestration-multi-server, mcp-enterprise-practice-vs-hype, secure-per-workspace-agent-data-access, self-hosting-founder-stack-reference.
+- **DECISION LOCKED (portfolio-first).** Full reasoning: `specs/patches/expliq-core-mcp-vision-brainstorming.md` Parts 6-14 + `specs/patches/expliq-offering-exploration.md` Sections 0-14.
+- **Refined v1** = "automation estate intelligence / a repo-walkthrough for your n8n estate": core = **F2 business-meaning** + **F5 black-box-risk**; **F4 dependency map = canvas** (n8n shipped a basic dep-graph Feb 2026, so the bare map is table-stakes); **F1 sync** scaffold; **F7 ask-your-estate** = optional wow. **Hero** = black-box-risk callout on the map.
+- **OUT**: opportunity-engine, LLM impact-PREDICTION (infeasible mirage on dynamic n8n), security-posture (Zenity's lane), monitoring (n8n's turf).
+- **9 research files** in `Dev/_resources/` (dated 2026-05-31) committed in the **vault repo `757d798`**.
+- **Commits LOCAL + UNPUSHED**: expliq-mvp `9ec8a8e` (2 docs) + this handover commit; Dev-vault `757d798` (9 research + index).
+- **Memory** updated: `project_expliq_core_features_rethink.md` + MEMORY.md pointer.
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| AI-Trust (evals/observability/guardrails) is the showcase, not multi-agent/local | Matches the role's "AI Trust" workstream + eval must-have verbatim; single-agent is the senior choice for sequential triage |
-| Claude stays prod core; local LLM only as eval-comparison candidate | Local for the agentic core is fragile + marginal; local's real value is a data-backed comparison + local guardrail checks |
-| Governance-data agent = future Expliq-Core MCP / in-app, not the support door | Different domain + sensitivity; avoids combining private data + untrusted input + outward action on one server |
-| Keep the UI; add MCP additively (not MCP-only) | Expliq's value is visual/auditable; consensus is UI + API + MCP, not replacement |
+| Portfolio-first hat | Real showcase for the n8n application; demand/willingness-to-pay does NOT gate it (unvalidated = acceptable) |
+| v1 = comprehension + black-box-risk (F2+F5), map as canvas | Validated problem-signal (n8n community), feasible, demo-able; n8n already ships a dep-graph so the map alone is table-stakes |
+| Opportunity-engine + impact-prediction + security = OUT | Overshoot / infeasible mirage / Zenity's lane (all evidenced) |
+| "Explain a workflow" is NOT a commodity | The product around it (sync / join exec-data / persist / estate-context) is the value |
 
 ## Open Questions / Pending
 
-- **⚠️ SECURITY TODO (carried over from prior handover, STILL OPEN, untouched this session): rotate 7 leaked Surface-3 secrets** — `HCLOUD_TOKEN`, `RAG_DATABASE_URL`, `GITHUB_SANDBOX_PAT`, `LINEAR_API_KEY`, `SLACK_BOT_TOKEN`, `SLACK_OAUTH_CLIENT_ID/SECRET`. Do NOT rotate `N8N_ENCRYPTION_KEY`. Runbook: private repo `_resources/surface3-n8n-box-plan-2026-05-28.md`.
-- AI-Trust showcase is planned but NOT built. First build step would be Phase 1 (deterministic formatter, `specs/patches/formatter-deterministic-brainstorming.md`).
-- Tracing backend choice for Phase 4 (Langfuse Cloud free vs separate self-hosted box) — minor, decide before Phase 4.
+- **Screenshot `{9C4E024D-...}.png`** (n8n Overview, 190KB, repo root, untracked): Per to decide — commit-as-evidence / gitignore / delete. Pasted this session as F4/F5 grounding.
+- **Push the local commits to main?** (docs-only, demo-safe; deliberately left UNPUSHED pending Per's word.)
 - 1 old stash (pre-existing, unrelated).
 
 ## Next Step
 
-Pick one: (a) act on the carried-over SECURITY TODO (rotate the 7 Surface-3 secrets), or (b) start the AI-Trust showcase at Phase 1 (deterministic formatter on a copy of `file_support_request`, prod-safe). Ask the user which.
+Resolve the screenshot + push questions above, then turn the locked v1 into a **build/spec plan** for the showcase (F1 sync + F2 business-meaning + F5 black-box-risk on the F4 map + F7 ask-your-estate), per `expliq-offering-exploration.md` Section 14.
 
 ## References
 
-- **Plans/vision**: `specs/patches/ai-trust-showcase-plan.md`, `specs/patches/expliq-core-mcp-vision-brainstorming.md`, `specs/patches/local-agentic-multiagent-vision-brainstorming.md`, `specs/patches/formatter-deterministic-brainstorming.md`
-- **Research** (Dev vault): `_resources/_research-index.md` → the 7 files dated 2026-05-30
-- **Demo context**: `_TODO.md` (MCP composition demo item, with this session's clarifications)
-- **Live**: support workflows on n8n box (`178-105-184-130.sslip.io`, n8n 2.56.0); `file_support_request` = `3Mlx4jPSdle75zmW`
-- **Recent commits**: `0e556c2`, `2315736` (Merge #18), `528a6eb`
+- **Files**: `specs/patches/expliq-offering-exploration.md` (Sections 0-14 = the locked v1), `specs/patches/expliq-core-mcp-vision-brainstorming.md` (Parts 6-14 = the reasoning arc)
+- **Research**: 9 files in `Dev/_resources/` dated 2026-05-31 (indexed in `_resources/_research-index.md`)
+- **Memory**: `project_expliq_core_features_rethink.md`; method lesson `feedback_adversarial_research_pass.md`
+- **Recent commits**: expliq-mvp `9ec8a8e` (local), Dev-vault `757d798` (local)

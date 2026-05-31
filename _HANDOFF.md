@@ -35,7 +35,7 @@ Decide the strongest, application-relevant direction for evolving the live n8n a
 - **Deliberately rejected** (with reasons, documented): multi-agent for triage (sequential = single-agent is senior; parked as a separate future learning project), local-LLM as prod core (kept only as optional eval-comparison candidate + local guardrail checks).
 - **Box fact corrected:** Hetzner cx23 = 2 vCPU / 4 GB (not 8 GB). n8n 2.56.0. Native Evaluation + Guardrails nodes confirmed present. Self-hosted Langfuse / a 32B need a bigger/separate box (infra is elastic).
 - **MCP clarified:** MCP = integration layer, NOT orchestrator; the composition demo is emergent agent orchestration (no gateway needed at 3 servers). The valuable "ask about MY governance data" agent belongs on a future **Expliq-Core MCP / in-app data agent**, NOT the support door (security: lethal trifecta). Securely buildable via auth-scoped tools + RLS backstop; in-app-agent first, MCP later; keep the UI (not MCP-only).
-- **5 research files written** to `C:\Users\perpa\Dev\_resources\` (all in `_research-index.md`): local-llm-hosting, multi-agent-orchestration, ai-trust-evals-observability-guardrails, mcp-gateways-orchestration, mcp-enterprise-practice-vs-hype, secure-per-workspace-agent-data-access, plus self-hosting-founder-stack reference.
+- **7 research files written** to `C:\Users\perpa\Dev\_resources\` (all in `_research-index.md`), all dated 2026-05-30: local-llm-hosting-model-choice-agentic-n8n, multi-agent-orchestration-landscape, ai-trust-evals-observability-guardrails-n8n, mcp-gateways-orchestration-multi-server, mcp-enterprise-practice-vs-hype, secure-per-workspace-agent-data-access, self-hosting-founder-stack-reference.
 
 ## Key Decisions
 
@@ -60,7 +60,7 @@ Pick one: (a) act on the carried-over SECURITY TODO (rotate the 7 Surface-3 secr
 ## References
 
 - **Plans/vision**: `specs/patches/ai-trust-showcase-plan.md`, `specs/patches/expliq-core-mcp-vision-brainstorming.md`, `specs/patches/local-agentic-multiagent-vision-brainstorming.md`, `specs/patches/formatter-deterministic-brainstorming.md`
-- **Research** (Dev vault): `_resources/_research-index.md` → the 6 files dated 2026-05-30
+- **Research** (Dev vault): `_resources/_research-index.md` → the 7 files dated 2026-05-30
 - **Demo context**: `_TODO.md` (MCP composition demo item, with this session's clarifications)
 - **Live**: support workflows on n8n box (`178-105-184-130.sslip.io`, n8n 2.56.0); `file_support_request` = `3Mlx4jPSdle75zmW`
 - **Recent commits**: `0e556c2`, `2315736` (Merge #18), `528a6eb`

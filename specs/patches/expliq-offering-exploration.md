@@ -268,3 +268,23 @@ Net v1 (refined): F1 (sync) + F2 (business-meaning) + F5 (black-box risk) as the
 **Validation basis:** problem-signal voiced in the n8n community (F2/F4/F5), CodeScene as market-proxy for F5, competitor + AI-native scans show the spine still OPEN and n8n's AI is execution-centric (orthogonal). Willingness-to-pay not validated , acceptable under the portfolio hat.
 
 **Next (future session):** build the v1 showcase (the spine above), borrowing the UX patterns; optionally a build/spec plan. Full reasoning arc: `expliq-core-mcp-vision-brainstorming.md` Parts 6-14 + this file Sections 0-13 + 8 research files in `Dev/_resources/` (dated 2026-05-31).
+
+## 15. Post-v1 roadmap candidates: F13 + F14 (2026-05-31)
+
+Added AFTER the v1 lock , candidates for after v1 (unless OQ 30 folds a cheap slice in). Both reuse the estate model.
+
+**F13 , AI-inventory + risk lens.** Identify the AI INSIDE your workflows: which WFs use AI, which model/provider, what the AI does (business terms), and the risk. Object = the AI in YOUR built workflows (NOT Tecto's "AI tools employees use") , so it stays in Expliq's lane, not a Tecto pivot. Honest scope:
+- Feasible/trustworthy: detection + classification + business-meaning + STRUCTURAL security-risk (lethal-trifecta = AI + external input + outward action + broad credential).
+- NOT a compliance oracle: data-privacy/legal = "flag for human review" ONLY (dynamic-data problem + false-confidence + legal-liability trap). Never claim "GDPR / EU-AI-Act compliant."
+- Timely (agentic n8n + EU AI Act); strong portfolio-demo. Feature/lens, NOT headline (else drift into the crowded AI-governance lane = Tecto/Zenity). Demand for n8n operators unvalidated; buyer may skew compliance. Partial precedent: the AI-BOM scanner.
+
+**F14 , best-practices / structural linter for the estate** (the generalization of F13's structural-risk). Check each workflow + the estate against best practices / policy: error handling present? hardcoded secrets? lethal-trifecta? overly complex (no sub-workflow decomposition)? missing retries/timeouts? deprecated/risky nodes? -> flag violations + an estate "health score", explained in business terms, prioritized by criticality.
+- n8n PUBLISHES best-practice guidance (docs/courses) but does NOT enforce/check it , a real gap (like ESLint/Spectral exist because style guides do not self-enforce). n8n's native "validation" = config/parse validity, not best-practice quality.
+- KEY STRENGTH (feasibility): this is DETERMINISTIC structural rule-checking on the static JSON , trustworthy, low false-positive, the OPPOSITE of the impact-prediction mirage and the legal-certainty trap. The LLM adds explanation + prioritization, not the core check.
+- Escape the vitamin trap by tying violations to CONSEQUENCES ("no error handling -> silent failures", the validated pain), not abstract hygiene.
+- Caveats: vitamin risk; n8n could add a native linter (platform-encroachment, like it did the dep-graph); keep it a lens, not a standalone "linter product" identity.
+
+**The unifying principle (the important takeaway):** F5 (black-box risk) + F13 (AI risk) + F14 (best-practice/security lint) are ONE FAMILY , trustworthy, DETERMINISTIC, structural risk/quality checks over the estate, explained in business terms. They are the FEASIBLE, DEFENSIBLE counterpart to the rejected INFERENTIAL bets (impact-PREDICTION, legal-CERTAINTY). The line separating Expliq's good bets from its traps: **deterministic structural checks (trustworthy) vs inferential predictions/judgments (false-confidence trap).** Together with F2 (comprehension) + F4 (map), this family = a coherent "understand + ASSESS your automation estate" product, all on the one estate model.
+
+### Open
+30. Do F13/F14 stay strictly post-v1, or does a cheap deterministic slice (e.g. lethal-trifecta + no-error-handling flags) fold into the v1 demo as part of F5's risk family (low effort, demo-strong, reuses the estate model)?

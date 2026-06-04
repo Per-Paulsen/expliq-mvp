@@ -288,3 +288,89 @@ Added AFTER the v1 lock , candidates for after v1 (unless OQ 30 folds a cheap sl
 
 ### Open
 30. Do F13/F14 stay strictly post-v1, or does a cheap deterministic slice (e.g. lethal-trifecta + no-error-handling flags) fold into the v1 demo as part of F5's risk family (low effort, demo-strong, reuses the estate model)?
+
+## 16. The MCP-commoditization question: why does Expliq exist if Claude Code + n8n-MCP can do it? (2026-06-04)
+
+The sharpest bear-case yet, raised by Per: a user can connect Claude Code / Claude Desktop to their n8n instance via the existing **n8n MCP server** and just say "analyze my automations for risk." Claude Code's agentic loop is genuinely better than a single-shot pipeline (established this session). So why should Expliq build its own agent / exist at all, instead of being a worse version of what the user already has for free? This is the "thin-wrapper / GPT-wrapper" critique generalized to the agent era.
+
+**The load-bearing unbundling: two independent questions that were being conflated.**
+- **(a) Internal:** should Expliq's analysis be *agentic* (tool-loop + on-demand context) rather than single-shot? -> Yes, it is strictly better (the n8n-client methods + Prisma queries become tools the model drives, instead of a prompt-stuffing `runAnalysisPipeline`).
+- **(b) External:** should Expliq *exist as a product* given Claude Code + n8n-MCP? -> Depends entirely on WHAT Expliq is. MCP only threatens (b).
+
+These are orthogonal. The implementation can be agentic AND the product can still be defensible, because **the product is not the agent; it is the opinionated system around the agent.**
+
+**What MCP + a frontier agent commoditizes: the reasoning layer only.** The raw "run an LLM over the instance once." If Expliq is only that, it is dead, correctly. That is the thin-analysis-wrapper, and it does not survive.
+
+**What Claude-Code-via-MCP does NOT give the user (the durable layers, = the actual product):**
+1. **Encoded expertise / the right questions.** Claude Code analyzes the instance only if the user already knows what "black-box risk" is, the rubric, what "detectability / value-at-stake / maturity" mean, what good looks like. That codified judgment IS `risk-engine.ts` + the prompt/schema design + the domain model. The user at an empty Claude Code prompt produces the answer to their random question, not a governance assessment.
+2. **Longitudinal state / delta.** Claude Code is session-bound and forgets last week. Governance is inherently monitoring-over-time ("what changed since last sync, what is newly risky"), = the whole `delta-generation.ts` / snapshot model. An agent session cannot be a continuous control plane.
+3. **Determinism + auditability (the un-commoditizable core).** The irony that makes this airtight: the SAME reason Per chose deterministic retrieve-first RAG (Epic 19, D7) is why a governance verdict cannot be "just ask the agent." A risk score that changes every re-run is not an audit artifact; "Claude said it's risky" carries no compliance process. `computeGovernanceDot` as a **pure deterministic function** is exactly the part MCP cannot reproduce. **This is the same insight as Section 15's unifying principle** (deterministic structural checks vs inferential predictions), seen from the distribution angle: the deterministic core is what survives commoditization, the inferential layer is what gets commoditized. F5/F13/F14's determinism is not just a feasibility virtue, it is the *moat against the agent*.
+4. **The non-agent-native user.** Claude Code is a developer terminal tool. The person who must SEE automation risk (RevOps lead, ops manager, CTO, compliance) does not have MCP configured. The product is the accessible, shareable surface for everyone who will never "pull it into Claude Code."
+5. **The action loop + multi-tenant plumbing.** Accounts, sharing, RBAC, deploy/ticket/alert. An agent session is single-player and ephemeral.
+
+**The reframe (the mature stance): MCP is distribution, not replacement, and Expliq already built the door.** Epic 20 shipped the MCP Server Door. So it is not "Expliq vs Claude-Code-via-MCP." It is: Expliq is **also** reachable from Claude Code via MCP, and it retains value because **behind the MCP tool sits the rubric + the longitudinal state + the deterministic score**, which a raw n8n-MCP session cannot reconstruct in one shot. `get_riskiest_automations` exposed to an agent is good distribution; the value lives behind the tool, not in the tool.
+
+**The honest concession (what the MCP threat actually tells us: segment, not existence).** For a **solo technical n8n user wanting a one-time spot-check**, Claude-Code-via-MCP genuinely IS enough and Expliq adds little. So the threat does not refute Expliq's existence; it sharpens its **segment and shape**: the defensible user is the team / org / non-dev stakeholder + continuous monitoring, NOT the solo dev doing an ad-hoc check. This aligns with, and tightens, the portfolio-first lock: lead with the surfaces an agent session cannot be (shared, persistent, deterministic, non-technical-readable).
+
+**Portfolio meta-point.** For the n8n AI Product Builder application, having *reasoned through this exact tension* and deliberately invested in the durable layers (deterministic risk engine, delta/state, accessible surface, MCP door as distribution) instead of a wrapper IS the senior product-thinking signal a reviewer wants to see. The threat, named and answered, is itself an asset.
+
+**Net:** does not overturn the Section-14 lock; stress-tests and strengthens it. The v1 spine (F1 + F2 + F5 core, F4 canvas, F7 wow) holds, with the durability argument now explicit: F2's comprehension is the commodity-adjacent hook, F5's deterministic risk + the longitudinal state + the non-agent surface are what MCP cannot eat.
+
+### Open
+31. Should the v1 demo explicitly *show* the brain/hands division (Expliq's deterministic risk verdict consumed FROM Claude Code via the Epic-20 MCP door) as a deliberate "we are the durable layer the agent calls" narrative beat, rather than hiding it? It would turn the bear-case into a demo strength.
+32. Does the "solo-dev = MCP is enough, team/non-dev = Expliq" segmentation get stated in the product framing, or stay an internal strategy note?
+
+## 17. The "homeless agent output" angle: Expliq re-derived from the output side (2026-06-04)
+
+A second, independent path to the same conclusion as Section 16, arrived at from the OUTPUT side instead of the reasoning side. Provoked by a concrete observation (Per): when you use the n8n MCP in Claude Code to surface your "most critical automations" (criticality JUDGED BY THE AGENT, which n8n cannot compute), the verdict is HOMELESS. It lands as a chat blob or a JSON file, with no fitting, persistent, visual home. The mcp-ui project literally names this "the text wall." Per's instinct: why is there no generic "storage/visualization MCP" that auto-generates a fitting view of arbitrary output, and is Codex Sites (launched 2026-06-02) that?
+
+Market finding (full research: `Dev/_resources/homeless-agent-output-viz-storage-mcp-research-2026-06-04.md`): **no generic auto-fitting viz/storage MCP exists**, and it is unsolved BY DESIGN, not by lag. Every shipped approach pushes the "what view fits this?" decision onto a human: the SERVER AUTHOR (MCP Apps, the official 2026-01-26 extension), the DEVELOPER'S CATALOG (json-render / Thesys C1 / Google A2UI), or the PROMPT each run (vibe-coding builders: Codex Sites, Lovable, v0). The reason: a FITTING (not generic table/chart) view of "critical automations" requires knowing what an automation is, what "critical" means here, and how a risk verdict should look. That is domain knowledge.
+
+**Load-bearing conclusion for Expliq: the moment the view must FIT, it needs domain knowledge, which is exactly what a purpose-built product encodes.**
+- A one-shot vibe-coded app (Codex Sites / Lovable / v0) re-derives the domain from your prompt each run and freezes a snapshot. Genuinely useful for "I need to SEE this verdict now", and genuinely NOT a product (no durable opinion about what "critical" means; you re-supply it every time).
+- Expliq encodes the domain opinion ONCE (the criticality/risk model `risk-engine.ts`, the estate schema, the fitting view) and keeps it alive across runs. That reusable domain opinion is the thing the generic tools structurally refuse to hold.
+
+This is the same brain/hands + durable-layer argument as Section 16, entered from the other end. Section 16: MCP commoditizes the REASONING layer (Expliq is the durable layer behind the tool). Section 17: the AUTO-FITTING-VIEW layer is also un-genericizable without domain knowledge (Expliq is the product that holds it). Both converge on one frame: **n8n MCP = raw data; the agent = the judgment; Expliq = the persistent, fitting, shareable home for that judgment.**
+
+Concrete buildable architecture (turns the bear-case into a demo beat): Expliq's Epic-20 MCP door exposes not just a READ tool (`get_riskiest_automations`) but a WRITE/STORE tool (`pin_to_dashboard(...)`). An agent in Claude Code computes criticality over the n8n estate and PUSHES it into Expliq's persistent visual dashboard. (Throwaway-end variant for contrast: drive a Lovable-MCP / v0-Platform-API generation instead; that is the disposable end, Expliq is the durable end.)
+
+White space worth noting: the research found NO VC-funded pure-play whose one-liner is "the persistent home for homeless agent output" (closest pure-plays, Thesys / CopilotKit, are GenUI infrastructure; the strongest realizations are inside incumbents, Anthropic / OpenAI / Google). Treat as a blind spot, not a confirmed absence, but it is the niche this instinct points at.
+
+### Open
+33. Add `pin_to_dashboard` (agent-writes-a-fitting-view) to the Epic-20 MCP door as a deliberate demo beat ("the agent computes risk and pins it into Expliq's persistent dashboard"), or keep the door read-only?
+34. Does the demo narrate the "homeless output to fitting home" story explicitly (a vivid, current framing a reviewer will recognize from the 2026 GenUI / MCP-Apps discourse)?
+
+## 18. Dashboard vs Product: is Expliq commoditizable by vibe-coding? (2026-06-04)
+
+The hardest identity question yet, following Section 17 to its uncomfortable end (pushed by Per).
+
+**Concession first (a weak argument dropped):** "Expliq persists, the vibe-coded app does not" is FALSE. A Lovable-built app is persistent, hosted, live-data-capable (prod URL + Postgres). Persistence is NOT a differentiator; drop it. What survives as the ONLY real differentiator: whether Expliq has domain functionality deep enough that an agent + a vibe-coding builder (Lovable / v0) cannot easily reproduce it in a loop.
+
+**Core diagnosis (Per's Figma / GitHub / Linear / Slack / Stripe point, sharpened):** those products share a trait Expliq currently lacks. They are systems of ACTION and RECORD that hold canonical state existing only there: you create designs, commit code, move issues, send messages, move money. Work HAPPENS there; the data is BORN there. A DASHBOARD reflects state that lives elsewhere. Expliq's data lives in n8n; Expliq reflects it and adds a judgment layer. So as a pure comprehension/risk dashboard, **Expliq is thin, and a thin dashboard is exactly what an agent can now vibe-code on demand.** This is the correct diagnosis, not a problem to wave away.
+
+**The "raised floor":** before vibe-coding, "a decent governance dashboard" was a product. In 2026 a decent dashboard is self-service table-stakes a user can generate. Expliq must clear a HIGHER bar (functional depth) just to be worth choosing over DIY.
+
+**Constructive path: from view to system-of-record.** For Expliq to be more than a dashboard, it must hold governance STATE born in Expliq, absent from n8n, not derivable from the n8n data:
+- ownership assignments, sign-offs, reviewed/approved status
+- risk acceptances (this risk is known and accepted, by whom, when)
+- intent declarations (this workflow SHOULD do X) + drift detection against actual behavior
+- remediation tracking, deprecation decisions
+
+The data lives in n8n; the DECISIONS live only in Expliq. An agent can pull the data and form a judgment, but it cannot manufacture the accumulated human decisions on top, because they are nowhere in the data. The judgment + view are the hook; the held decisions (and any actions taken on the estate) are the functional identity, the un-vibe-codeable core.
+
+**Honest tension (do not bury):** this same decision/governance layer is exactly what Per's own earlier demand research rated lukewarm: governance-as-headline = vitamin (Section 0); F9 ownership/escalation = "light; painkiller only with enforcement" (Section 11). So the move that grants functional identity points straight into the enterprise-process / vitamin zone flagged as demand-soft. The thing that makes it a product is also the thing that most sharply raises the demand question.
+
+**"Would a user DIY a dashboard if a very good Expliq exists?"** Not independent; resolves into the diagnosis above. If Expliq is genuinely deep: no, DIY is friction and you must know what good looks like, so the ready-made wins. If Expliq is just a dashboard: "a very good one" is no moat, because the vibe-coded version is nearly as good for the one-off. You beat vibe-coding only through depth that makes DIY not worth it.
+
+**Strategic consequence:** this hits the Section-14 portfolio-first lock directly. A thin comprehension/risk dashboard is a weaker 2026 showcase than when the lock was set, because the floor rose. The portfolio bar is now either (a) a dashboard with real functional depth (system-of-record), or (b) a different artifact entirely.
+
+**The fork this forces (decision, NOT decided):**
+- **Bet A, Expliq as a standing product.** Within it, the only version that survives the vibe-coding floor is **Bet A-prime: Expliq as a system-of-record for governance decisions/state (and/or actions on the estate), not a dashboard.** Functional identity via held decisions n8n cannot hold. Risk: the demand-soft governance-process zone.
+- **Bet B, the agent-orchestration artifact.** Not Expliq-the-app, but "Claude Code orchestrating n8n MCP + a vibe-coding builder MCP (Lovable / v0 Platform API) to generate a fitting estate-view on demand from intent + raw data, with no glue code." The product shown is the AGENT'S CAPABILITY to compose tools and turn intent + data into a deployed fitting artifact. This is the multi-MCP-agent-orchestration showcase (fulfils the existing `_TODO` MCP-composition demo), arguably more 2026-state-of-the-art and more on-message for an n8n AI Product Builder application. Per's "on a lighter level that is what Codex Sites do" maps here; the impressive, agent-driven version needs Lovable/v0 (agent-drivable), not Codex Sites (no agent-to-agent API).
+
+Bet B can consume Bet A's data; not exclusive, but as the showcase SPINE they are different bets.
+
+### Open
+35. Does Expliq pursue functional identity as a system-of-record (Bet A-prime: hold ownership / sign-offs / risk-acceptances / intent + drift / remediation), accepting the demand-soft governance-process risk?
+36. Or is the honest 2026 portfolio spine Bet B (the multi-MCP agent-orchestration demo), with the dashboard demoted to a generated artifact rather than the product?
+37. Synthesis option: Bet B is the wow-demo (agent generates the fitting view live) AND Bet A-prime is the backbone (Expliq holds the decisions the generated view cannot), so the demo shows BOTH the agent building the view and Expliq holding what the view can't.

@@ -4,48 +4,55 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: "Agent Simulation" standalone product idea (agent-eval, NOT Expliq)
+# Handoff: Expliq defensibility in the agent era + standalone agent-session art/map idea
 
-**Generated**: 2026-06-03 ·  **Branch**: `main` ·  **Status**: Ready for next session
+**Generated**: 2026-06-04 18:07  ·  **Branch**: main  ·  **Status**: Ready for next session
 
-> **Read this first:** this whole session was a STANDALONE product-thinking thread, NOT Expliq. It ran in this repo only for research-adjacency. **The work lives in the Dev VAULT repo** (`Dev/_resources/`, separate repo, no remote), and the **source of truth is the concept file there.** This `_HANDOFF.md` overwrote the prior Expliq-identity handover (recoverable in git history, commit `9d03458`). Cross-repo anchor = the memory entry `project_agent_simulation_nocode_idea` (loads in any session).
+> This was a conceptual + research + capture session, NOT a build session. No code touched, no half-finished work. Everything is committed.
 
 ## Repo Snapshot
-- **Branch**: `main` (ahead 0, behind 0 of `origin/main`)
-- **HEAD**: `e54e61a` — docs: Expliq identity re-examination ...
-- **Working tree (expliq-mvp)**: clean (0 untracked / 0 modified / 0 staged), apart from this `_HANDOFF.md`.
-- **Stash**: 1 (old, pre-existing, unrelated).
-- **NOTE — the session's output is in the VAULT repo `C:/Users/perpa/Dev` (no remote), committed there this session:** `_resources/agent-eval-idea-concept-and-decisions.md` (new), `_resources/agent-eval-simulation-nocode-whitespace-research-2026-06-02.md` (new), `_resources/how-maxim-ai-works-mechanics-2026-06-02.md` (new), `_resources/_research-index.md` (modified).
+
+> Script-collected at handover time (Step 2a). Source of truth, do not paraphrase. /pickup compares against fresh git.
+
+- **Branch**: `main` (ahead 1, behind 0 of `origin/main`)
+- **HEAD**: `6f326a9` (docs: offering exploration sections 16-18)
+- **Working tree**: 0 untracked, 0 modified, 0 staged (clean apart from this `_HANDOFF.md`, which the handover commits + pushes)
+- **Stash**: 1 entry (old, pre-existing, unrelated: "session wip: specs/env/seed parked for epic-18 switch")
+- Expected benign drift at next /pickup: the handover commit + push moves HEAD and brings ahead to 0. Not real work-drift.
 
 ## Goal
-Define what the standalone "Agent Simulation" idea actually IS, as an ambitious / modern PORTFOLIO DEMO for an n8n Product-Builder application (not a market-validated product).
+
+Build a credible portfolio for an n8n AI Product Builder application. This session: stress-test what Expliq can defensibly BE in the agent era, and explore a standalone "agent-session as a visual map" idea as possible portfolio spice.
 
 ## Current State
-- **Idea crystallized** (after many reframes): a capability for Claude (agent-to-agent) to **build-and-PROVE an agentic artifact from intent** — generate test cases, run, LLM-judge, derive an improved system prompt, iterate. "`skill-build` generalized." Consumer = Claude via MCP, no human UI, no hand-built dataset.
-- **Floor + competitors verified-current (2026-06-03):** n8n native Evaluations = the floor — dataset-driven, **no** auto-gen / simulation / optimize-loop; turnkey AI judge; runs the REAL WF (not a sandbox), side-effects are the user's manual problem. Maxim = ADJACENT (HAS a prompt-optimize loop BUT Maxim-hosted-prompts + dataset-required, no external/n8n, no write-back). Voiceflow = DIFFERENT (CLI/YAML, in-platform conversational only).
-- **Differentiation = operating model, NOT the engine** (engine is commoditized: LangWatch/promptfoo/Maxim). The wedge = **external n8n agent + zero-dataset/all-LLM + write-back into the live node**, plus the side-effect-free **auto-mock twin** (Path B) that n8n lacks.
-- **Product shape:** NOT just a skill ("Claude could do it" but does rigorous scaled eval poorly + the LLM-calls are external) → **skill + offloaded harness**; the harness is the substance.
+
+- All session output captured + committed. **expliq-mvp `6f326a9`** = offering-exploration Sections 16-18. **Vault `e44e551`** (separate repo, no remote) = 3 research notes + research-index.
+- 3 vault research notes (all 2026-06-04, in `Dev/_resources/`): MCP apps/UI landscape; homeless-agent-output viz/storage MCP; agent-session visual-map art (2 passes).
+- Standalone art/map idea recorded as memory `project_agent_session_art_map_idea` + MEMORY.md pointer (sibling to the agent-eval idea, explicitly NOT Expliq).
+- Working tree clean; nothing in flight.
 
 ## Key Decisions
+
 | Decision | Rationale |
 |----------|-----------|
-| Standalone, NOT Expliq | different object + capability; lives in the vault, runs here only for research-adjacency |
-| Purpose = portfolio demo, not product | demand-gate + judge-reliability re-weight to design considerations, not blockers |
-| Consumer = Claude via MCP (agent-to-agent), not a human UI | kills the "no-code-builder UI" framing |
-| Differentiation = operating model, not the eval engine | engine commoditized; novelty = autonomous agent-to-agent + zero-dataset + write-back |
-| "skill + harness", not skill-alone | Claude has the primitives but does rigorous eval poorly + external LLM-calls must be offloaded |
+| Expliq's defensibility = the durable layers it ACCUMULATES (system-of-record: ownership / sign-offs / risk-acceptances / intent + deterministic risk verdicts + history), not the reasoning and not the view. | MCP commoditizes the reasoning layer; vibe-coding commoditizes the dashboard. (offering doc Sections 16-18) |
+| The product-test in the agent era = PROXIMITY (feature-of-their-product vs a domain-product they won't enter) + ACCUMULATION (what a fresh agent can't reproduce), NOT build-cost or agent-cleverness. | Hit this same wall 4x this session; it is the unlock for "is X a product". |
+| The art/map idea is a STANDALONE portfolio artifact, NOT a product, NOT Expliq. If built: restrained provocation-with-thesis; sherlock-defense = platform-neutral + authored aesthetic. | Pure-agent toys get sherlocked and aren't products; "max agentic" would HURT the application (the n8n job ad screens for "knowing what should/should not be built"). |
+| Per will do BOTH Bet A and Bet B for the portfolio. | His stated choice this session. |
 
 ## Open Questions / Pending
-- **THE cascading decision: goal-lens Demo vs Product** → resolves **Path A** (isolated-LLM-sim, substrate-agnostic, lighter, prior-art-close) vs **Path B** (n8n twin-sim + tool-mocking, n8n-coupled, higher-fidelity, more novel + on-thesis). Demo → B; substrate-agnostic Product → A.
-- Q3 intent-passing · Q4 judge-reliability framing · Q5 demo wow-moment · Q6 name · Q7 eval-brain in n8n vs code · Q8 form (skill / MCP / subagent).
-- **Empirical test pending:** does Claude Code + a skill alone run a rigorous loop, or does it need the harness? (test on the renamed triage WF).
-- 1 old stash (pre-existing, unrelated).
+
+- **Expliq fork** (offering doc Section 18, OQ 35-37): Bet A-prime (system-of-record), Bet B (multi-MCP agent-orchestration demo), or the synthesis. Per said "both", so this needs scoping + sequencing, not choosing.
+- **Art/map**: build or set aside; if build, which framing (art-statement vs platform-neutral navigator) and the iconic-vs-Lupi style tension. Parked in memory `project_agent_session_art_map_idea`.
+- Possible **feedback memory** for the "product-test in the agent era" trap (offered, not yet confirmed by Per).
+- Old **stash** (1, pre-existing, unrelated) still parked. Resolve-condition: drop once the epic-18 env/seed WIP is confirmed obsolete. (explicit keep)
 
 ## Next Step
-Open the vault concept file `Dev/_resources/agent-eval-idea-concept-and-decisions.md` → section **"The strategic fork (Path A vs Path B)"**, and decide the **goal-lens (Demo vs Product)** with Per. That one decision cascades to Path A/B, the n8n-coupling, and skill-vs-harness.
+
+Ask Per which single thread to take from exploration into actual build first: (a) Expliq v1 spine (headline product), (b) Bet B multi-MCP agent-orchestration demo, or (c) the standalone art/map artifact (secondary). Then scope only that one.
 
 ## References
-- **Source of truth (vault):** `Dev/_resources/agent-eval-idea-concept-and-decisions.md` (concept + full evolution + decisions + Q3-Q8).
-- **Evidence (vault):** `agent-eval-simulation-nocode-whitespace-research-2026-06-02.md` (market/competitor, §9/§10 Maxim+Voiceflow verified, § Nate-Herk-video + live n8n-floor check), `how-maxim-ai-works-mechanics-2026-06-02.md`.
-- **Memory:** `project_agent_simulation_nocode_idea` (standalone, cross-repo pointer); method lesson `feedback_adversarial_research_pass`.
-- **Prior Expliq-identity handover:** git history, commit `9d03458` (this file overwrote it).
+
+- **Files**: `specs/patches/expliq-offering-exploration.md` (Sections 16-18 new); vault `_resources/mcp-apps-ui-landscape-research-2026-06-04.md`, `_resources/homeless-agent-output-viz-storage-mcp-research-2026-06-04.md`, `_resources/agent-session-visual-map-art-research-2026-06-04.md`; `per-paulsen-cv/applications/n8n-ai-product-builder/from-n8n/linkedin-job-ad.md` (the judgment screen).
+- **Memory**: `project_agent_session_art_map_idea` (standalone), `project_expliq_core_features_rethink`, `project_agent_simulation_nocode_idea` (sibling standalone).
+- **Recent commits**: `6f326a9` (offering 16-18), `ac6eaaa` (prior handover), `e54e61a` (Expliq identity re-examination).

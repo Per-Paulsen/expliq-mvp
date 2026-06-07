@@ -4,55 +4,60 @@ tags:
   - status/ephemeral
 ---
 
-# Handoff: Expliq defensibility in the agent era + standalone agent-session art/map idea
+# Handoff: Expliq direction converged on the Human-Agent Inbox (business-case system-of-record)
 
-**Generated**: 2026-06-04 18:07  ·  **Branch**: main  ·  **Status**: Ready for next session
+**Generated**: 2026-06-07 ~late  ·  **Branch**: main  ·  **Status**: Ready for next session
 
-> This was a conceptual + research + capture session, NOT a build session. No code touched, no half-finished work. Everything is committed.
+> This was a conceptual + research + design session. No app code touched. Output is docs + research.
 
 ## Repo Snapshot
 
-> Script-collected at handover time (Step 2a). Source of truth, do not paraphrase. /pickup compares against fresh git.
+> Script-collected at handover time. Source of truth. /pickup compares against fresh git.
 
-- **Branch**: `main` (ahead 1, behind 0 of `origin/main`)
-- **HEAD**: `6f326a9` (docs: offering exploration sections 16-18)
-- **Working tree**: 0 untracked, 0 modified, 0 staged (clean apart from this `_HANDOFF.md`, which the handover commits + pushes)
-- **Stash**: 1 entry (old, pre-existing, unrelated: "session wip: specs/env/seed parked for epic-18 switch")
-- Expected benign drift at next /pickup: the handover commit + push moves HEAD and brings ahead to 0. Not real work-drift.
+- **Branch**: `main` (ahead 0, behind 0 of `origin/main`)
+- **HEAD**: `047d95e` (docs: session handover 2026-06-04) , moves +2 after this handover's commits
+- **Working tree (pre-commit)**: 1 untracked, 1 modified, 0 staged , both committed in Step 5 below
+- **Stash**: 1 entry (old, pre-existing, unrelated: epic-18 env/seed WIP)
+- **Uncommitted paths** (this expliq-mvp repo):
+  - Docs: `specs/human-agent-inbox-design.md` (untracked, new), `specs/patches/expliq-offering-exploration.md` (modified, §19-29 appended)
+  - Memory / Skills / Config / Code / Suspicious / Other: —
+- **Note (separate repo):** 2 research files + index were written in the Dev VAULT (`Dev/_resources/`), uncommitted there, but persisted on disk + indexed.
 
 ## Goal
 
-Build a credible portfolio for an n8n AI Product Builder application. This session: stress-test what Expliq can defensibly BE in the agent era, and explore a standalone "agent-session as a visual map" idea as possible portfolio spice.
+Decide + design Expliq's product direction for the n8n AI Product Builder portfolio. This session converged it on the **Human-Agent Inbox**: a business-case system-of-record where agents/automations and their accountable humans collaborate.
 
 ## Current State
 
-- All session output captured + committed. **expliq-mvp `6f326a9`** = offering-exploration Sections 16-18. **Vault `e44e551`** (separate repo, no remote) = 3 research notes + research-index.
-- 3 vault research notes (all 2026-06-04, in `Dev/_resources/`): MCP apps/UI landscape; homeless-agent-output viz/storage MCP; agent-session visual-map art (2 passes).
-- Standalone art/map idea recorded as memory `project_agent_session_art_map_idea` + MEMORY.md pointer (sibling to the agent-eval idea, explicitly NOT Expliq).
-- Working tree clean; nothing in flight.
+- **New design doc:** `specs/human-agent-inbox-design.md` , the forward design surface (vision, moat, Notary, MCP-native surface, dynamic roles, AR/Dunning end-to-end, "Expliq agentic?", borrow/gap, delivery push/pull constraint, routines-as-tenant, open questions).
+- **Offering-exploration extended** (`specs/patches/expliq-offering-exploration.md`) with §19-29: the full arc , §19 HR-for-agents reframe; §20 closed (Workday/Entra); §21-22 work-routing wedge; §23 bidirectional; §24-26 closed (Linear/Jira/MS cross-platform); §27 bar-test verdict; §28 cleaned Human-Agent-Inbox vision + methodological corrections; §29 analogue borrow/gap.
+- **Research this session:** 2 deep-research Workflows + 3 targeted Workflows + 1 dig. Two vault files: `_resources/agent-workforce-hr-system-of-record-research-2026-06-07.md`, `_resources/agent-work-routing-handoff-layer-research-2026-06-07.md`; `_resources/_research-index.md` updated.
+- **Verified (claude-code-guide):** no push from an MCP server into an idle Claude client. Delivery = doorbell (Slack/email/mobile) + answering = pull (MCP/own surface). Claude routines = headless webhook-fired cloud agents; reach humans only via side-effects.
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| Expliq's defensibility = the durable layers it ACCUMULATES (system-of-record: ownership / sign-offs / risk-acceptances / intent + deterministic risk verdicts + history), not the reasoning and not the view. | MCP commoditizes the reasoning layer; vibe-coding commoditizes the dashboard. (offering doc Sections 16-18) |
-| The product-test in the agent era = PROXIMITY (feature-of-their-product vs a domain-product they won't enter) + ACCUMULATION (what a fresh agent can't reproduce), NOT build-cost or agent-cleverness. | Hit this same wall 4x this session; it is the unlock for "is X a product". |
-| The art/map idea is a STANDALONE portfolio artifact, NOT a product, NOT Expliq. If built: restrained provocation-with-thesis; sherlock-defense = platform-neutral + authored aesthetic. | Pure-agent toys get sherlocked and aren't products; "max agentic" would HURT the application (the n8n job ad screens for "knowing what should/should not be built"). |
-| Per will do BOTH Bet A and Bet B for the portfolio. | His stated choice this session. |
+| Direction = **Human-Agent Inbox** (business-case SoR), supersedes the §14 comprehension/risk-dashboard as the headline | The org-graph/HR (§20) and work-routing-as-mechanism (§24-26) framings are being closed by incumbents; the business-case-organized collaboration home + Expliq's pre-computed context is the open, durable layer |
+| Moat = the **business-case system-of-record** (structured, auditable decision log born in Expliq) | NL surface indispensable; structured auditable record essential. "Expliq as Notary" = LLM distills the NL exchange into the decision log |
+| Expliq core = **NON-agentic** (SoR + deterministic routing + the Notary LLM function) | Agency lives in the agents (n8n WFs, Claude routines = just another tenant); §16: be the durable deterministic layer |
+| Research = design **orientation**, NOT a verdict on a not-yet-built idea | Avoid the revealed-preference fallacy ("Slack users want Slack" != no demand); research finds only what exists |
 
 ## Open Questions / Pending
 
-- **Expliq fork** (offering doc Section 18, OQ 35-37): Bet A-prime (system-of-record), Bet B (multi-MCP agent-orchestration demo), or the synthesis. Per said "both", so this needs scoping + sequencing, not choosing.
-- **Art/map**: build or set aside; if build, which framing (art-statement vs platform-neutral navigator) and the iconic-vs-Lupi style tension. Parked in memory `project_agent_session_art_map_idea`.
-- Possible **feedback memory** for the "product-test in the agent era" trap (offered, not yet confirmed by Per).
-- Old **stash** (1, pre-existing, unrelated) still parked. Resolve-condition: drop once the epic-18 env/seed WIP is confirmed obsolete. (explicit keep)
+- **The Business-Case DATA STRUCTURE is unspecified** (this is the Next Step).
+- Non-dev owner's answer surface besides MCP/Claude Code (web/voice/mobile).
+- Demand deliberately a portfolio bet, not gated.
+- Old stash (1, pre-existing, unrelated) still parked.
+- Vault research files uncommitted in the Dev vault (separate repo); persist on disk + in `_research-index.md`.
 
 ## Next Step
 
-Ask Per which single thread to take from exploration into actual build first: (a) Expliq v1 spine (headline product), (b) Bet B multi-MCP agent-orchestration demo, or (c) the standalone art/map artifact (secondary). Then scope only that one.
+Sketch the **Business-Case data structure** in `specs/human-agent-inbox-design.md`: fields, entry types, the decision-log schema (raw NL + structured fact + role + state + precedent), borrowing Linear's AgentSession/AgentActivity shape and gotoHuman's typed-card contract.
 
 ## References
 
-- **Files**: `specs/patches/expliq-offering-exploration.md` (Sections 16-18 new); vault `_resources/mcp-apps-ui-landscape-research-2026-06-04.md`, `_resources/homeless-agent-output-viz-storage-mcp-research-2026-06-04.md`, `_resources/agent-session-visual-map-art-research-2026-06-04.md`; `per-paulsen-cv/applications/n8n-ai-product-builder/from-n8n/linkedin-job-ad.md` (the judgment screen).
-- **Memory**: `project_agent_session_art_map_idea` (standalone), `project_expliq_core_features_rethink`, `project_agent_simulation_nocode_idea` (sibling standalone).
-- **Recent commits**: `6f326a9` (offering 16-18), `ac6eaaa` (prior handover), `e54e61a` (Expliq identity re-examination).
+- **Files**: `specs/human-agent-inbox-design.md`; `specs/patches/expliq-offering-exploration.md` §16-29
+- **Vault research**: `Dev/_resources/agent-workforce-hr-system-of-record-research-2026-06-07.md`, `Dev/_resources/agent-work-routing-handoff-layer-research-2026-06-07.md`, `_research-index.md`
+- **Memory**: `project_expliq_core_features_rethink` (Expliq direction)
+- **Recent commits**: `047d95e`, `6f326a9`, `ac6eaaa`

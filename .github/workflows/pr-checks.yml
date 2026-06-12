@@ -2,8 +2,8 @@ name: PR Checks
 
 # Thin caller for the central reusable workflows in Per-Paulsen/ci-workflows.
 # Logic lives centrally; this file just references it. Update the central repo and
-# this repo picks it up on the next run. Setup: ANTHROPIC_API_KEY repo secret +
-# the Claude GitHub App (https://github.com/apps/claude).
+# this repo picks it up on the next run. Setup: just the ANTHROPIC_API_KEY repo secret
+# (the Claude GitHub App is not needed for the automatic claude-review).
 
 on:
   pull_request:

@@ -119,6 +119,19 @@ Run a single test file: `npx vitest run src/__tests__/home.test.tsx`
 
 **Review files:** `specs/ind-epic-review.md` (within-epic), `specs/cross-epic-review.md` (cross-epic consistency).
 
+## E2E / Real-Data Verification (mandatory for every epic + behavior-changing patch)
+
+After automated checks pass, verify the full stack with real data from the Fairtix n8n instance. This catches data-shape mismatches between LLM output and UI expectations. Pick the method by what the change builds (both may combine):
+
+**A) UI changes** — Playwright browser verification with the real pipeline:
+- Pre-flight: `npx kill-port 3000` before starting. **NEVER** `taskkill /IM node.exe /F` (kills the Playwright MCP server). If the dev server fails to compile (Turbopack panic, CSS errors), `rm -rf .next` and retry once.
+- Steps (single browser session): start `npm run dev` in the background → load Playwright via ToolSearch (`+playwright navigate`) → run the real pipeline: navigate to `http://localhost:3000/login`, log in as `seed-real@expliq.dev` / `SeedTest123!`, navigate to `/settings`, click "Sync & Analyze" and wait for completion (runs the full n8n sync + LLM analysis pipeline against the real Fairtix instance) → verify the pages affected by the epic render correctly with real pipeline data, screenshot to the results file → **always** close the browser (`mcp__plugin_playwright_playwright__browser_close`).
+- Cleanup (always, pass or fail): close browser + `npx kill-port 3000`.
+
+**B) Backend-only changes** — write a permanent verification script that tests the logic against real database data.
+
+> Migrated 2026-06-26 from the former project-local `/dev` + `/patch` skill copies, removed in favor of the central `per-claude-skills` plugin. The plugin provides the generic TDD + E2E mechanics; the steps above are the expliq-specific run details (Fairtix Sync & Analyze) the generic skills do not carry.
+
 ## Workflow Rules
 
 - **Do not modify spec files.** If unclear, ask.
